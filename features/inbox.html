@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart AI & Human Inbox | Omkun Chat Features</title>
+    <meta name="description" content="Manage all your WhatsApp customer conversations in one powerful inbox. Seamlessly switch between Gemini AI automation and live human agents.">
+    <meta name="keywords" content="WhatsApp Inbox, Shared Team Inbox, WhatsApp AI Bot, Round Robin Chat Routing, Omkun Chat Features">
+    <meta name="author" content="Omkun Chat Inc.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://chat.omkun.com/features/inbox.html">
+
+    <link rel="icon" type="image/png" href="../images/chat-icon.png"> 
+    <link rel="apple-touch-icon" href="../images/chat-icon.png">
+    
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://chat.omkun.com/features/inbox.html">
+    <meta property="og:title" content="Omkun Chat - Smart AI & Team Inbox">
+    <meta property="og:description" content="The ultimate shared inbox for WhatsApp. Let AI handle the FAQs, and your team handle the closing.">
+    <meta property="og:image" content="https://chat.omkun.com/images/preview.jpg"> 
+    <meta name="twitter:card" content="summary_large_image">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../app/css/theme.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        primary: '#4f46e5', /* Indigo 600 */
+                        whatsapp: '#25D366',
+                        dark: '#0F172A',
+                        omkun: {
+                            blue: '#1E40AF',
+                            orange: '#F97316'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        
+        @keyframes float-wa {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+        .wa-float { animation: float-wa 3s ease-in-out infinite; }
+    </style>
+</head>
+<body class="bg-[#F8FAFC] text-slate-800 antialiased overflow-x-hidden flex flex-col min-h-screen">
+
+    <a href="https://wa.me/918800020711?text=Hi%20Omkun Chat,%20I%20want%20to%20see%20a%20demo!" target="_blank" class="fixed bottom-6 right-6 z-50 flex items-center group wa-float">
+        <div class="mr-3 bg-white px-4 py-2 rounded-xl shadow-lg border border-slate-100 text-sm font-bold text-slate-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:block">
+            Try our Live AI Bot! 
+        </div>
+        <div class="w-14 h-14 bg-whatsapp rounded-full flex items-center justify-center text-white text-3xl shadow-xl shadow-green-500/30 hover:scale-110 transition-transform">
+            <i class="fa-brands fa-whatsapp"></i>
+        </div>
+    </a>
+
+    <nav class="fixed w-full z-40 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-14">
+                <a href="../index.html" class="flex items-center gap-2 cursor-pointer group">
+                    <img src="../images/chat.png" alt="Omkun Chat" class="h-8 w-auto object-contain group-hover:scale-105 transition">
+                </a>
+                
+                <div class="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-600">
+                    <a href="../index.html#features" class="hover:text-omkun-blue transition">Features</a>
+                    <a href="../index.html#use-cases" class="hover:text-omkun-blue transition">Solutions</a>
+                    <a href="../index.html#comparison" class="hover:text-omkun-blue transition">Compare</a>
+                    <a href="../pricing.html" class="hover:text-omkun-blue transition">Pricing</a>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <a href="../app/login.html" class="hidden md:inline-block bg-omkun-blue hover:bg-blue-800 text-white px-5 py-1.5 rounded-lg text-sm font-bold transition shadow-sm">
+                        Start Free Trial
+                    </a>
+                    <button onclick="toggleMenu()" class="text-slate-700 hover:text-omkun-blue text-xl focus:outline-none p-1 md:hidden">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="menu-overlay" onclick="toggleMenu()" class="fixed inset-0 bg-slate-900/60 z-40 hidden backdrop-blur-sm transition-opacity opacity-0 pointer-events-none"></div>
+    
+    <div id="mobile-menu" class="fixed top-0 left-0 w-[80%] max-w-sm h-full bg-white z-50 shadow-2xl flex flex-col transition-transform duration-300 -translate-x-full">
+        <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+            <img src="../images/chat.png" alt="Omkun Chat" class="h-6 w-auto">
+            <button onclick="toggleMenu()" class="w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-500 flex items-center justify-center">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+
+        <div class="flex-grow overflow-y-auto p-4 text-sm font-semibold text-slate-700 space-y-1">
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-2 mb-2 px-2">Core Product</div>
+            <a href="inbox.html" class="block py-2 px-3 rounded-lg bg-blue-50 text-omkun-blue transition"><i class="fa-solid fa-inbox w-5"></i> Smart Inbox</a>
+            <a href="broadcast.html" class="block py-2 px-3 rounded-lg hover:bg-blue-50 hover:text-omkun-blue transition"><i class="fa-solid fa-bullhorn w-5 text-slate-400"></i> Broadcasts</a>
+            <a href="flow-builder.html" class="block py-2 px-3 rounded-lg hover:bg-blue-50 hover:text-omkun-blue transition"><i class="fa-solid fa-diagram-project w-5 text-slate-400"></i> Flow Builder</a>
+            <a href="crm.html" class="block py-2 px-3 rounded-lg hover:bg-blue-50 hover:text-omkun-blue transition"><i class="fa-solid fa-columns w-5 text-slate-400"></i> Kanban CRM</a>
+            <a href="orders.html" class="block py-2 px-3 rounded-lg hover:bg-blue-50 hover:text-omkun-blue transition"><i class="fa-solid fa-box-open w-5 text-slate-400"></i> Orders & Tickets</a>
+            
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-6 mb-2 px-2">Platform</div>
+            <a href="../platform/integrations.html" class="block py-2 px-3 rounded-lg hover:bg-slate-50 transition"><i class="fa-solid fa-plug w-5 text-slate-400"></i> Integrations</a>
+            <a href="../platform/api.html" class="block py-2 px-3 rounded-lg hover:bg-slate-50 transition"><i class="fa-solid fa-code w-5 text-slate-400"></i> Developer API</a>
+            <a href="../pricing.html" class="block py-2 px-3 rounded-lg hover:bg-slate-50 transition"><i class="fa-solid fa-tag w-5 text-slate-400"></i> Pricing</a>
+        </div>
+
+        <div class="p-4 border-t border-slate-100 bg-white">
+            <a href="../app/login.html" class="block w-full text-center bg-omkun-blue text-white py-2.5 rounded-lg font-bold hover:bg-blue-800 transition shadow-sm text-sm">
+                Login / Start Free
+            </a>
+        </div>
+    </div>
+
+    <main class="flex-grow pt-28 pb-16 px-4">
+        <div class="max-w-5xl mx-auto">
+            
+            <div class="text-center mb-16">
+                <span class="text-omkun-blue font-bold tracking-wider uppercase text-xs border border-blue-200 bg-blue-50 px-3 py-1 rounded-full">
+                    <i class="fa-solid fa-bolt mr-1"></i> Core Engine
+                </span>
+                <h1 class="text-4xl md:text-6xl font-black text-slate-900 mt-6 mb-6 tracking-tight">The Ultimate Hybrid Inbox</h1>
+                <p class="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto font-medium">Stop bouncing between apps. Manage 1,00,000+ customer chats effortlessly with a seamless blend of Gemini AI and your human sales team.</p>
+            </div>
+
+            <div class="bg-white p-2 md:p-4 rounded-3xl shadow-2xl border border-slate-200 mb-20 transform hover:scale-[1.01] transition-transform duration-500">
+                <img src="https://placehold.co/1200x650/F8FAFC/1E40AF?text=Omkun+Chat+Smart+Inbox+UI" alt="Smart Inbox UI Preview" class="rounded-2xl w-full border border-slate-100">
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 mb-20">
+                
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 hover:border-omkun-blue transition-colors group">
+                    <div class="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-headset text-2xl text-red-500"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-3">Seamless AI-to-Human Handoff</h3>
+                    <p class="text-slate-600 leading-relaxed">Let AI answer repetitive FAQs 24/7. When a customer explicitly asks for a human, the AI instantly pauses itself and triggers a visual alert (red badge) for your team to take over.</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 hover:border-omkun-blue transition-colors group">
+                    <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-filter text-2xl text-omkun-blue"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-3">Priority Views (Hot & Starred)</h3>
+                    <p class="text-slate-600 leading-relaxed">Cut through the noise. Filter thousands of chats instantly using tabs like <strong>'Hot Leads'</strong> 🔥, <strong>'Starred'</strong> ⭐, and <strong>'Needs Agent'</strong> to focus only on conversations that drive revenue.</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 hover:border-omkun-blue transition-colors group">
+                    <div class="w-14 h-14 bg-yellow-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-note-sticky text-2xl text-yellow-600"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-3">Private Internal Notes</h3>
+                    <p class="text-slate-600 leading-relaxed">Collaborate without leaving the chat. Leave private context notes (e.g., "Customer asked for a discount") right inside the thread. Customers can never see these notes.</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 hover:border-omkun-blue transition-colors group">
+                    <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-user-shield text-2xl text-emerald-600"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-3">Strict Role Permissions</h3>
+                    <p class="text-slate-600 leading-relaxed">Maintain tight security. Agents with the <code>'chat'</code> role can only see conversations assigned to them and cannot toggle AI settings, ensuring your AI logic remains safe.</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 hover:border-omkun-blue transition-colors group md:col-span-2">
+                    <div class="flex flex-col md:flex-row gap-6 items-center">
+                        <div class="flex-1">
+                            <div class="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-microphone-lines text-2xl text-purple-600"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-slate-900 mb-3">Full Rich Media & Voice</h3>
+                            <p class="text-slate-600 leading-relaxed">Communicate naturally. Send documents, images, and record live voice notes directly from your dashboard. We use high-speed AWS servers to ensure your files are delivered instantly without timeout errors.</p>
+                        </div>
+                        <div class="w-full md:w-1/3 flex justify-center">
+                            <div class="bg-slate-100 p-4 rounded-2xl border border-slate-200 flex items-center gap-3">
+                                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-slate-400"><i class="fa-solid fa-paperclip"></i></div>
+                                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-slate-400"><i class="fa-regular fa-face-smile"></i></div>
+                                <div class="w-10 h-10 bg-[#00A884] rounded-full flex items-center justify-center shadow-md text-white"><i class="fa-solid fa-microphone"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="bg-slate-900 rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
+                <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(white 1px, transparent 1px); background-size: 20px 20px;"></div>
+                <div class="relative z-10">
+                    <i class="fa-solid fa-lock text-4xl text-emerald-400 mb-4"></i>
+                    <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">End-to-End Encrypted Data</h2>
+                    <p class="text-slate-400 font-medium max-w-2xl mx-auto">Just like native WhatsApp, our inbox highlights End-to-End encryption. Messages flow directly through official Meta Cloud API endpoints, fully secured.</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 pt-16 pb-8 mt-auto">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12 text-sm">
+                
+                <div class="col-span-2 md:col-span-2 pr-4">
+                    <a href="../index.html" class="flex items-center gap-2 mb-4">
+                        <img src="../images/chat.png" alt="Omkun Chat" class="h-8 w-auto">
+                    </a>
+                    <p class="text-slate-500 mb-6 leading-relaxed">The native AI business operating system for WhatsApp. Built for modern teams who want to automate sales and support without restrictive seat limits.</p>
+                    <div class="flex gap-4">
+                        <div class="flex items-center gap-1.5 text-slate-600 font-bold bg-slate-50 px-2 py-1 rounded border border-slate-200 shadow-sm"><i class="fa-brands fa-meta text-blue-600"></i> Meta Partner</div>
+                        <div class="flex items-center gap-1.5 text-slate-600 font-bold bg-slate-50 px-2 py-1 rounded border border-slate-200 shadow-sm"><i class="fa-brands fa-google text-red-500"></i> Cloud</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-slate-900 mb-4 uppercase tracking-wider text-xs">Features</h4>
+                    <ul class="space-y-2 text-slate-500 font-medium">
+                        <li><a href="/inbox.html" class="text-omkun-blue font-bold">Smart AI Inbox</a></li>
+                        <li><a href="/crm.html" class="hover:text-omkun-blue transition">Kanban CRM</a></li>
+                        <li><a href="/broadcast.html" class="hover:text-omkun-blue transition">Bulk Broadcasts</a></li>
+                        <li><a href="/flow-builder.html" class="hover:text-omkun-blue transition">Flow Builder</a></li>
+                        <li><a href="/orders.html" class="hover:text-omkun-blue transition">Order System</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-slate-900 mb-4 uppercase tracking-wider text-xs">Platform</h4>
+                    <ul class="space-y-2 text-slate-500 font-medium">
+                        <li><a href="../pricing.html" class="hover:text-omkun-blue transition">Pricing</a></li>
+                        <li><a href="../platform/integrations.html" class="hover:text-omkun-blue transition">Integrations</a></li>
+                        <li><a href="../platform/api.html" class="hover:text-omkun-blue transition">Developer API</a></li>
+                        <li><a href="../platform/whatsapp-guidelines.html" class="hover:text-omkun-blue transition">WhatsApp Rules</a></li>
+                        <li><a href="../platform/status.html" class="hover:text-omkun-blue transition">System Status</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-slate-900 mb-4 uppercase tracking-wider text-xs">Company</h4>
+                    <ul class="space-y-2 text-slate-500 font-medium">
+                        <li><a href="../company/about.html" class="hover:text-omkun-blue transition">About Us</a></li>
+                        <li><a href="../company/blog.html" class="hover:text-omkun-blue transition">Blog & Resources</a></li>
+                        <li><a href="../company/contact.html" class="hover:text-omkun-blue transition">Contact Support</a></li>
+                        <li><a href="../legal/privacy.html" class="hover:text-omkun-blue transition">Privacy Policy</a></li>
+                        <li><a href="../legal/terms.html" class="hover:text-omkun-blue transition">Terms of Service</a></li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="border-t border-slate-200 pt-6 flex flex-col items-center justify-center text-xs text-slate-500 font-medium">   
+                <div class="mb-2">
+                    <a href="https://chat.omkun.com" class="inline-block hover:opacity-80 transition" target="_blank">
+                        <span class="text-slate-400">Powered by</span>
+                        <img src="../logo/omkun.png" alt="Omkun Chat" class="h-5 w-auto inline-block ml-1" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                        <span class="font-bold text-slate-700 hidden">Omkun.</span>
+                    </a>
+                </div>
+                <p>&copy; 2026 Omkun Chat Inc. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const overlay = document.getElementById('menu-overlay');
+            
+            if (menu.classList.contains('-translate-x-full')) {
+                menu.classList.remove('-translate-x-full');
+                menu.classList.add('translate-x-0');
+                overlay.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+                overlay.classList.add('opacity-100');
+                document.body.style.overflow = 'hidden';
+            } else {
+                menu.classList.remove('translate-x-0');
+                menu.classList.add('-translate-x-full');
+                overlay.classList.remove('opacity-100');
+                overlay.classList.add('hidden', 'opacity-0', 'pointer-events-none');
+                document.body.style.overflow = 'auto';
+            }
+        }
+    </script>
+</body>
+</html>

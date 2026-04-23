@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Login to Workspace - Chatkun | AI WhatsApp OS</title>
+    
+    <link rel="icon" type="image/png" href="logo/favicon.png"> 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .form-transition { transition: all 0.3s ease-in-out; }
+        .hidden-field { display: none; opacity: 0; transform: translateY(-10px); }
+        .visible-field { display: block; opacity: 1; transform: translateY(0); }
+        
+        /* Modern Background Animation */
+        .bg-animated {
+            background: linear-gradient(-45deg, #f8fafc, #eff6ff, #f0fdf4);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body class="bg-animated h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+
+    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-400/20 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-emerald-400/20 rounded-full blur-3xl"></div>
+
+    <div class="mb-8 z-10 text-center">
+        <a href="../index.html" class="inline-flex items-center gap-2 hover:scale-105 transition-transform">
+            <img src="logo/logo.png" alt="ChatKun Logo" class="h-10 w-auto shadow-sm rounded-lg bg-white p-1">
+            
+        </a>
+    </div>
+
+    <div class="bg-white/90 backdrop-blur-xl w-full max-w-md rounded-3xl shadow-2xl p-8 md:p-10 border border-slate-100 z-10 relative">
+        
+        <div class="text-center mb-8">
+            <span class="bg-blue-50 text-blue-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest border border-blue-100 shadow-sm" id="roleBadge">Owner & Agent Access</span>
+            <h2 id="pageTitle" class="text-2xl font-extrabold text-slate-900 mt-4 leading-tight">Welcome to Workspace</h2>
+            <p id="pageSubtitle" class="text-slate-500 text-sm mt-2 font-medium">Enter your credentials to securely sign in.</p>
+        </div>
+
+        <form id="authForm" onsubmit="window.handleAuth(event)" class="space-y-4">
+            
+            <div id="nameField" class="hidden-field form-transition">
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5 ml-1">Your Full Name</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <i class="fas fa-user text-slate-400"></i>
+                    </div>
+                    <input type="text" id="fullName" 
+                        class="w-full pl-10 pr-4 py-3.5 bg-slate-50 rounded-xl border border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium text-sm text-slate-800 shadow-sm"
+                        placeholder="e.g. Rahul Sharma">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5 ml-1">Work Email</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <i class="fas fa-envelope text-slate-400"></i>
+                    </div>
+                    <input type="email" id="email" required 
+                        class="w-full pl-10 pr-4 py-3.5 bg-slate-50 rounded-xl border border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium text-sm text-slate-800 shadow-sm"
+                        placeholder="name@company.com">
+                </div>
+            </div>
+
+            <div>
+                <div class="flex justify-between items-center mb-1.5 ml-1 mr-1">
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Password</label>
+                    <a href="#" id="forgotPass" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors">Forgot Password?</a>
+                </div>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <i class="fas fa-lock text-slate-400"></i>
+                    </div>
+                    <input type="password" id="password" required 
+                        class="w-full pl-10 pr-10 py-3.5 bg-slate-50 rounded-xl border border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium text-sm text-slate-800 shadow-sm"
+                        placeholder="••••••••">
+                    <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors">
+                        <i class="fas fa-eye" id="eyeIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-500/30 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 mt-4">
+                <span>Secure Sign In</span>
+                <i class="fas fa-shield-halved"></i>
+            </button>
+        </form>
+
+        <div class="my-6 flex items-center justify-center gap-3">
+            <div class="h-px bg-slate-200 flex-1"></div>
+            <span class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Or Access With</span>
+            <div class="h-px bg-slate-200 flex-1"></div>
+        </div>
+
+        <button onclick="window.handleGoogleLogin()" type="button" class="w-full bg-white border border-slate-200 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-50 transition-colors flex items-center justify-center gap-3 active:scale-[0.98] shadow-sm">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="h-5 w-5" alt="Google">
+            <span>Continue with Google</span>
+        </button>
+
+        <p class="text-center text-slate-600 text-sm mt-8 font-medium">
+            <span id="toggleText">New to ChatKun?</span> 
+            <button onclick="toggleMode()" class="text-blue-600 font-bold hover:underline ml-1" id="toggleBtn">Create Account</button>
+        </p>
+        
+        <div class="mt-6 text-center border-t border-slate-100 pt-5">
+            <p class="text-[10px] text-slate-400 font-medium leading-relaxed">
+                <i class="fa-solid fa-lock mr-1"></i> End-to-end encrypted login.<br>
+                By continuing, you agree to Chatkun's 
+                <a href="../legal/terms.html" class="text-slate-500 hover:text-blue-600 hover:underline transition font-bold">Terms</a> & 
+                <a href="../legal/privacy.html" class="text-slate-500 hover:text-blue-600 hover:underline transition font-bold">Privacy</a>.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // 🚀 NAYA: isLoginMode ko 'window' ke sath global banaya taaki auth.js ise access kar sake
+        window.isLoginMode = true;
+
+        // Toggle Login/Signup
+        function toggleMode() {
+            window.isLoginMode = !window.isLoginMode;
+            
+            const nameField = document.getElementById('nameField');
+            const pageTitle = document.getElementById('pageTitle');
+            const pageSubtitle = document.getElementById('pageSubtitle');
+            const submitBtn = document.getElementById('submitBtn');
+            const toggleText = document.getElementById('toggleText');
+            const toggleBtn = document.getElementById('toggleBtn');
+            const forgotPass = document.getElementById('forgotPass');
+            const roleBadge = document.getElementById('roleBadge');
+
+            if (window.isLoginMode) {
+                // Login Mode
+                nameField.className = 'hidden-field form-transition';
+                document.getElementById('fullName').removeAttribute('required'); 
+                
+                pageTitle.innerText = 'Welcome to Workspace';
+                pageSubtitle.innerText = 'Enter your credentials to securely sign in.';
+                submitBtn.innerHTML = '<span>Secure Sign In</span><i class="fas fa-shield-halved"></i>';
+                toggleText.innerText = "New to ChatKun?";
+                toggleBtn.innerText = 'Create Account';
+                forgotPass.style.display = 'block';
+                roleBadge.innerText = 'Owner & Agent Access';
+                roleBadge.className = 'bg-blue-50 text-blue-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest border border-blue-100 shadow-sm';
+            } else {
+                // Signup Mode
+                nameField.className = 'visible-field form-transition';
+                document.getElementById('fullName').setAttribute('required', 'true'); 
+                
+                pageTitle.innerText = 'Start 14-Day Trial';
+                pageSubtitle.innerText = 'No credit card required. Cancel anytime.';
+                submitBtn.innerHTML = '<span>Create Free Account</span><i class="fas fa-rocket"></i>';
+                toggleText.innerText = 'Already have an account?';
+                toggleBtn.innerText = 'Sign In';
+                forgotPass.style.display = 'none';
+                roleBadge.innerText = 'New Business Registration';
+                roleBadge.className = 'bg-emerald-50 text-emerald-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest border border-emerald-100 shadow-sm';
+            }
+        }
+
+        // Password Show/Hide
+        function togglePassword() {
+            const input = document.getElementById('password');
+            const icon = document.getElementById('eyeIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+    </script>
+
+    <script type="module" src="js/auth.js"></script>
+</body>
+</html>

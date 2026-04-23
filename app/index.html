@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chatkun | AI WhatsApp Manager</title>
+    
+    <link rel="icon" type="image/png" href="logo/logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.1.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #F8FAFC;
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        #sidebar { transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        #main-content { transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        .active-nav {
+            background: #EFF6FF !important; 
+            color: #2563EB !important;      
+            border-left: 4px solid #2563EB;
+        }
+        
+        .skeleton {
+            background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite linear;
+        }
+        @keyframes skeleton-loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        /* Tooltip for collapsed mode */
+        .desktop-collapsed .nav-item { position: relative; justify-content: center; padding-left: 0; padding-right: 0; }
+        .desktop-collapsed .nav-item:hover::after {
+            content: attr(data-title);
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-left: 10px;
+            background: #1e293b;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body class="text-slate-900 antialiased">
+
+    <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[150] hidden transition-opacity duration-300 opacity-0"></div>
+
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-[260px] bg-white border-r border-slate-200 z-[200] transform -translate-x-full md:translate-x-0 flex flex-col h-screen shadow-2xl md:shadow-none overflow-hidden">
+        
+        <div class="h-16 flex items-center px-4 border-b border-slate-100 justify-between shrink-0">
+            <a href="#dashboard" class="block flex-1 overflow-hidden" id="sidebar-logo-container">
+                <img src="logo/logo.png" alt="Logo" class="h-8 w-auto object-contain">
+            </a>
+            <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-slate-900 ml-2">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+
+        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto no-scrollbar overflow-x-hidden" id="sidebar-menu">
+            
+            <div data-feature="navDashboard">
+                <p class="section-title px-3 pt-2 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">Overview</p>
+                <a href="#dashboard" class="nav-item flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors group" data-title="Dashboard">
+                    <i class="fas fa-chart-line w-8 text-center text-slate-400 group-hover:text-blue-500 shrink-0"></i> 
+                    <span class="nav-text truncate transition-opacity duration-300">Dashboard</span>
+                </a>
+            </div>
+
+            <p class="section-title px-3 pt-4 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">Conversations</p>
+
+            <a href="#inbox" class="nav-item flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors group relative" data-title="Live Inbox">
+                <i class="fas fa-comment-dots w-8 text-center text-slate-400 group-hover:text-blue-500 shrink-0"></i> 
+                <span class="nav-text truncate transition-opacity duration-300">Live Inbox</span>
+                <span class="nav-badge absolute right-3 bg-red-100 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded-full">New</span>
+            </a>
+
+            <div data-feature="navLeads">
+                <a href="#leads" class="nav-item flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors group" data-title="Leads & Orders">
+                    <i class="fas fa-user-tag w-8 text-center text-slate-400 group-hover:text-blue-500 shrink-0"></i> 
+                    <span class="nav-text truncate transition-opacity duration-300">Leads & Orders</span>
+                </a>
+            </div>
+
+            <div id="sidebar-store-management">
+                <p class="section-title px-3 pt-4 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate" id="title-store">Store Management</p>
+                
+                <a href="#catalog" data-feature="navCatalog" class="nav-item flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors group" data-title="Product Catalog">
+                    <i class="fas fa-box-open w-8 text-center text-slate-400 group-hover:text-blue-500 shrink-0"></i> 
+                    <span class="nav-text truncate transition-opacity duration-300">Catalog</span>
+                </a>
+                
+                <a href="#offers" data-feature="navOffers" class="nav-item flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors group" data-title="Offers & Coupons">
+                   <i class="fas fa-tags w-8 text-center text-slate-400 group-hover:text-blue-500 shrink-0"></i> 
+                   <span class="nav-text truncate transition-opacity duration-300">Offers</span>
+                </a>
+                
+                <a href="#booking" data-feature="navBooking" class="nav-item flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-indigo-600 rounded-lg transition-colors group" data-title="Smart Booking">
+                   <i class="fa-regular fa-calendar-check w-8 text-center text-slate-400 group-hover:text-indigo-500 shrink-0"></i> 
+                   <span class="nav-text truncate transition-opacity duration-300">Booking Desk</span>
+                </a>
+
+                <a href="#campaigns" data-feature="navBroadcast" class="nav-item flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors group" data-title="Broadcast">
+                    <i class="fas fa-bullhorn w-8 text-center text-slate-400 group-hover:text-blue-500 shrink-0"></i> 
+                    <span class="nav-text truncate transition-opacity duration-300">Broadcast</span>
+                </a>
+            </div>
+
+            <div id="sidebar-system">
+                <p class="section-title px-3 pt-4 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate" id="title-system">System</p>
+
+                <a href="#analytics" data-feature="navAnalytics" class="nav-item flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors group" data-title="Analytics">
+                    <i class="fas fa-chart-pie w-8 text-center text-slate-400 group-hover:text-blue-500 shrink-0"></i> 
+                    <span class="nav-text truncate transition-opacity duration-300">Analytics</span>
+                </a>
+                
+                <a href="#support" data-feature="navSupportTickets" class="nav-item flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors group" data-title="Support Tickets">
+                    <i class="fas fa-ticket-simple w-8 text-center text-slate-400 group-hover:text-blue-500 shrink-0"></i> 
+                    <span class="nav-text truncate transition-opacity duration-300">Support</span>
+                </a>
+                
+                <a href="#team" data-feature="navTeam" class="nav-item flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors group" data-title="Team Management">
+    <i class="fas fa-users-gear w-8 text-center text-slate-400 group-hover:text-blue-500 shrink-0"></i> 
+    <span class="nav-text truncate transition-opacity duration-300">Team</span>
+</a>
+
+                <a href="#settings" data-feature="navSettings" class="nav-item flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors group" data-title="AI Settings">
+                    <i class="fas fa-robot w-8 text-center text-slate-400 group-hover:text-blue-500 shrink-0"></i> 
+                    <span class="nav-text truncate transition-opacity duration-300">AI Training</span>
+                </a>
+            </div>
+
+            <button onclick="window.handleLogout()" class="w-full mt-4 nav-item flex items-center px-3 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors group text-left" data-title="Logout">
+                <i class="fas fa-sign-out-alt w-8 text-center text-red-400 group-hover:text-red-500 shrink-0"></i> 
+                <span class="nav-text truncate transition-opacity duration-300">Logout</span>
+            </button>
+
+        </nav>
+
+        <button onclick="toggleDesktopSidebar()" class="hidden md:flex absolute top-1/2 -translate-y-1/2 -right-3.5 w-7 h-7 bg-white border border-slate-200 rounded-full items-center justify-center text-slate-500 hover:text-blue-600 shadow-md cursor-pointer z-[250] transition-colors">
+            <i id="desktop-toggle-icon" class="fa-solid fa-chevron-left text-[11px]"></i>
+        </button>
+
+    </aside>
+
+    <div id="main-content" class="md:ml-[260px] flex flex-col min-h-screen transition-all duration-300">
+        
+        <header id="main-header" class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200 h-16 flex items-center justify-between px-4 md:px-8 transition-transform duration-500 ease-in-out">
+            <div class="flex items-center gap-4 min-w-0">
+                <button onclick="toggleSidebar()" class="md:hidden text-slate-600 p-2 -ml-2 rounded-xl hover:bg-slate-100 transition active:scale-90">
+                    <i class="fa-solid fa-bars-staggered text-xl"></i>
+                </button>
+                
+                <div class="hidden md:flex flex-col">
+                    <h2 id="header-title" class="text-sm font-black text-slate-900 tracking-tight leading-none mb-1">Dashboard</h2>
+                    <div class="flex items-center gap-1.5">
+                        <i class="fa-solid fa-briefcase text-[10px] text-blue-500"></i>
+                        <span id="header-workspace-name" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate max-w-[150px]">Loading...</span>
+                    </div>
+                </div>
+                
+                <div class="md:hidden flex items-center gap-2">
+                    <img src="logo/logo.png" alt="Logo" class="h-7 w-auto object-contain">
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 md:gap-4">
+                <div id="header-api-status" class="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-full shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Checking API</span>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="hidden lg:flex flex-col items-end">
+                        <span id="header-user-name" class="text-xs font-bold text-slate-700 truncate max-w-[100px]">User</span>
+                        <span id="header-user-role" class="text-[9px] font-black text-blue-600 uppercase tracking-tighter bg-blue-50 px-1.5 rounded-sm">Loading</span>
+                    </div>
+                    
+                    <button onclick="window.location.hash = '#settings'" class="w-10 h-10 rounded-full bg-slate-100 overflow-hidden border-2 border-white shadow-md transition-transform hover:scale-105 active:scale-95 cursor-pointer flex-shrink-0">
+                        <img id="header-profile-img" src="https://ui-avatars.com/api/?name=U&background=0F172A&color=fff" class="w-full h-full object-cover">
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 p-4 md:p-8 mx-auto w-full pb-32" id="app-root">
+            <div class="space-y-8 animate-fade-in" id="loading-skeleton">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="space-y-2">
+                        <div class="h-8 w-48 skeleton rounded-lg"></div>
+                        <div class="h-4 w-64 skeleton rounded-lg"></div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="h-32 skeleton rounded-2xl"></div>
+                    <div class="h-32 skeleton rounded-2xl"></div>
+                    <div class="h-32 skeleton rounded-2xl"></div>
+                    <div class="h-32 skeleton rounded-2xl"></div>
+                </div>
+                <div class="h-[400px] skeleton rounded-2xl"></div>
+            </div>
+        </main>
+
+        <footer class="hidden md:flex items-center justify-between px-8 py-5 border-t border-slate-200/60 mt-auto bg-transparent">
+            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                &copy; <script>document.write(new Date().getFullYear())</script> Chatkun. All rights reserved.
+            </div>
+            <div class="flex items-center gap-6">
+                <a href="#" class="text-[10px] font-black text-slate-400 hover:text-blue-600 uppercase tracking-widest transition-colors">Privacy</a>
+                <a href="#" class="text-[10px] font-black text-slate-400 hover:text-blue-600 uppercase tracking-widest transition-colors">Terms</a>
+                <a href="#" class="text-[10px] font-black text-slate-400 hover:text-blue-600 uppercase tracking-widest transition-colors">Support</a>
+            </div>
+        </footer>
+
+    </div> <nav id="bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-slate-100 shadow-[0_-5px_20px_rgba(0,0,0,0.1)] transition-transform duration-500 ease-in-out">
+        
+    </div>
+
+    <nav id="bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-slate-100 shadow-[0_-5px_20px_rgba(0,0,0,0.1)] transition-transform duration-500 ease-in-out">
+        <div class="flex items-center justify-around h-16 relative px-2">
+            
+            <a href="#dashboard" data-feature="navDashboard" class="nav-item-bottom flex flex-col items-center justify-center flex-1 text-blue-600 transition-all">
+                <i class="fi fi-rr-apps text-xl"></i>
+                <span class="text-[10px] font-semibold mt-0.5">Home</span>
+            </a>
+
+            <a href="#inbox" class="nav-item-bottom flex flex-col items-center justify-center flex-1 text-slate-400 transition-all relative">
+                <i class="fi fi-rr-comment-alt text-xl"></i>
+                <span class="text-[10px] font-medium mt-0.5">Inbox</span>
+                <span class="absolute top-2 right-4 h-2 w-2 bg-red-500 rounded-full"></span>
+            </a>
+
+            <div class="flex-1 flex justify-center -mt-6" data-feature="navSettings">
+                <a href="#settings" class="flex items-center justify-center w-14 h-14 bg-blue-600 text-white rounded-full shadow-[0_4px_15px_rgba(37,99,235,0.4)] border-4 border-white active:scale-95 transition-transform flex-col">
+                    <i class="fa-solid fa-robot text-xl" id="bottom-settings-icon"></i>
+                </a>
+            </div>
+
+            <a href="#catalog" data-feature="navCatalog" class="nav-item-bottom flex flex-col items-center justify-center flex-1 text-slate-400 transition-all">
+                <i class="fi fi-rr-box text-xl"></i>
+                <span class="text-[10px] font-medium mt-0.5">Catalog</span>
+            </a>
+
+            <a href="#leads" data-feature="navLeads" class="nav-item-bottom flex flex-col items-center justify-center flex-1 text-slate-400 transition-all">
+               <i class="fi fi-rr-users text-xl"></i>
+               <span class="text-[10px] font-medium mt-0.5">Leads</span>
+             </a>
+        </div>
+    </nav>
+
+    <script>
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const isOpen = !sidebar.classList.contains('-translate-x-full');
+
+            if (isOpen) {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+                overlay.style.opacity = '0';
+            } else {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.style.opacity = '1', 10);
+            }
+        }
+
+        let isDesktopCollapsed = false;
+
+        window.toggleDesktopSidebar = function(forceState = null) {
+            if (window.innerWidth < 768) return; 
+            
+            if (forceState !== null) {
+                isDesktopCollapsed = forceState;
+            } else {
+                isDesktopCollapsed = !isDesktopCollapsed;
+            }
+
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const toggleIcon = document.getElementById('desktop-toggle-icon');
+            const navTexts = document.querySelectorAll('.nav-text');
+            const sectionTitles = document.querySelectorAll('.section-title');
+            const navBadges = document.querySelectorAll('.nav-badge');
+            const logoContainer = document.getElementById('sidebar-logo-container');
+
+            if (isDesktopCollapsed) {
+                sidebar.classList.add('desktop-collapsed');
+                sidebar.classList.remove('w-[260px]');
+                sidebar.classList.add('w-[80px]');
+                
+                mainContent.classList.remove('md:ml-[260px]');
+                mainContent.classList.add('md:ml-[80px]');
+                
+                toggleIcon.classList.remove('fa-chevron-left');
+                toggleIcon.classList.add('fa-chevron-right');
+                
+                navTexts.forEach(el => el.style.opacity = '0');
+                sectionTitles.forEach(el => el.style.opacity = '0');
+                navBadges.forEach(el => el.style.opacity = '0');
+                logoContainer.style.opacity = '0';
+                
+            } else {
+                sidebar.classList.remove('desktop-collapsed');
+                sidebar.classList.remove('w-[80px]');
+                sidebar.classList.add('w-[260px]');
+                
+                mainContent.classList.remove('md:ml-[80px]');
+                mainContent.classList.add('md:ml-[260px]');
+                
+                toggleIcon.classList.remove('fa-chevron-right');
+                toggleIcon.classList.add('fa-chevron-left');
+                
+                setTimeout(() => {
+                    navTexts.forEach(el => el.style.opacity = '1');
+                    sectionTitles.forEach(el => el.style.opacity = '1');
+                    navBadges.forEach(el => el.style.opacity = '1');
+                    logoContainer.style.opacity = '1';
+                }, 150); 
+            }
+        }
+
+        window.addEventListener('hashchange', updateActiveState);
+        
+        function updateActiveState() {
+            const hash = window.location.hash || '#dashboard';
+            const sidebarLinks = document.querySelectorAll('.nav-item');
+            const headerTitle = document.getElementById('header-title');
+
+            if (hash === '#inbox' && window.innerWidth >= 768) {
+                window.toggleDesktopSidebar(true); 
+            } else if (hash !== '#inbox' && window.innerWidth >= 768) {
+                window.toggleDesktopSidebar(false); 
+            }
+
+            sidebarLinks.forEach(link => {
+                const linkHash = link.getAttribute('href');
+                if (linkHash === hash) {
+                    link.classList.add('active-nav');
+                    link.classList.remove('text-slate-600', 'hover:bg-slate-50');
+                    if (headerTitle) headerTitle.textContent = link.getAttribute('data-title');
+                } else {
+                    link.classList.remove('active-nav');
+                    link.classList.add('text-slate-600', 'hover:bg-slate-50');
+                }
+            });
+            
+            const bottomLinks = document.querySelectorAll('.nav-item-bottom');
+            bottomLinks.forEach(link => {
+                 if(link.getAttribute('href') === hash) {
+                     link.classList.add('text-blue-600');
+                     link.classList.remove('text-slate-400');
+                 } else {
+                     link.classList.remove('text-blue-600');
+                     link.classList.add('text-slate-400');
+                 }
+            });
+
+            if (window.innerWidth < 768 && !document.getElementById('sidebar').classList.contains('-translate-x-full')) {
+                toggleSidebar();
+            }
+        }
+
+        let lastScrollTop = 0;
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('main-header');
+            const bottomNav = document.getElementById('bottom-nav');
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > lastScrollTop && scrollTop > 50) {
+                header.style.transform = 'translateY(-100%)';
+                if(bottomNav) bottomNav.style.transform = 'translateY(150%)'; 
+            } else {
+                header.style.transform = 'translateY(0)';
+                if(bottomNav) bottomNav.style.transform = 'translateY(0)';
+            }
+            lastScrollTop = scrollTop;
+        });
+
+        document.addEventListener('DOMContentLoaded', updateActiveState);
+        
+        // 🚀 UPDATED FCM REGISTRATION CODE
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        // 'sw.js' ko badal kar 'firebase-messaging-sw.js' kiya gaya hai
+        // Dhyan dein: Shuruat mein '/' nahi hai taaki aapke local folder mein 404 na aaye
+        navigator.serviceWorker.register('firebase-messaging-sw.js').then(function(registration) {
+            console.log('✅ FCM ServiceWorker registered! Scope:', registration.scope);
+        }).catch(function(err) {
+            console.error('❌ ServiceWorker registration failed:', err);
+        });
+    });
+}
+    </script>
+    
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

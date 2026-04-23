@@ -1,0 +1,50 @@
+<div id="support-wrapper" class="h-full flex flex-col animate-fade-in pb-24">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tight">Support Desk </h1>
+            <p class="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">Manage AI-Generated Tickets</p>
+        </div>
+        <button onclick="window.loadActiveTickets()" class="px-5 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-xl text-xs font-black uppercase tracking-widest shadow-sm transition active:scale-95 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-arrows-rotate"></i> Refresh
+        </button>
+    </div>
+
+    <div class="flex-1 overflow-x-auto no-scrollbar pb-4">
+        <div class="flex gap-6 min-w-max md:min-w-full h-full items-start">
+            
+            <div class="w-80 md:flex-1 bg-slate-50/50 rounded-3xl border border-slate-200 p-4 flex flex-col h-[70vh]">
+                <div class="flex items-center justify-between mb-4 px-2">
+                    <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span> New / Open
+                    </h3>
+                    <span id="count-open" class="bg-white border border-slate-200 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-lg shadow-sm">0</span>
+                </div>
+                <div id="col-open" class="flex-1 overflow-y-auto space-y-3 no-scrollbar pb-10">
+                </div>
+            </div>
+
+            <div class="w-80 md:flex-1 bg-slate-50/50 rounded-3xl border border-slate-200 p-4 flex flex-col h-[70vh]">
+                <div class="flex items-center justify-between mb-4 px-2">
+                    <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> In Progress
+                    </h3>
+                    <span id="count-progress" class="bg-white border border-slate-200 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-lg shadow-sm">0</span>
+                </div>
+                <div id="col-progress" class="flex-1 overflow-y-auto space-y-3 no-scrollbar pb-10">
+                </div>
+            </div>
+
+            <div class="w-80 md:flex-1 bg-slate-50/50 rounded-3xl border border-slate-200 p-4 flex flex-col h-[70vh] opacity-80">
+                <div class="flex items-center justify-between mb-4 px-2">
+                    <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Resolved
+                    </h3>
+                    <span id="count-resolved" class="bg-white border border-slate-200 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-lg shadow-sm">0</span>
+                </div>
+                <div id="col-resolved" class="flex-1 overflow-y-auto space-y-3 no-scrollbar pb-10">
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

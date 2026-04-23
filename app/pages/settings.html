@@ -1,0 +1,293 @@
+<div class="w-full max-w-7xl mx-auto space-y-4 animate-fade-in pb-24 relative">
+
+    <div id="master-controls-card" class="bg-black rounded-b-[12px] rounded-t-none shadow-sm mb-6 -mt-4 -mx-4 sm:-mx-6 lg:-mx-8">
+        <div class="bg-white px-6 pt-5 pb-6 flex justify-between items-center relative rounded-b-[12px] z-10 shadow-sm border-b border-slate-200">
+            <div>
+                <h2 id="display-biz-name" class="text-2xl font-black text-slate-900 mb-1 flex items-center gap-2">
+                    Loading Shop...
+                    <i class="fa-solid fa-chevron-right text-slate-400 text-sm"></i>
+                </h2>
+                <div id="api-status-badge">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-xs font-bold text-slate-500 shadow-sm">
+                        <span id="api-status-dot" class="w-2.5 h-2.5 rounded-full bg-slate-400"></span> Checking API...
+                    </span>
+                </div>
+            </div>
+            <div class="relative group cursor-pointer shrink-0" onclick="document.getElementById('aws-image-upload').click()">
+                <img id="shop-avatar" src="https://placehold.co/150" class="w-20 h-20 rounded-full object-cover border-[3px] border-white shadow-md transition group-hover:opacity-75">
+                <div class="absolute bottom-0 right-0 bg-white rounded-full w-6 h-6 flex items-center justify-center shadow-md border border-slate-100">
+                     <span id="shop-role-initial" class="text-[11px] font-black text-slate-800 uppercase leading-none mt-[1px]">O</span>
+                </div>
+                <input type="file" id="aws-image-upload" accept="image/*" class="hidden" onchange="window.handleAvatarUpload(event)">
+            </div>
+        </div>
+        
+        <div id="master-toggles-container" class="bg-black px-6 py-2.5 rounded-b-[12px] hidden relative z-0">
+            <div class="grid grid-cols-2 divide-x divide-slate-800">
+                <div class="flex justify-between items-center pr-5">
+                    <span class="text-white text-[11px] font-bold flex items-center gap-1.5">
+                        <i class="fa-solid fa-power-off text-slate-400 text-[10px]"></i> Bot Active
+                    </span>
+                    <label class="relative inline-flex items-center cursor-pointer active:scale-95 transition">
+                        <input type="checkbox" id="set_botActive" class="sr-only peer" onchange="window.instantSaveToggle('botActive')" checked>
+                        <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-500"></div>
+                    </label>
+                </div>
+                <div class="flex justify-between items-center pl-5">
+                    <span class="text-white text-[11px] font-bold flex items-center gap-1.5">
+                        <i class="fa-solid fa-robot text-slate-400 text-[10px]"></i> AI Response
+                    </span>
+                    <label class="relative inline-flex items-center cursor-pointer active:scale-95 transition">
+                        <input type="checkbox" id="set_aiActive" class="sr-only peer" onchange="window.instantSaveToggle('aiActive')" checked>
+                        <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="billing-section" class="bg-gradient-to-br from-slate-900 to-black p-5 rounded-3xl border border-slate-800 shadow-xl space-y-3 relative overflow-hidden">
+        <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-file-invoice-dollar text-6xl text-white"></i></div>
+        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Billing & Subscription</h3>
+        <div class="flex justify-between items-center text-white relative z-10">
+            <div>
+                <p class="text-xs text-slate-400 font-medium mb-0.5">Base Plan (&#8377;2000) + AI + Agents</p>
+                <h2 class="text-3xl font-black" id="bill-amount">
+                    <i class="fa-solid fa-circle-notch fa-spin text-xl text-slate-500"></i>
+                </h2>
+            </div>
+            <button onclick="window.payBill()" id="btn-pay-bill" class="px-5 py-2.5 bg-white text-black rounded-full text-xs font-black uppercase tracking-wide hover:bg-slate-200 transition active:scale-95 flex items-center gap-2 shadow-lg">
+                Pay Now <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+        <div class="pt-3 space-y-1.5 border-t border-slate-800 relative z-10">
+            <div class="flex justify-between text-[10px] font-bold">
+                <span class="text-slate-400">Total AI Messages this month:</span>
+                <span id="bill-msg-count" class="text-white">0</span>
+            </div>
+            <div class="flex justify-between text-[10px] font-bold">
+                <span class="text-slate-400">Extra Agents Cost:</span>
+                <span id="bill-extra-agents" class="text-red-400">10 Agents Included (Free)</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="ai-studio-banner" class="bg-white p-5 rounded-3xl border border-indigo-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden">
+        <div class="absolute top-0 right-0 p-4 opacity-[0.03] pointer-events-none"><i class="fa-solid fa-microchip text-6xl text-indigo-900"></i></div>
+        <div class="relative z-10">
+            <h3 class="text-[12px] font-black text-indigo-700 uppercase tracking-widest flex items-center gap-2 mb-1">
+                <i class="fa-solid fa-brain text-indigo-500"></i> AI Studio & Knowledge Base
+            </h3>
+            <p class="text-[10px] font-bold text-slate-500 max-w-md leading-relaxed">Setup your AI personality, global business hours, universal FAQs, and marketing drips.</p>
+        </div>
+        <button onclick="window.location.hash='#bot-setup'" class="shrink-0 relative z-10 px-5 py-2.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-100 transition active:scale-95 shadow-sm flex items-center gap-2">
+            Open AI Studio <i class="fa-solid fa-arrow-right"></i>
+        </button>
+    </div>
+
+    <div id="owner-exclusive-section" class="bg-white p-4 rounded-3xl border border-amber-200 shadow-sm space-y-4 relative overflow-hidden">
+        <div class="absolute top-0 right-0 p-4 opacity-5"><i class="fa-solid fa-crown text-6xl text-amber-500"></i></div>
+        
+        <h3 class="text-[11px] font-black text-amber-600 uppercase tracking-widest border-b border-amber-100 pb-2 mb-2 flex items-center gap-1.5 relative z-10">
+            <i class="fa-solid fa-shield-halved"></i> Owner Security & Budget
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 relative z-10">
+            <div>
+                <label class="text-[9px] font-bold text-slate-500 uppercase">Owner WhatsApp (For Alerts)</label>
+                <input type="text" id="set_ownerWhatsApp" placeholder="e.g. 919876543210" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-amber-500 transition">
+            </div>
+            <div>
+                <label class="text-[9px] font-bold text-slate-500 uppercase">Monthly AI Budget (&#8377;)</label>
+                <input type="number" id="set_aiBudgetLimit" placeholder="e.g. 500" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-amber-500 transition">
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center pt-2 border-t border-amber-100 relative z-10">
+            <div>
+                <span class="text-[10px] font-bold text-slate-700 uppercase block">Auto-Pause AI at Limit</span>
+                <span class="text-[8px] font-bold text-slate-400">Switches to human agent when budget is full</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-bold text-amber-500">PAUSE</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="set_autoPauseAi" class="sr-only peer">
+                    <div class="w-7 h-3.5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-2.5 after:w-2.5 after:transition-all peer-checked:bg-amber-500"></div>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div id="meta-api-section" class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+        <h3 class="text-[11px] font-black text-slate-800 uppercase tracking-widest border-b border-slate-100 pb-2 mb-2">APIs & Integrations</h3>
+        
+        <div>
+            <div class="flex justify-between items-center mb-2">
+                <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Step 1: Meta Webhook (Required)</h4>
+                <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[9px] font-black border border-slate-200">Copy This</span>
+            </div>
+            <div class="flex gap-2">
+                <input type="text" id="set_webhookUrl" readonly class="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-500 outline-none">
+                <button onclick="window.copyWebhook()" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-bold hover:bg-black transition active:scale-95 flex items-center gap-1">
+                    <i class="fa-regular fa-copy"></i> Copy
+                </button>
+            </div>
+            <p class="text-[9px] text-slate-400 font-bold mt-1.5">Paste this in Meta Dashboard > Webhooks. Token is: <strong class="text-slate-700">chatkun123</strong></p>
+        </div>
+
+        <hr class="border-slate-100">
+
+        <div>
+            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Step 2: Meta API Keys</h4>
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                    <label class="text-[9px] font-bold text-slate-500 uppercase">Phone Number ID</label>
+                    <input type="text" id="set_metaPhoneId" placeholder="10456..." class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
+                </div>
+                <div>
+                    <label class="text-[9px] font-bold text-slate-500 uppercase">Meta Catalog ID</label>
+                    <input type="text" id="set_metaCatalogId" placeholder="Catalog ID" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
+                </div>
+            </div>
+            <div>
+                <label class="text-[9px] font-bold text-slate-500 uppercase">Permanent Access Token</label>
+                <div class="relative mt-1">
+                    <input type="password" id="set_metaToken" placeholder="EAAWd..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition pr-10">
+                    <button onclick="window.toggleTokenVisibility()" type="button" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600">
+                        <i id="tokenEyeIcon" class="fa-solid fa-eye text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <hr class="border-slate-100">
+
+    <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-4">
+            <h4 class="text-[10px] font-black text-slate-700 uppercase tracking-widest flex items-center gap-1.5">
+                <i class="fa-solid fa-credit-card text-blue-500"></i> Smart Payment Gateways
+            </h4>
+
+            <div class="bg-white p-3 rounded-xl border border-blue-100 shadow-sm">
+                <h5 class="text-[9px] font-black text-blue-800 uppercase mb-2">Razorpay (For INR / India)</h5>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                    <div>
+                        <input type="password" id="set_razorpayKeyId" placeholder="Key ID (rzp_live_...)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-700 outline-none focus:border-blue-500 transition">
+                    </div>
+                    <div>
+                        <input type="password" id="set_razorpayKeySecret" placeholder="Key Secret" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-700 outline-none focus:border-blue-500 transition">
+                    </div>
+                </div>
+                <div class="border-t border-slate-100 pt-2">
+                    <label class="text-[9px] font-bold text-slate-500 uppercase flex justify-between items-center mb-1">
+                        Webhook URL <button onclick="window.copyRzpWebhook()" class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded border border-blue-100 hover:bg-blue-100 transition active:scale-95">Copy</button>
+                    </label>
+                    <input type="text" id="set_razorpayWebhookUrl" readonly class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-500 outline-none">
+                </div>
+            </div>
+
+            <div class="bg-white p-3 rounded-xl border border-indigo-100 shadow-sm">
+                <h5 class="text-[9px] font-black text-indigo-800 uppercase mb-2">Stripe (For USD / Global)</h5>
+                <div class="mb-3">
+                    <input type="password" id="set_stripeSecretKey" placeholder="Stripe Secret Key (sk_live_...)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-700 outline-none focus:border-indigo-500 transition">
+                </div>
+                <div class="border-t border-slate-100 pt-2">
+                    <label class="text-[9px] font-bold text-slate-500 uppercase flex justify-between items-center mb-1">
+                        Webhook URL <button onclick="window.copyStripeWebhook()" class="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded border border-indigo-100 hover:bg-indigo-100 transition active:scale-95">Copy</button>
+                    </label>
+                    <input type="text" id="set_stripeWebhookUrl" readonly class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-500 outline-none">
+                </div>
+            </div>
+            
+            <p class="text-[9px] text-slate-500 font-bold leading-relaxed px-1">AI will automatically generate payment links. Please copy and paste the Webhook URLs in your respective payment dashboards to receive real-time confirmations.</p>
+        </div>
+
+        <div>
+            <label class="text-[9px] font-bold text-slate-500 uppercase">Fallback Payment Link / UPI (If API is off)</label>
+            <input type="text" id="set_paymentGatewayUrl" placeholder="UPI ID or Payment Link" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
+        </div>
+
+        <div class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
+            <h4 class="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                <i class="fa-solid fa-plug"></i> 3rd Party Integrations
+            </h4>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-[9px] font-bold text-slate-500 uppercase flex items-center gap-1">
+                        <i class="fa-brands fa-shopify text-[#95bf47]"></i> Shopify Access Token
+                    </label>
+                    <input type="password" id="set_shopifyAccessToken" placeholder="shpat_xxxxx..." class="w-full mt-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-indigo-500 transition">
+                </div>
+                <div>
+                    <label class="text-[9px] font-bold text-slate-500 uppercase">Outbound Webhook URL (Zapier / CRM)</label>
+                    <input type="url" id="set_outboundWebhookUrl" placeholder="https://hooks.zapier.com/..." class="w-full mt-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-indigo-500 transition">
+                </div>
+                <p class="text-[9px] text-slate-500 font-bold leading-relaxed">If filled, Chatkun will automatically sync orders from Shopify and send new leads to your Zapier/CRM Webhook.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="shop-details-section" class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+        <h3 class="text-[11px] font-black text-slate-800 uppercase tracking-widest border-b border-slate-100 pb-2 mb-2">Shop Profile & Logistics</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+                <label class="text-[9px] font-bold text-slate-500 uppercase">Business Name</label>
+                <input type="text" id="set_bizName" placeholder="Business Name" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
+            </div>
+            <div>
+                <label class="text-[9px] font-bold text-slate-500 uppercase">Industry</label>
+                <input type="text" id="set_bizIndustry" placeholder="Industry" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
+            </div>
+            <div>
+                <label class="text-[9px] font-bold text-slate-500 uppercase">Full Address</label>
+                <input type="text" id="set_bizAddress" placeholder="Full Address" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center pt-2 border-t border-slate-100">
+            <span class="text-[10px] font-bold text-slate-600 uppercase">Cash On Delivery (COD)</span>
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-bold text-slate-400">ENABLED</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="set_codEnabled" class="sr-only peer" checked>
+                    <div class="w-7 h-3.5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-2.5 after:w-2.5 after:transition-all peer-checked:bg-indigo-600"></div>
+                </label>
+            </div>
+        </div>
+        
+        <div class="pt-2 border-t border-slate-100">
+            <label class="text-[9px] font-bold text-slate-500 uppercase flex items-center gap-1 mb-1.5">
+                <i class="fa-solid fa-map-location-dot text-blue-500"></i> Service Coverage Area
+            </label>
+            <select id="set_serviceAreaType" onchange="window.toggleServiceArea()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition mb-2 appearance-none">
+                <option value="pan_india">🌍 Everywhere / National (Deliver Anywhere)</option>
+                <option value="state_level">🗺️ State Level (Specific States Only)</option>
+                <option value="pincode_level">📍 Local Level (Specific Pincodes/Zipcodes Only)</option>
+            </select>
+
+            <div id="wrap_states" class="hidden">
+                <input type="text" id="set_serviceableStates" placeholder="e.g. Delhi, Haryana, NY, CA" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
+            </div>
+
+            <div id="wrap_pincodes" class="hidden">
+                <input type="text" id="set_serviceablePincodes" placeholder="e.g. 110001, 122006, 90210" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-3 pt-2">
+        <button id="btn-save-settings" onclick="window.saveAllSettings()" class="w-full py-3.5 bg-blue-600 text-white rounded-3xl text-[11px] font-bold hover:bg-blue-700 transition shadow-sm active:scale-[0.98] flex justify-center items-center gap-2">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Save Updates
+            <i id="settings-loader" class="fa-solid fa-circle-notch fa-spin hidden"></i>
+        </button>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 mt-1">
+        <button onclick="window.handlePasswordReset()" class="py-3.5 bg-white border border-slate-200 rounded-3xl text-[11px] font-bold text-slate-600 hover:bg-slate-50 transition active:scale-95 flex items-center justify-center gap-2">
+            <i class="fas fa-key text-slate-400"></i> Password
+        </button>
+        <button onclick="window.handleLogout()" class="py-3.5 bg-white border border-slate-200 rounded-3xl text-[11px] font-bold text-red-500 hover:bg-red-50 transition active:scale-95 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-power-off"></i> Log Out
+        </button>
+    </div>
+</div>

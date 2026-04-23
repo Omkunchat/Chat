@@ -1,0 +1,60 @@
+<div id="orders-container-wrapper" class="w-full max-w-[95rem] mx-auto space-y-4 animate-fade-in pb-24 relative">
+
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mt-2">
+        <div class="p-4 flex flex-row justify-between items-center">
+            <div class="flex items-center gap-3">
+                <button onclick="window.location.hash='#inbox'" class="w-10 h-10 rounded-2xl bg-slate-50 text-slate-500 hover:bg-slate-100 flex items-center justify-center transition active:scale-95 border border-slate-100 shadow-sm">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <div>
+                    <h2 class="text-lg font-black text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-box-open text-blue-600"></i> Order Management
+                    </h2>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Track, Update & Invoice</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-blue-600 p-2.5 flex items-center gap-2">
+            <span class="text-blue-100 text-[11px] font-bold uppercase tracking-wider italic ml-2">Status updates automatically notify customers on WhatsApp</span>
+        </div>
+    </div>
+
+    <div class="flex flex-col xl:flex-row justify-between items-center gap-4 bg-white p-3 rounded-3xl border border-slate-200 shadow-sm">
+        <div class="relative w-full xl:w-96">
+            <i class="fas fa-search absolute left-4 top-3.5 text-slate-400 text-xs"></i>
+            <input type="text" id="order-search" onkeyup="window.searchOrders()" placeholder="SEARCH NAME, PHONE OR ITEM..." 
+                class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-wider outline-none focus:border-blue-500 transition shadow-sm placeholder:text-slate-400">
+        </div>
+
+        <div class="flex overflow-x-auto hide-scrollbar bg-slate-100 p-1 rounded-2xl w-full xl:w-auto" id="order-filters">
+            <button onclick="window.setOrderFilter('all')" class="flex-1 md:flex-none px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white text-blue-600 shadow-sm transition-all filter-btn whitespace-nowrap" data-filter="all">All Jobs</button>
+            <button onclick="window.setOrderFilter('Processing')" class="flex-1 md:flex-none px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-800 transition-all filter-btn whitespace-nowrap" data-filter="Processing">Processing</button>
+            <button onclick="window.setOrderFilter('Dispatched')" class="flex-1 md:flex-none px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-800 transition-all filter-btn whitespace-nowrap" data-filter="Dispatched">Dispatched</button>
+            <button onclick="window.setOrderFilter('Delivered')" class="flex-1 md:flex-none px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-800 transition-all filter-btn whitespace-nowrap" data-filter="Delivered">Delivered</button>
+        </div>
+    </div>
+
+    <div id="orders-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 min-h-[400px] items-start">
+        <div class="col-span-full flex flex-col items-center justify-center py-20 text-slate-400 bg-white rounded-3xl border border-slate-200">
+            <i class="fas fa-circle-notch fa-spin text-2xl mb-4 text-blue-500"></i>
+            <p class="text-[10px] font-black uppercase tracking-widest">Loading Orders...</p>
+        </div>
+    </div>
+
+    <div id="history-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[80vh] border border-slate-100">
+            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 class="font-black text-slate-800 text-sm uppercase tracking-widest"><i class="fa-solid fa-clock-rotate-left text-blue-500 mr-2"></i> Order History</h3>
+                <button onclick="window.closeHistoryModal()" class="text-slate-400 hover:text-red-500 w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div id="history-content" class="p-5 overflow-y-auto custom-scrollbar flex-1 space-y-4 bg-white">
+                </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>

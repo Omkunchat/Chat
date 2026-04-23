@@ -1,0 +1,103 @@
+<div id="leads-wrapper" class="w-full max-w-[95rem] mx-auto space-y-4 animate-fade-in pb-24 relative md:px-4">
+
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mt-2">
+        <div class="p-3 md:p-4 flex flex-row justify-between items-center">
+            <div>
+                <h2 class="text-sm md:text-lg font-black text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-users-viewfinder text-blue-600"></i> Leads & Orders
+                </h2>
+                <p class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">AI Sales Pipeline Workspace</p>
+            </div>
+            
+            <div class="flex items-center gap-1 md:gap-2">
+                <span id="ai-sync-status" class="hidden md:inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-50 text-emerald-600 rounded-2xl border border-emerald-100 text-[10px] font-black uppercase tracking-wider">
+                    <i class="fa-solid fa-robot text-[10px] animate-pulse"></i> Auto-Capture On
+                </span>
+                
+                <input type="file" id="hidden-csv-input" accept=".csv, .xlsx, .xls" class="hidden">
+                <button id="btn-import-csv" class="bg-blue-50 text-blue-600 border border-blue-200 px-3 md:px-5 py-1.5 md:py-2.5 rounded-xl md:rounded-2xl shadow-sm hover:bg-blue-600 hover:text-white transition-all active:scale-95 flex items-center gap-1.5 md:gap-2">
+                    <i class="fa-solid fa-file-import text-[10px] md:text-xs"></i> 
+                    <span class="text-[10px] font-black uppercase tracking-widest hidden md:inline">Import CSV</span>
+                    <span class="text-[10px] font-black uppercase tracking-widest md:hidden">Import</span>
+                </button>
+                
+                <button id="btn-add-manual-lead" onclick="window.location.hash='#lead-form'" class="bg-slate-900 text-white px-3 md:px-5 py-1.5 md:py-2.5 rounded-xl md:rounded-2xl shadow-xl hover:bg-black transition-all active:scale-95 flex items-center gap-1.5 md:gap-2">
+                    <i class="fas fa-plus text-[10px] md:text-xs"></i> 
+                    <span class="text-[10px] font-black uppercase tracking-widest hidden md:inline">Manual Lead</span>
+                    <span class="text-[10px] font-black uppercase tracking-widest md:hidden">Add</span>
+                </button>
+            </div>
+        </div>
+        <div class="bg-blue-600 p-2 md:p-2.5 flex items-center gap-2">
+            <span class="text-blue-100 text-[10px] md:text-[11px] font-bold uppercase tracking-wider italic ml-2">Chatkun AI is monitoring WhatsApp 24/7</span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="md:col-span-1 bg-gradient-to-r from-blue-600 to-blue-800 p-4 md:p-6 rounded-3xl md:rounded-[2rem] shadow-xl text-white relative overflow-hidden group">
+            <div class="relative z-10">
+                <p class="text-blue-200 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-1.5 md:mb-2">Total Leads</p>
+                <h3 id="display-total-leads" class="text-4xl md:text-5xl font-black mb-3 md:mb-4 tracking-tight">0</h3>
+                <div class="inline-flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-lg md:rounded-xl bg-white/10 backdrop-blur-md text-[9px] md:text-[10px] font-black uppercase tracking-widest text-blue-100 border border-white/10 whitespace-nowrap">
+                    <i class="fas fa-bolt text-yellow-400"></i> AI Generated
+                </div>
+            </div>
+            <i class="fa-solid fa-users absolute -right-6 -bottom-6 text-[100px] md:text-[120px] text-white/10 rotate-12 transition-transform group-hover:scale-110"></i>
+        </div>
+
+        <div class="md:col-span-1 bg-slate-900 p-4 md:p-6 rounded-3xl md:rounded-[2rem] shadow-xl text-white relative overflow-hidden group">
+            <div class="relative z-10">
+                <p class="text-slate-400 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-1.5 md:mb-2">Orders Closed</p>
+                <h3 id="display-won-leads" class="text-4xl md:text-5xl font-black mb-3 md:mb-4 tracking-tight text-emerald-400">0</h3>
+                <div class="inline-flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-lg md:rounded-xl bg-emerald-500/10 backdrop-blur-md text-[9px] md:text-[10px] font-black uppercase tracking-widest text-emerald-400 border border-emerald-500/20 whitespace-nowrap">
+                    <i class="fas fa-check-circle"></i> Won Deals
+                </div>
+            </div>
+            <i class="fa-solid fa-box-open absolute -right-6 -bottom-6 text-[100px] md:text-[120px] text-white/5 -rotate-12 transition-transform group-hover:scale-110"></i>
+        </div>
+
+        <div class="md:col-span-1 bg-white p-4 md:p-6 rounded-3xl md:rounded-[2rem] border border-slate-200 shadow-sm relative overflow-hidden group flex flex-col justify-between">
+            <div>
+                <p class="text-slate-400 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-1.5 md:mb-2">Pipeline Value</p>
+                <h3 id="display-pipeline-value" class="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">₹0</h3>
+            </div>
+            <div class="mt-3 md:mt-4 z-10">
+                <div class="w-full bg-slate-100 rounded-full h-1.5 md:h-2 mb-1 md:mb-2 overflow-hidden border border-slate-50">
+                    <div id="conversion-bar" class="h-full bg-blue-500 w-0 transition-all duration-1000 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
+                </div>
+                <p id="conversion-rate-text" class="text-[8px] md:text-[9px] font-black text-slate-500 tracking-widest uppercase">0% Conversion Rate</p>
+            </div>
+            <i class="fa-solid fa-sack-dollar absolute -right-6 -top-6 text-[80px] md:text-[100px] text-slate-50 transition-transform group-hover:rotate-12"></i>
+        </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row justify-between items-center gap-2 md:gap-4 bg-white p-2 md:p-3 rounded-2xl md:rounded-3xl border border-slate-200 shadow-sm">
+        <div class="flex flex-col md:flex-row gap-1 md:gap-2 w-full md:w-auto items-stretch md:items-center">
+    <div class="relative w-full md:w-80">
+        <i class="fas fa-search absolute left-3 top-2.5 md:left-4 md:top-3.5 text-slate-400 text-[10px] md:text-xs"></i>
+        <input type="text" id="crm-search" onkeyup="window.filterCrm()" placeholder="SEARCH NAME OR PHONE..." 
+            class="w-full pl-8 pr-3 md:pl-10 md:pr-4 py-2 md:py-3 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-wider outline-none focus:border-blue-500 transition shadow-sm">
+    </div>
+    <select id="crm-category-filter" onchange="window.filterCrm()" class="w-full md:w-40 px-3 py-2 md:px-4 md:py-3 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-wider outline-none focus:border-blue-500 transition shadow-sm cursor-pointer text-slate-600">
+        <option value="all">All Businesses</option>
+        <option value="clinic">Clinic Leads</option>
+        <option value="salon">Salon Leads</option>
+        <option value="realestate">Real Estate</option>
+        <option value="other">Other Business</option>
+    </select>
+</div>
+
+        <div class="flex bg-slate-100 p-1 rounded-xl md:rounded-2xl w-full md:w-auto">
+            <button onclick="window.switchView('board')" id="btn-view-board" class="flex-1 md:flex-none px-4 md:px-6 py-2 md:py-2.5 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest bg-white text-blue-600 shadow-sm transition-all whitespace-nowrap">Kanban Board</button>
+            <button onclick="window.switchView('list')" id="btn-view-list" class="flex-1 md:flex-none px-4 md:px-6 py-2 md:py-2.5 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-800 transition-all whitespace-nowrap">List View</button>
+        </div>
+    </div>
+
+    <div id="crm-view-container" class="min-h-[500px] overflow-x-auto flex-nowrap snap-x snap-mandatory scroll-p-4">
+        <div class="flex flex-col items-center justify-center py-20 text-slate-400 snap-center">
+            <i class="fas fa-circle-notch fa-spin text-xl md:text-2xl mb-4 text-blue-500"></i>
+            <p class="text-[9px] md:text-[10px] font-black uppercase tracking-widest">Loading Pipeline...</p>
+        </div>
+    </div>
+
+</div>

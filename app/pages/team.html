@@ -1,0 +1,86 @@
+<div id="team-wrapper" class="w-full max-w-7xl mx-auto space-y-4 animate-fade-in pb-24 relative md:px-4">
+
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mt-2">
+        <div class="p-3 md:p-4 flex flex-row justify-between items-center bg-slate-50/50 border-b border-slate-100">
+            <div>
+                <h2 class="text-sm md:text-lg font-black text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-users-gear text-indigo-600"></i> Team Workspace
+                </h2>
+                <p class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Manage Agents & Roles</p>
+            </div>
+            
+            <div id="team-action-btn-container">
+                <button onclick="document.getElementById('invite-section').classList.toggle('hidden')" class="bg-indigo-600 text-white px-4 md:px-6 py-2 md:py-2.5 rounded-xl md:rounded-2xl shadow-lg shadow-indigo-200 hover:bg-indigo-700 active:scale-95 transition flex items-center gap-1.5 md:gap-2">
+                    <i class="fas fa-user-plus text-[10px] md:text-xs"></i> 
+                    <span class="text-[10px] md:text-xs font-black uppercase tracking-widest">Invite <span class="hidden md:inline">Agent</span></span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-3 divide-x divide-slate-100 bg-white">
+            <div class="p-3 md:p-4 text-center">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Agents</p>
+                <h3 id="stat-total-agents" class="text-xl md:text-2xl font-black text-slate-800">0</h3>
+            </div>
+            <div class="p-3 md:p-4 text-center">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Active Seats</p>
+                <h3 id="stat-active-agents" class="text-xl md:text-2xl font-black text-emerald-500">0</h3>
+            </div>
+            <div class="p-3 md:p-4 text-center">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Billing Limit</p>
+                <h3 id="stat-billing-limit" class="text-xl md:text-2xl font-black text-blue-500">10</h3>
+            </div>
+        </div>
+    </div>
+
+    <div id="invite-section" class="hidden bg-indigo-50 rounded-3xl border border-indigo-100 shadow-sm p-4 md:p-6 transition-all">
+        <h3 class="text-xs font-black text-indigo-800 uppercase tracking-widest mb-3">Invite New Team Member</h3>
+        <div class="flex flex-col md:flex-row gap-3">
+            <input type="email" id="invite-email" placeholder="agent@company.com" class="flex-1 px-4 py-2.5 bg-white border border-indigo-200 rounded-xl font-bold text-xs outline-none focus:ring-2 focus:ring-indigo-500">
+            
+            <input type="text" id="invite-phone" placeholder="919876543210 (WhatsApp)" class="w-full md:w-48 px-4 py-2.5 bg-white border border-indigo-200 rounded-xl font-bold text-xs outline-none focus:ring-2 focus:ring-indigo-500">
+
+            <select id="invite-role" class="w-full md:w-32 px-4 py-2.5 bg-white border border-indigo-200 rounded-xl font-bold text-[10px] outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer text-slate-700 uppercase tracking-wider">
+                <option value="manager">Manager</option>
+                <option value="marketing">Marketing</option>
+                <option value="support">Support</option>
+                <option value="chat" selected>Chat Agent</option>
+            </select>
+            
+            <button id="btn-send-invite" onclick="window.inviteNewAgent()" class="bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-700 transition shadow-sm whitespace-nowrap">Send Invite</button>
+        </div>
+        <p class="text-[9px] text-indigo-400 font-bold mt-2"><i class="fa-solid fa-circle-info"></i> Agents exceeding the 10 free seats will be billed at ₹1000/month.</p>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-2 w-full">
+        <div class="relative flex-1">
+            <i class="fas fa-search absolute left-3 top-2.5 md:left-4 md:top-3.5 text-slate-400 text-[10px] md:text-xs"></i>
+            <input type="text" id="team-search" onkeyup="window.filterTeam()" placeholder="Search by name or email..." class="w-full pl-8 pr-3 md:pl-10 md:pr-4 py-2 md:py-3 bg-white border border-slate-200 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-wider outline-none focus:border-indigo-500 transition shadow-sm">
+        </div>
+        <select id="team-role-filter" onchange="window.filterTeam()" class="w-full md:w-48 px-3 py-2 md:px-4 md:py-3 bg-white border border-slate-200 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-wider outline-none transition shadow-sm cursor-pointer text-slate-600">
+            <option value="all">All Roles</option>
+            <option value="owner">Owner</option>
+            <option value="manager">Manager</option>
+            <option value="marketing">Marketing</option>
+            <option value="support">Support</option>
+            <option value="chat">Chat Agent</option>
+        </select>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse min-w-[600px]">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-100">
+                        <th class="p-3 md:p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Agent Details</th>
+                        <th class="p-3 md:p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Role & Access</th>
+                        <th class="p-3 md:p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                        <th class="p-3 md:p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="team-list-body" class="divide-y divide-slate-100">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>

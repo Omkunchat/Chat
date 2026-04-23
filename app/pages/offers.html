@@ -1,0 +1,74 @@
+<div class="space-y-6 animate-fade-in pb-24">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tight">Offers & Coupons 🎁</h1>
+            <p class="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">Manage discounts for AI</p>
+        </div>
+        <button id="btn-open-offer-modal" onclick="window.openOfferModal()" class="w-full md:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-[0_4px_15px_rgba(37,99,235,0.3)] transition active:scale-95 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-plus"></i> Create Offer
+        </button>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Active Offers</p>
+            <h3 class="text-3xl font-black text-slate-800" id="stat-active">0</h3>
+        </div>
+        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Created</p>
+            <h3 class="text-3xl font-black text-slate-800" id="stat-total">0</h3>
+        </div>
+    </div>
+
+    <div class="relative bg-white rounded-2xl border border-slate-200 p-2 shadow-sm flex items-center">
+        <i class="fa-solid fa-magnifying-glass text-slate-400 ml-3"></i>
+        <input type="text" id="offerSearchInput" onkeyup="window.handleOfferSearch()" placeholder="Search promo codes or names..." class="w-full bg-transparent border-none outline-none px-4 py-2 text-sm font-medium text-slate-700 placeholder-slate-400">
+    </div>
+
+    <div id="offers-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    </div>
+</div>
+
+<div id="offerModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[200] hidden items-center justify-center flex p-4 transition-opacity">
+    <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden transform transition-transform scale-95 origin-bottom relative flex flex-col max-h-[90vh]">
+        
+        <div class="flex items-center justify-between p-5 border-b border-slate-100">
+            <h3 class="text-lg font-black text-slate-800 tracking-tight">Create Discount Offer</h3>
+            <button onclick="window.closeOfferModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <form id="offerForm" onsubmit="window.saveOffer(event)" class="p-5 overflow-y-auto space-y-5">
+            <input type="hidden" id="editOfferId">
+            
+            <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Offer Name (e.g., Diwali Blast)</label>
+                <input type="text" id="offerName" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Promo Code</label>
+                    <div class="relative">
+                        <input type="text" id="offerCode" required placeholder="DIWALI20" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-blue-600 outline-none uppercase focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition">
+                        <button type="button" onclick="window.generateRandomCode()" class="absolute right-2 top-2 w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center"><i class="fa-solid fa-dice text-xs"></i></button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Expiry Date</label>
+                    <input type="date" id="offerExpiry" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-100 transition">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Discount Description (AI will read this)</label>
+                <textarea id="offerDesc" rows="2" required placeholder="Flat 20% off on all dry cleaning orders above ₹500." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 outline-none focus:ring-2 focus:ring-blue-100 transition resize-none"></textarea>
+            </div>
+            
+            <div class="pt-4 mt-2 border-t border-slate-100">
+                <button type="submit" id="btn-save-offer" class="w-full py-3.5 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
+                    Save Offer & Train AI
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

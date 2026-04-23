@@ -1,0 +1,137 @@
+<div id="dashboard-wrapper" class="w-full max-w-7xl mx-auto space-y-4 animate-fade-in pb-24 relative">
+
+    <div class="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm p-6 md:p-8 mt-2">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+                <p class="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] mb-1">
+                    <span id="greeting-time">GOOD MORNING</span> • WORKSPACE
+                </p>
+                <h1 class="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+                    Welcome back, <span id="user-name" class="text-blue-600">Owner</span>
+                </h1>
+                <p class="text-[11px] font-bold text-slate-400 mt-2 flex items-center gap-2 uppercase tracking-widest">
+                    <i class="fa-solid fa-circle-check text-emerald-500 text-[8px]"></i> Chatkun AI is active and handling messages
+                </p>
+            </div>
+            
+            <div class="flex gap-3 w-full md:w-auto">
+                <button id="dash-btn-add-product" onclick="window.location.hash='#catalog'; setTimeout(window.openProductModal, 500)" 
+                    class="flex-1 md:flex-none bg-slate-900 text-white px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-black transition-all active:scale-95 flex justify-center items-center gap-2">
+                    <i class="fas fa-plus"></i> Add Product
+                </button>
+                
+                <button id="dash-btn-broadcast" onclick="window.location.hash='#campaigns'; setTimeout(window.openCampaignModal, 500)" 
+                    class="flex-1 md:flex-none bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm transition-all active:scale-95 flex justify-center items-center gap-2">
+                    <i class="fas fa-bullhorn text-rose-500"></i> Broadcast
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:border-blue-300 transition-all cursor-pointer group active:scale-[0.98]" onclick="window.location.hash='#inbox'">
+            <div class="flex justify-between items-start mb-4">
+                <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg shadow-sm">
+                    <i class="fas fa-comment-dots"></i>
+                </div>
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Inbox</span>
+            </div>
+            <h3 class="text-2xl font-black text-slate-800 tracking-tight group-hover:text-blue-600 transition-colors truncate" id="dash-live-chats">0</h3>
+            <p class="text-[9px] font-bold text-blue-500/80 mt-1 uppercase tracking-widest flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Active Now
+            </p>
+        </div>
+
+        <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:border-emerald-300 transition-all cursor-pointer group active:scale-[0.98]" onclick="window.location.hash='#leads'">
+            <div class="flex justify-between items-start mb-4">
+                <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg shadow-sm">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Closed deals</span>
+            </div>
+            <h3 class="text-2xl font-black text-slate-800 tracking-tight group-hover:text-emerald-600 transition-colors truncate" id="dash-orders">0</h3>
+            <p class="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Total Orders</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:border-indigo-300 transition-all cursor-pointer group active:scale-[0.98]" onclick="window.location.hash='#analytics'">
+            <div class="flex justify-between items-start mb-4">
+                <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg shadow-sm">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">AI Load</span>
+            </div>
+            <h3 class="text-2xl font-black text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors truncate" id="dash-ai-rate">0%</h3>
+            <p class="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Automated Replies</p>
+        </div>
+
+        <div class="bg-purple-50/50 p-6 rounded-[2rem] border border-purple-100 shadow-sm hover:border-purple-300 transition-all cursor-pointer group relative overflow-hidden active:scale-[0.98]" onclick="window.location.hash='#catalog'">
+            <div class="flex justify-between items-start mb-1 relative z-10">
+                <div class="w-10 h-10 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center text-lg shadow-sm">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <span class="text-[9px] font-black text-purple-600/60 uppercase tracking-widest">Memory</span>
+            </div>
+            <h3 class="text-2xl font-black text-slate-800 tracking-tight mt-1 relative z-10" id="dash-catalog-count">0</h3>
+            <p class="text-[11px] font-bold text-slate-600 mt-1 line-clamp-2 relative z-10 uppercase tracking-wide leading-relaxed">
+                Products Learned
+            </p>
+            <i class="fa-solid fa-graduation-cap absolute -bottom-2 -right-2 text-6xl text-purple-200/40 -rotate-12 group-hover:scale-110 transition-transform"></i>
+        </div>
+
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+        
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-full min-h-[400px]">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <i class="fas fa-fire text-orange-500"></i> Hot Leads Pipeline
+                </h3>
+                <button onclick="window.location.hash='#leads'" class="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline underline-offset-4">View All</button>
+            </div>
+            
+            <div id="hot-leads-list" class="p-4 space-y-3 flex-1 overflow-y-auto custom-scrollbar bg-white">
+                <div class="flex flex-col items-center justify-center h-full text-slate-300 py-20">
+                    <i class="fas fa-circle-notch fa-spin text-xl mb-3 text-blue-500"></i>
+                    <p class="text-[10px] font-black uppercase tracking-widest">Scanning Pipeline...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-full min-h-[400px]">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <i class="fas fa-bolt text-yellow-500"></i> Live Activity
+                </h3>
+                <button onclick="window.location.hash='#inbox'" class="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline underline-offset-4">Live Inbox</button>
+            </div>
+
+            <div id="recent-activity-list" class="p-4 space-y-2 flex-1 overflow-y-auto custom-scrollbar bg-white">
+                <div class="py-20 text-center">
+                    <div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-comment-slash text-slate-200 text-xl"></i>
+                    </div>
+                    <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">No recent messages</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-full min-h-[400px]">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <i class="fas fa-star text-yellow-400"></i> Recent Reviews
+                </h3>
+                <button onclick="window.location.hash='#reviews'" class="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline underline-offset-4">View All</button>
+            </div>
+
+            <div id="recent-reviews-list" class="p-4 space-y-3 flex-1 overflow-y-auto custom-scrollbar bg-white">
+                <div class="flex flex-col items-center justify-center h-full text-slate-300 py-20">
+                    <i class="fas fa-circle-notch fa-spin text-xl mb-3 text-blue-500"></i>
+                    <p class="text-[10px] font-black uppercase tracking-widest">Loading Feedbacks...</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

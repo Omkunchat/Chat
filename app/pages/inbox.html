@@ -1,0 +1,169 @@
+<div style="height: calc(100vh - 65px); max-height: calc(100vh - 65px);" class="w-full relative flex flex-row overflow-hidden bg-white">
+
+    <div id="chat-list-panel" class="w-full md:w-[320px] lg:w-[350px] flex flex-col h-full bg-[#f8f9fa] md:border-r border-slate-200 z-20 shrink-0">
+        
+        <div class="pt-3 px-3 pb-2 shrink-0">
+            <div class="relative w-full group">
+                <i class="fas fa-search absolute left-4 top-3 text-slate-400 text-sm group-focus-within:text-blue-500 transition-colors"></i>
+                <input type="text" id="inboxSearch" onkeyup="window.searchChats()" placeholder="Search messages..." 
+                    class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-full text-[13px] font-medium outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all shadow-sm placeholder:text-slate-400">
+            </div>
+        </div>
+
+        <div id="filter-tabs" class="flex px-3 py-1.5 gap-2 overflow-x-auto hide-scrollbar shrink-0">
+            <button onclick="window.setTab('all')" id="tab-all" class="px-4 py-1.5 bg-slate-800 text-white rounded-full text-xs font-bold whitespace-nowrap shadow-sm transition-colors shrink-0">All</button>
+            <button onclick="window.location.hash='#order'" id="tab-order" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-xs font-bold whitespace-nowrap transition-colors flex items-center gap-1.5 shadow-sm shrink-0">
+                <i class="fa-solid fa-box-open"></i> Orders
+            </button>
+            <button onclick="window.setTab('agent')" id="tab-agent" class="px-4 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 rounded-full text-xs font-bold whitespace-nowrap transition-colors flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-headset text-red-500"></i> Needs Agent
+            </button>
+            <button onclick="window.setTab('hot')" id="tab-hot" class="px-4 py-1.5 bg-orange-50 text-orange-600 hover:bg-orange-100 border border-orange-200 rounded-full text-xs font-bold whitespace-nowrap transition-colors flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-fire text-orange-500"></i> Hot Leads
+            </button>
+            <button onclick="window.setTab('starred')" id="tab-starred" class="px-4 py-1.5 bg-yellow-50 text-yellow-600 hover:bg-yellow-100 border border-yellow-200 rounded-full text-xs font-bold whitespace-nowrap transition-colors flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-star text-yellow-500"></i> Starred
+            </button>
+        </div>
+
+        <div id="chat-list-container" class="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1 bg-transparent overscroll-none">
+            <div class="flex flex-col items-center justify-center h-48 text-slate-500">
+                <i class="fas fa-circle-notch fa-spin text-2xl mb-3 text-blue-500"></i>
+                <p class="text-[10px] font-bold uppercase tracking-widest">Syncing...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="chat-window-panel" class="hidden md:flex flex-col relative w-full md:w-auto h-full flex-1 min-w-0 z-30 wa-bg">
+        
+        <div id="chat-empty-state" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-50/95 backdrop-blur-md z-[60]">
+            <div class="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center mb-6 shadow-sm border border-slate-100">
+                <i class="fa-brands fa-whatsapp text-5xl text-blue-500/50"></i>
+            </div>
+            <h3 class="text-xl font-black text-slate-800">Chatkun Workspace</h3>
+            <p class="text-xs font-medium text-slate-500 mt-2">Select a conversation to start messaging</p>
+        </div>
+
+        <div class="h-[65px] px-2 md:px-4 bg-white/95 backdrop-blur-md border-b border-slate-200 flex justify-between items-center shrink-0 z-20 shadow-sm w-full box-border">
+            <div class="flex items-center gap-2 md:gap-3 min-w-0">
+                <button onclick="window.closeChatMobile()" class="md:hidden w-10 h-10 rounded-full text-slate-600 flex items-center justify-center hover:bg-slate-100 transition active:scale-95 shrink-0">
+                    <i class="fa-solid fa-arrow-left text-lg"></i>
+                </button>
+                <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-lg font-black border border-blue-100 shadow-inner overflow-hidden shrink-0" id="chat-header-initial">?</div>
+                <div class="flex flex-col cursor-pointer min-w-0">
+    <div class="flex items-center gap-2">
+        <h3 class="text-[15px] font-bold text-slate-900 truncate" id="chat-header-name">Customer</h3>
+        <span id="current-agent-role" class="bg-blue-100 text-blue-600 text-[8px] px-1.5 py-0.5 rounded border border-blue-200 font-black uppercase tracking-widest shadow-sm">CHAT</span>
+    </div>
+    <p class="text-xs font-medium text-slate-500 truncate" id="chat-header-phone">+91 00000 00000</p>
+</div>
+            </div>
+
+            <div class="flex items-center gap-1.5 pr-1 md:pr-2 shrink-0">
+                <div id="ai-toggle-wrapper" class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-full border border-slate-200 shadow-sm mr-2">
+    <span class="text-[10px] font-black uppercase tracking-widest text-slate-700" id="ai-status-text">AI Bot</span>
+    <label class="relative inline-flex items-center cursor-pointer active:scale-95 transition">
+        <input type="checkbox" id="ai-toggle-btn" class="sr-only peer">
+        <div class="w-8 h-4.5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-[14px] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-green-500"></div>
+    </label>
+</div>
+                <button onclick="window.toggleStarred()" id="btn-star-header" class="w-9 h-9 rounded-full text-slate-400 hover:text-yellow-500 bg-transparent transition-colors flex items-center justify-center text-lg"><i class="fa-solid fa-star"></i></button>
+                <button onclick="window.toggleHotLeadManual()" id="btn-hot-header" class="w-9 h-9 rounded-full text-slate-400 hover:text-orange-500 bg-transparent transition-colors flex items-center justify-center text-lg"><i class="fa-solid fa-fire"></i></button>
+            </div>
+        </div>
+
+        <div id="messages-container" class="flex-1 overflow-y-auto p-3 md:p-6 space-y-3 relative custom-scrollbar overscroll-none scroll-smooth w-full box-border">
+            <div id="loading-messages" class="hidden text-center mt-4">
+                <i class="fas fa-circle-notch fa-spin text-xl text-blue-500"></i>
+            </div>
+        </div>
+
+        <div id="emoji-picker" class="hidden h-56 bg-white border-t border-slate-200 z-50 overflow-y-auto w-full shadow-[0_-10px_15px_rgba(0,0,0,0.03)] box-border">
+            <div class="p-3">
+                <div class="grid grid-cols-8 md:grid-cols-10 gap-2 text-2xl" id="emoji-grid"></div>
+            </div>
+        </div>
+
+        <div id="input-wrapper" class="flex flex-col bg-[#F0F2F5] shrink-0 pb-safe w-full box-border z-40 border-t border-slate-200">
+            
+            <div class="flex px-3 pt-2 gap-1 -mb-px w-full">
+                <button onclick="window.setNoteMode(false)" id="tab-mode-msg" class="px-4 py-1.5 bg-white rounded-t-xl text-xs font-bold text-blue-600 shadow-[0_-2px_5px_rgba(0,0,0,0.02)] z-20 transition-colors">Message</button>
+                <button onclick="window.setNoteMode(true)" id="tab-mode-note" class="px-4 py-1.5 bg-transparent rounded-t-xl text-xs font-medium text-slate-500 hover:bg-[#FFF3C4]/60 transition-colors z-10 border border-transparent">Internal Note <i class="fa-solid fa-eye-slash ml-1 text-[10px]"></i></button>
+            </div>
+
+            <div class="w-full px-2 pb-2 pt-2 md:px-4 md:pb-3 box-border bg-white">
+                
+                <div id="recording-ui" class="hidden w-full items-center justify-between bg-slate-50 rounded-full px-4 py-1 min-h-[46px] shadow-sm border border-red-50 box-border">
+                    <div class="flex items-center gap-2 shrink-0">
+                        <div class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></div>
+                        <span id="record-timer" class="font-mono text-slate-700 text-[14px] font-bold">00:00</span>
+                    </div>
+                    <div class="flex items-center gap-3 shrink-0">
+                        <button onclick="window.cancelRecording()" class="text-slate-400 hover:text-red-500 text-xs font-bold transition-colors">Cancel</button>
+                        <button onclick="window.stopAndPrepareSend()" class="w-9 h-9 shrink-0 flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600 active:scale-95 transition-all shadow-sm">
+                            <i class="fa-solid fa-paper-plane text-sm translate-x-[-1px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="standard-ui" class="w-full flex items-end gap-1.5 box-border justify-between">
+                    <div class="flex-1 flex items-end bg-slate-100 rounded-3xl md:rounded-full shadow-inner relative min-h-[46px] box-border max-w-[calc(100%-52px)]">
+                        <button type="button" onclick="window.toggleEmojiPicker()" id="emoji-btn" class="p-3 text-slate-500 hover:text-slate-700 transition active:scale-95 shrink-0">
+                            <i class="fa-regular fa-face-smile text-[19px]"></i>
+                        </button>
+                        
+                        <textarea id="msg-input" rows="1" class="flex-1 resize-none bg-transparent pt-3.5 pb-3 px-0 text-[15px] font-medium text-slate-800 outline-none max-h-32 placeholder:text-slate-500 custom-scrollbar w-full" placeholder="Type a message..." oninput="this.style.height = ''; this.style.height = Math.min(this.scrollHeight, 120) + 'px'; window.checkTypingStatus()"></textarea>
+
+                        <div class="flex items-center pr-1 pb-1.5 gap-0 shrink-0">
+                            <button type="button" onclick="document.getElementById('file-upload').click()" class="p-2 text-slate-500 hover:text-blue-600 transition transform -rotate-45 active:scale-95"><i class="fa-solid fa-paperclip text-[18px]"></i></button>
+                            <button type="button" id="btn-camera" onclick="document.getElementById('camera-upload').click()" class="p-2 text-slate-500 hover:text-blue-600 transition active:scale-95"><i class="fa-solid fa-camera text-[18px]"></i></button>
+                        </div>
+                    </div>
+
+                    <button id="btn-action" onclick="window.handleMainAction(event)" class="w-11 h-11 shrink-0 bg-[#00A884] text-white rounded-full flex items-center justify-center shadow-md hover:bg-[#008f6f] active:scale-95 transition-all">
+                        <i id="action-icon" class="fa-solid fa-microphone text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <input type="file" id="camera-upload" accept="image/*" capture="environment" class="hidden" onchange="window.handleAttachment(event)">
+            <input type="file" id="file-upload" class="hidden" onchange="window.handleAttachment(event)">
+        </div>
+    </div>
+</div>
+
+<style>
+.pb-safe { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); }
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar { width: 5px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
+
+/* Hide Scrollbar specifically for horizontal filter tabs to make it clean */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* 🛡️ PERMANENT BACKGROUND FIX */
+.wa-bg {
+    background-color: #EFEAE2;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.035'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* 🔥 NAYA: Mobile Keyboard & Bottom Sticky Fix */
+@media (max-width: 768px) {
+    #chat-window-panel {
+        position: fixed !important;
+        top: 0; left: 0; right: 0; bottom: 0;
+        height: 100dvh !important;
+        width: 100%;
+        z-index: 9999;
+    }
+}
+
+/* Bubbles */
+.bubble-in { background-color: #FFFFFF; border-radius: 0 8px 8px 8px; box-shadow: 0 1px 0.5px rgba(11,20,26,.13); }
+.bubble-out { background-color: #D9FDD3; border-radius: 8px 0 8px 8px; box-shadow: 0 1px 0.5px rgba(11,20,26,.13); }
+.bubble-note { background-color: #FFF3C4; border-radius: 8px; box-shadow: 0 1px 0.5px rgba(11,20,26,.13); border: 1px solid #FDE047; }
+</style>

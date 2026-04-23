@@ -1,0 +1,212 @@
+<div class="w-full max-w-7xl mx-auto space-y-6 animate-fade-in pb-24 relative">
+
+    <div class="bg-slate-900 rounded-3xl p-6 md:p-8 shadow-xl text-white relative overflow-hidden border border-slate-800">
+        <i class="fa-solid fa-globe absolute -right-10 -bottom-10 text-[150px] text-white/5 rotate-12"></i>
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h2 class="text-2xl md:text-3xl font-black flex items-center gap-3">
+                    <i class="fa-solid fa-microchip text-indigo-400"></i> Universal AI Studio 3.0
+                </h2>
+                <p class="text-xs md:text-sm font-bold text-slate-400 mt-2 max-w-2xl leading-relaxed">
+                    Train your AI globally. Set currencies, build smart FAQs, define business types, and automate CRM for international clients.
+                </p>
+            </div>
+            <button onclick="window.saveBotSetup()" class="px-6 py-3 bg-indigo-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-indigo-500 transition shadow-lg active:scale-95 flex items-center gap-2 shrink-0">
+                <i class="fa-solid fa-rocket"></i> Deploy Intelligence
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <div class="lg:col-span-8 space-y-6">
+            
+            <div class="bg-white p-5 md:p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest border-b border-slate-100 pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-earth-americas text-blue-500"></i> Global Business Settings
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="text-[9px] font-bold text-slate-400 uppercase">Industry / Niche</label>
+<input type="text" id="ai_industry" placeholder="e.g. Astrologer, Plumber, SaaS" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-indigo-500 transition">
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-bold text-slate-400 uppercase">Primary Currency</label>
+                        <select id="ai_currency" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none">
+                            <option value="INR">₹ INR (India)</option>
+                            <option value="USD">$ USD (Global)</option>
+                            <option value="EUR">€ EUR (Europe)</option>
+                            <option value="AED">د.إ AED (UAE)</option>
+                            <option value="GBP">£ GBP (UK)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-bold text-slate-400 uppercase">Business Timezone</label>
+                        <select id="ai_timezone" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none">
+                            <option value="Asia/Kolkata">IST (Asia/Kolkata)</option>
+                            <option value="America/New_York">EST (America/New_York)</option>
+                            <option value="Europe/London">GMT (Europe/London)</option>
+                            <option value="Asia/Dubai">GST (Asia/Dubai)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 md:p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest border-b border-slate-100 pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-book-atlas text-blue-500"></i> Knowledge Base & FAQs
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-dashed border-slate-300 hover:border-indigo-400 transition cursor-pointer group text-center" onclick="document.getElementById('ai_pdf_upload').click()">
+                        <input type="file" id="ai_pdf_upload" accept=".pdf,.txt" class="hidden" onchange="window.handleKnowledgeUpload(event)">
+                        <i class="fa-solid fa-file-pdf text-2xl text-slate-400 group-hover:text-red-500 mb-2"></i>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase">Upload PDF Menu / Brochure</p>
+                        <span id="pdf-status" class="text-[9px] text-slate-400 font-medium">Max size 5MB</span>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1.5">Website Scraper (URL)</label>
+                        <div class="flex gap-2">
+                            <input type="url" id="ai_webUrl" placeholder="https://yourwebsite.com" class="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500">
+                            <button onclick="window.scrapeWebsite()" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-bold hover:bg-black transition">Scrape</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 border-t border-slate-100 pt-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase block">Smart FAQ Builder (Zero-Cost Routing)</label>
+                            <span class="text-[9px] text-slate-400 font-medium">Add keywords like "price, cost, rate" to bypass AI and save money.</span>
+                        </div>
+                        <button onclick="window.addFaq()" class="text-[9px] bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-lg font-bold hover:bg-indigo-100 transition shadow-sm border border-indigo-100"><i class="fa-solid fa-plus"></i> Add Q&A</button>
+                    </div>
+                    <div id="faq-container" class="space-y-3">
+                        </div>
+                </div>
+
+                <div class="mt-4">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Custom Prompts & Rules</label>
+                    <textarea id="ai_customPrompt" rows="4" placeholder="E.g., Never offer discounts. Always speak politely." class="w-full px-4 py-3 bg-indigo-50/30 border border-indigo-100 rounded-2xl text-xs font-bold text-slate-700 outline-none focus:border-indigo-500 transition resize-none"></textarea>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 md:p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+                        <i class="fa-solid fa-clock text-amber-500"></i> Smart Business Hours
+                    </h3>
+                    <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                        <input type="checkbox" id="ai_enableAwayMode" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                    </label>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="text-[9px] font-bold text-slate-400 uppercase">Working Days</label>
+                        <select id="ai_workDays" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none">
+                            <option value="mon_fri">Mon - Fri</option>
+                            <option value="mon_sat">Mon - Sat</option>
+                            <option value="all">Everyday (24/7)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-bold text-slate-400 uppercase">Open From</label>
+                        <input type="time" id="ai_openTime" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-bold text-slate-400 uppercase">Closed At</label>
+                        <input type="time" id="ai_closeTime" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Away Message (Sent when closed)</label>
+                    <textarea id="ai_awayMsg" rows="2" placeholder="Hi! We are currently closed. We will reply to you at 10 AM..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-amber-500 transition resize-none"></textarea>
+                </div>
+            </div>
+
+            <div class="bg-indigo-900 rounded-3xl p-5 md:p-6 shadow-xl text-white space-y-4">
+                <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                    <h3 class="text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group text-indigo-300"></i> Drip Sequences (Marketing)
+                    </h3>
+                    <button onclick="window.addDripStep()" class="text-[10px] font-black uppercase bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition border border-white/10">Add Step</button>
+                </div>
+                
+                <div id="drip-container" class="space-y-3"></div>
+                <p class="text-[9px] text-indigo-200 font-bold italic">* AI will automatically follow up with "Hot" leads based on their local timezone.</p>
+            </div>
+        </div>
+
+        <div class="lg:col-span-4 space-y-6">
+            
+            <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest border-b border-slate-100 pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-id-card-clip text-indigo-500"></i> AI Identity & Tone
+                </h3>
+                <input type="text" id="ai_name" placeholder="Agent Name (e.g. Sarah)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-indigo-500 transition">
+                
+                <select id="ai_tone" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none">
+                    <option value="professional">Professional & Crisp</option>
+                    <option value="friendly">Friendly & Empathic (Uses Emojis)</option>
+                    <option value="luxury">Luxury / High-End</option>
+                    <option value="genz">Gen-Z (Casual & Cool)</option>
+                </select>
+                
+                <div class="pt-2">
+                    <label class="text-[9px] font-bold text-slate-400 uppercase">Fallback Action (If AI gets confused)</label>
+                    <select id="ai_fallback" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none">
+                        <option value="assign_agent">Transfer to Human Agent</option>
+                        <option value="apologize">Say Apology & Ask to rephrase</option>
+                        <option value="menu">Send Main Menu List</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest border-b border-slate-100 pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-tags text-emerald-500"></i> CRM Intelligence
+                </h3>
+                
+                <div class="flex justify-between items-center p-3 bg-emerald-50 rounded-2xl border border-emerald-100">
+                    <div>
+                        <span class="text-[10px] font-black text-emerald-800 uppercase block">Auto-Tagging</span>
+                        <span class="text-[8px] font-bold text-emerald-600">Tags leads based on intent</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                        <input type="checkbox" id="ai_enableTagging" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                    </label>
+                </div>
+
+                <div class="flex justify-between items-center p-3 bg-rose-50 rounded-2xl border border-rose-100">
+                    <div>
+                        <span class="text-[10px] font-black text-rose-800 uppercase block">Sentiment Guard</span>
+                        <span class="text-[8px] font-bold text-rose-600">Flags unhappy customers</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                        <input type="checkbox" id="ai_enableSentiment" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+                <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest border-b border-slate-100 pb-3 flex items-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-green-500"></i> Welcome Experience
+                </h3>
+                <textarea id="ai_welcomeMsg" rows="3" placeholder="Hello! Welcome to our store..." class="w-full px-4 py-2.5 bg-green-50/30 border border-green-100 rounded-2xl text-xs font-bold text-slate-700 outline-none focus:border-green-500 transition resize-none"></textarea>
+                <div class="space-y-1.5">
+                    <input type="text" id="ai_btn1" placeholder="Button 1 (e.g. View Catalog)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-600 outline-none">
+                    <input type="text" id="ai_btn2" placeholder="Button 2 (e.g. Contact Support)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-600 outline-none">
+                </div>
+            </div>
+
+            <button id="btn-save-bot" onclick="window.saveBotSetup()" class="w-full py-4 bg-slate-900 text-white rounded-3xl text-xs font-black uppercase tracking-widest hover:bg-black transition shadow-xl active:scale-[0.98] flex justify-center items-center gap-2">
+                <i class="fa-solid fa-satellite-dish"></i> Save & Sync Bot
+                <i id="bot-loader" class="fa-solid fa-circle-notch fa-spin hidden"></i>
+            </button>
+        </div>
+    </div>
+</div>

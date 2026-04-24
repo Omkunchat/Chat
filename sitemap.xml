@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://dry.omkun.com/</loc>
+    <loc>https://chat.omkun.com/</loc>
     <lastmod>2026-04-24</lastmod>
     <priority>1.00</priority>
   </url>
 
   <url>
-    <loc>https://dry.omkun.com/about.html</loc>
+    <loc>https://chat.omkun.com/about.html</loc>
     <lastmod>2026-04-24</lastmod>
     <priority>0.80</priority>
   </url>
 <url>
-    <loc>https://dry.omkun.com/order.html</loc>
+    <loc>https://chat.omkun.com/order.html</loc>
     <lastmod>2026-04-24</lastmod>
     <priority>0.80</priority>
   </url>
 <url>
-    <loc>https://dry.omkun.com/price.html</loc>
+    <loc>https://chat.omkun.com/price.html</loc>
     <lastmod>2026-04-24</lastmod>
     <priority>0.80</priority>
   </url>

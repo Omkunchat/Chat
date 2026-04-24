@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://dry.omkun.com/</loc>
+    <lastmod>2026-04-24</lastmod>
+    <priority>1.00</priority>
+  </url>
+
+  <url>
+    <loc>https://dry.omkun.com/about.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <priority>0.80</priority>
+  </url>
+<url>
+    <loc>https://dry.omkun.com/order.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <priority>0.80</priority>
+  </url>
+<url>
+    <loc>https://dry.omkun.com/price.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://chat.omkun.com/refund.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://chat.omkun.com/terms.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://chat.omkun.com/about.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://chat.omkun.com/privacy.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://chat.omkun.com/crm.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://chat.omkun.com/features/inbox.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <priority>0.80</priority>
+  </url>
+</urlset>

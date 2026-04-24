@@ -1,54 +1,176 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://chat.omkun.com/</loc>
-    <lastmod>2026-04-24</lastmod>
-    <priority>1.00</priority>
-  </url>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
 
-  <url>
-    <loc>https://chat.omkun.com/about.html</loc>
-    <lastmod>2026-04-24</lastmod>
-    <priority>0.80</priority>
-  </url>
+
 <url>
-    <loc>https://chat.omkun.com/order.html</loc>
-    <lastmod>2026-04-24</lastmod>
-    <priority>0.80</priority>
-  </url>
+  <loc>https://chat.omkun.com/</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>1.00</priority>
+</url>
 <url>
-    <loc>https://chat.omkun.com/price.html</loc>
-    <lastmod>2026-04-24</lastmod>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://chat.omkun.com/refund.html</loc>
-    <lastmod>2026-04-24</lastmod>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://chat.omkun.com/terms.html</loc>
-    <lastmod>2026-04-24</lastmod>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://chat.omkun.com/about.html</loc>
-    <lastmod>2026-04-24</lastmod>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://chat.omkun.com/privacy.html</loc>
-    <lastmod>2026-04-24</lastmod>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://chat.omkun.com/crm.html</loc>
-    <lastmod>2026-04-24</lastmod>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://chat.omkun.com/features/inbox.html</loc>
-    <lastmod>2026-04-24</lastmod>
-    <priority>0.80</priority>
-  </url>
+  <loc>https://chat.omkun.com/app/login</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/features/inbox</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/features/broadcast</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/features/flow-builder.html</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/features/crm</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/features/orders</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/platform/integrations</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/platform/api</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/pricing</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/platform/whatsapp-guidelines</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/platform/status</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/company/about</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/company/blog.html</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/company/contact</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/legal/privacy</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/legal/terms</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/inbox.html</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/crm.html</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/broadcast.html</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/flow-builder.html</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/orders.html</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/features/app/login.html</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/login</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/integrations.html</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/api.html</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/whatsapp-guidelines.html</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/status.html</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/legal/refund</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/company/app/login.html</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/privacy.html</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/terms.html</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://chat.omkun.com/refund.html</loc>
+  <lastmod>2026-04-24T22:06:02+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+
 </urlset>

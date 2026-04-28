@@ -5,36 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Developer API & Webhooks - Omkun Chat | Build on WhatsApp</title>
     <meta name="description" content="Seamlessly connect Omkun Chat with your favorite tools. Integrate WhatsApp API natively with Shopify, WooCommerce, Zapier, Pabbly Connect, and HubSpot CRM.">
-    <meta name="keywords" content="WhatsApp API Integrations, Shopify WhatsApp Plugin, Zapier WhatsApp Bot, Omkun Chat App Store, WhatsApp CRM Sync">
+    <meta name="keywords" content="WhatsApp API Integrations, Shopify WhatsApp Plugin, Zapier WhatsApp Bot, Omkun Chat App Store, WhatsApp CRM Sync, RESTful API">
     <meta name="author" content="Omkun Chat Inc.">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="/index.html/platform/integrations.html">
+    <link rel="canonical" href="https://chat.omkun.com/platform/api.html">
 
-    <link rel="icon" type="image/png" href="../images/chat-icon.png"> 
-    <link rel="apple-touch-icon" href="../images/chat-icon.png">
+    <link rel="icon" type="image/webp" href="../images/chat-icon.webp"> 
+    <link rel="apple-touch-icon" href="../images/chat-icon.webp">
     
     <meta property="og:type" content="website">
-    <meta property="og:url" content="/index.html/platform/integrations.html">
-    <meta property="og:title" content="Omkun Chat Integrations & App Store">
+    <meta property="og:url" content="https://chat.omkun.com/platform/integrations.html">
+    <meta property="og:title" content="Omkun Chat Integrations, API & App Store">
     <meta property="og:description" content="Connect WhatsApp to your existing business workflow. 1-click installs for Shopify, Zapier, and more.">
-    <meta property="og:image" content="/index.html/app/logo/social-preview.jpg"> 
+    <meta property="og:image" content="https://chat.omkun.com/app/logo/social-preview.jpg"> 
     <meta name="twitter:card" content="summary_large_image">
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="../app/css/theme.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Developer API & Webhooks - Omkun Chat",
+      "description": "API documentation and integrations for Omkun Chat to build scalable WhatsApp experiences.",
+      "url": "https://chat.omkun.com/platform/integrations.html",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Omkun Inc."
+      }
+    }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        primary: '#4f46e5', /* Indigo 600 */
+                        primary: '#1E40AF', /* Changed to omkun-blue from previous page */
                         whatsapp: '#25D366',
                         dark: '#0F172A',
                     }
@@ -42,6 +53,19 @@
             }
         }
     </script>
+
+    <link rel="preload" href="../app/css/theme.css" as="style">
+    <link rel="stylesheet" href="../app/css/theme.css">
+
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    </noscript>
+
     <style>
         body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
         .hero-bg { background: linear-gradient(180deg, #F8FAFC 0%, #ffffff 100%); }
@@ -60,9 +84,9 @@
 </head>
 <body class="bg-white text-slate-800 antialiased overflow-x-hidden">
 
-    <a href="https://wa.me/918800020711?text=Hi%20Omkun Chat,%20I%20want%20to%20see%20a%20demo!" target="_blank" class="fixed bottom-6 right-6 z-50 flex items-center group wa-float">
+    <a href="https://wa.me/918447815135?text=Hi%20Omkun Chat,%20I%20want%20to%20see%20a%20demo!" aria-label="Contact Omkun Chat API Support on WhatsApp" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 z-50 flex items-center group wa-float">
         <div class="mr-3 bg-white px-4 py-2 rounded-xl shadow-lg border border-slate-100 text-sm font-bold text-slate-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:block">
-            Try our Live AI Bot! 
+            Try our Live API Bot! 
         </div>
         <div class="w-14 h-14 bg-whatsapp rounded-full flex items-center justify-center text-white text-3xl shadow-xl shadow-green-500/30 hover:scale-110 transition-transform">
             <i class="fa-brands fa-whatsapp"></i>
@@ -72,23 +96,22 @@
     <nav class="fixed w-full z-40 bg-white/90 backdrop-blur-md border-b border-slate-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-14">
-                <a href="/index.html" class="flex items-center gap-2 cursor-pointer group">
-                    <img src="../images/chat.png" alt="Omkun Chat" class="h-8 w-auto object-contain group-hover:scale-105 transition">
-                    
+                <a href="/index.html" aria-label="Go to Homepage" class="flex items-center gap-2 cursor-pointer group">
+                    <img src="../images/chat.png" alt="Omkun Chat Developer API Logo" width="120" height="32" class="h-8 w-auto object-contain group-hover:scale-105 transition">
                 </a>
                 
                 <div class="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-600">
-                    <a href="#features" class="hover:text-primary transition">Features</a>
-                    <a href="#use-cases" class="hover:text-primary transition">Solutions</a>
-                    <a href="#comparison" class="hover:text-primary transition">Compare</a>
-                    <a href="#pricing" class="hover:text-primary transition">Pricing</a>
+                    <a href="/index.html#features" class="hover:text-primary transition">Features</a>
+                    <a href="/index.html#use-cases" class="hover:text-primary transition">Solutions</a>
+                    <a href="/index.html#comparison" class="hover:text-primary transition">Compare</a>
+                    <a href="/index.html#pricing" class="hover:text-primary transition">Pricing</a>
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <a href="/app/login.html" class="hidden md:inline-block bg-primary hover:bg-indigo-700 text-white px-5 py-1.5 rounded-lg text-sm font-bold transition shadow-sm">
+                    <a href="/app/login.html" class="hidden md:inline-block bg-primary hover:bg-blue-800 text-white px-5 py-1.5 rounded-lg text-sm font-bold transition shadow-sm">
                         Start Free Trial
                     </a>
-                    <button onclick="toggleMenu()" class="text-slate-700 hover:text-primary text-xl focus:outline-none p-1 md:hidden">
+                    <button onclick="toggleMenu()" aria-label="Open Navigation Menu" class="text-slate-700 hover:text-primary text-xl focus:outline-none p-1 md:hidden">
                         <i class="fas fa-bars"></i>
                     </button>
                 </div>
@@ -101,30 +124,29 @@
     <div id="mobile-menu" class="fixed top-0 left-0 w-[80%] max-w-sm h-full bg-white z-50 shadow-2xl flex flex-col">
         <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
             <div class="flex items-center gap-2">
-                <img src="../images/chat.png" alt="Omkun Chat" class="h-6 w-auto">
-                
+                <img src="../images/chat.png" alt="Omkun Chat Logo Mobile" width="100" height="24" class="h-6 w-auto">
             </div>
-            <button onclick="toggleMenu()" class="w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-500 flex items-center justify-center">
+            <button onclick="toggleMenu()" aria-label="Close Navigation Menu" class="w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-500 flex items-center justify-center">
                 <i class="fas fa-times text-sm"></i>
             </button>
         </div>
 
         <div class="flex-grow overflow-y-auto p-4 text-sm font-semibold text-slate-700 space-y-1">
             <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-2 mb-2 px-2">Core Product</div>
-            <a href="../features/inbox.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-50 hover:text-primary transition"><i class="fa-solid fa-inbox w-5 text-slate-400"></i> Smart Inbox</a>
-            <a href="../features/broadcast.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-50 hover:text-primary transition"><i class="fa-solid fa-bullhorn w-5 text-slate-400"></i> Broadcasts</a>
-            <a href="../features/flow-builder.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-50 hover:text-primary transition"><i class="fa-solid fa-diagram-project w-5 text-slate-400"></i> Flow Builder</a>
-            <a href="../features/crm.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-50 hover:text-primary transition"><i class="fa-solid fa-columns w-5 text-slate-400"></i> Kanban CRM</a>
-            <a href="../features/orders.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-50 hover:text-primary transition"><i class="fa-solid fa-box-open w-5 text-slate-400"></i> Orders & Tickets</a>
+            <a href="../features/inbox.html" class="block py-2 px-3 rounded-lg hover:bg-blue-50 hover:text-primary transition"><i class="fa-solid fa-inbox w-5 text-slate-400"></i> Smart Inbox</a>
+            <a href="../features/broadcast.html" class="block py-2 px-3 rounded-lg hover:bg-blue-50 hover:text-primary transition"><i class="fa-solid fa-bullhorn w-5 text-slate-400"></i> Broadcasts</a>
+            <a href="../features/flow-builder.html" class="block py-2 px-3 rounded-lg hover:bg-blue-50 hover:text-primary transition"><i class="fa-solid fa-diagram-project w-5 text-slate-400"></i> Flow Builder</a>
+            <a href="../features/crm.html" class="block py-2 px-3 rounded-lg hover:bg-blue-50 hover:text-primary transition"><i class="fa-solid fa-columns w-5 text-slate-400"></i> Kanban CRM</a>
+            <a href="../features/orders.html" class="block py-2 px-3 rounded-lg hover:bg-blue-50 hover:text-primary transition"><i class="fa-solid fa-box-open w-5 text-slate-400"></i> Orders & Tickets</a>
             
             <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-6 mb-2 px-2">Platform</div>
-            <a href="../platform/integrations.html" class="block py-2 px-3 rounded-lg hover:bg-slate-50 transition"><i class="fa-solid fa-plug w-5 text-slate-400"></i> Integrations</a>
+            <a href="../platform/integrations.html" class="block py-2 px-3 rounded-lg bg-blue-50 text-primary transition"><i class="fa-solid fa-plug w-5"></i> Integrations</a>
             <a href="../platform/api.html" class="block py-2 px-3 rounded-lg hover:bg-slate-50 transition"><i class="fa-solid fa-code w-5 text-slate-400"></i> Developer API</a>
-            <a href="#pricing" onclick="toggleMenu()" class="block py-2 px-3 rounded-lg hover:bg-slate-50 transition"><i class="fa-solid fa-tag w-5 text-slate-400"></i> Pricing</a>
+            <a href="/index.html#pricing" onclick="toggleMenu()" class="block py-2 px-3 rounded-lg hover:bg-slate-50 transition"><i class="fa-solid fa-tag w-5 text-slate-400"></i> Pricing</a>
         </div>
 
         <div class="p-4 border-t border-slate-100 bg-white">
-            <a href="/app/login.html" class="block w-full text-center bg-primary text-white py-2.5 rounded-lg font-bold hover:bg-indigo-700 transition shadow-sm text-sm">
+            <a href="/app/login.html" class="block w-full text-center bg-primary text-white py-2.5 rounded-lg font-bold hover:bg-blue-800 transition shadow-sm text-sm">
                 Login / Start Free
             </a>
         </div>
@@ -134,7 +156,7 @@
         <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
             
             <div>
-                <span class="text-primary font-bold tracking-wider uppercase text-xs border border-indigo-200 bg-indigo-50 px-3 py-1 rounded-full"><i class="fa-solid fa-code mr-1"></i> Developer First</span>
+                <span class="text-primary font-bold tracking-wider uppercase text-xs border border-blue-200 bg-blue-50 px-3 py-1 rounded-full"><i class="fa-solid fa-code mr-1"></i> Developer First</span>
                 <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mt-6 mb-4 leading-tight">Build powerful WhatsApp experiences.</h1>
                 <p class="text-lg text-slate-500 mb-8">Use our robust RESTful API to send session messages, trigger template broadcasts, and manage your Kanban CRM programmatically. Everything you need, built for scale.</p>
                 
@@ -144,8 +166,8 @@
                     <li class="flex items-center gap-3"><i class="fa-solid fa-shield-halved text-emerald-500"></i> 99.99% Uptime powered by Meta Cloud API</li>
                 </ul>
 
-                <a href="..//app/login.html" class="inline-block bg-primary hover:bg-indigo-700 text-white px-8 py-3.5 rounded-xl font-bold transition shadow-lg">Generate API Key</a>
-                <a href="#" class="inline-block bg-white border border-slate-200 text-slate-700 px-8 py-3.5 rounded-xl font-bold hover:bg-slate-50 transition ml-2">Read Full Docs</a>
+                <a href="../app/login.html" class="inline-block bg-primary hover:bg-blue-800 text-white px-8 py-3.5 rounded-xl font-bold transition shadow-lg">Generate API Key</a>
+                <a href="#" aria-label="Read Full API Documentation" class="inline-block bg-white border border-slate-200 text-slate-700 px-8 py-3.5 rounded-xl font-bold hover:bg-slate-50 transition ml-2">Read Full Docs</a>
             </div>
 
             <div class="bg-slate-900 rounded-2xl border border-slate-700 shadow-2xl overflow-hidden text-sm">
@@ -156,11 +178,11 @@
                     <span class="text-slate-400 text-xs ml-2 font-mono">POST /v1/messages/send</span>
                 </div>
                 <div class="p-6 overflow-x-auto text-slate-300 font-mono leading-relaxed">
-<pre><code>curl -X POST "https://api.Omkun Chat.com/v1/messages/send" \
+<pre tabindex="0"><code>curl -X POST "https://api.omkun.com/v1/messages/send" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "to": "919876543210",
+    "to": "918447815135",
     "type": "template",
     "template": {
         "name": "order_confirmation",
@@ -181,6 +203,7 @@
         </div>
     </main>
 
+    
     <footer class="bg-white border-t border-slate-200 pt-16 pb-8 mt-auto">
         <div class="max-w-7xl mx-auto px-4">
             <div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12 text-sm">

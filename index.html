@@ -48,10 +48,20 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
+    <link rel="preload" href="app/css/main.css" as="style">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap">
     
     <link rel="stylesheet" href="app/css/main.css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    </noscript>
 
     <style>
         body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
@@ -487,7 +497,7 @@
                             </div>
                         </div>
                         <p class="mt-4 text-slate-400 font-medium text-[10px] leading-snug">
-                            <i class="fa-solid fa-circle-info mr-1"></i> Hum messages par koi extra markup nahi lete. Aap wahi pay karte hain jo Google aur Meta charge karte hain.
+                            <i class="fa-solid fa-circle-info mr-1"></i> We don't charge any extra markup on messages. You pay exactly what Google and Meta charge.
                         </p>
                     </div>
 

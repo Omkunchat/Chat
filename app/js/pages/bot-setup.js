@@ -67,7 +67,8 @@ async function loadBotSetup() {
 document.getElementById('ai_industry').value = bot.industry || "";
             // Agar root 'data' mein currency/timezone save hai, toh usko priority do warna 'bot' map se lo
             document.getElementById('ai_currency').value = data.currency || bot.currency || "INR";
-            document.getElementById('ai_timezone').value = data.timezone || bot.timezone || "Asia/Kolkata";
+            // Sirf bot map ki value use hogi, warna default Asia/Kolkata
+            document.getElementById('ai_timezone').value = bot.timezone || "Asia/Kolkata";
             
             // ── 2. AI Identity & Fallback ──
             document.getElementById('ai_name').value = bot.name || data.aiName || "";
@@ -243,7 +244,7 @@ async function saveBotSetup() {
             aiName: botData.name,
             aiPrompt: botData.customPrompt,
             currency: currencyVal,
-            timezone: timezoneVal
+            
         }, { merge: true });
 
         showToast("Intelligence Deployed Successfully! 🚀", "success");

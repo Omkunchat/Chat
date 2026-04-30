@@ -98,34 +98,75 @@ export function destroy() {
     if (campaignsUnsubscribe) campaignsUnsubscribe();
 }
 
-// 🚀 NAYA: COMBINED UI REFRESHER
+// 🚀 NAYA: PREMIUM GOOGLE-STYLE UI REFRESHER
 function refreshHealthUI() {
     const { quality, dailyLimit, sentToday } = state.metaHealth;
 
-    // 1. Update Standalone Labels (The Cards)
+    // 1. Quality Box Elements
     const qualityLabel = document.getElementById('waba-quality-label');
+    const qualityDesc = document.getElementById('waba-quality-desc');
+    const qualityDot = document.getElementById('quality-indicator-dot');
+
+    // 2. Usage Box Elements
     const limitLabel = document.getElementById('waba-limit-label');
     const sentLabel = document.getElementById('waba-sent-today-label');
+    const progressBar = document.getElementById('waba-progress-bar');
 
-    if (qualityLabel) {
-        let color = "text-emerald-500";
-        let text = "HIGH (GREEN)";
-        if (quality === 'MEDIUM' || quality === 'YELLOW') { color = "text-yellow-500"; text = "MEDIUM (YELLOW)"; }
-        if (quality === 'LOW' || quality === 'RED') { color = "text-red-500"; text = "LOW (RED)"; }
-        qualityLabel.innerText = text;
-        qualityLabel.className = `text-xl font-black ${color} tracking-tight uppercase italic`;
+    // --- Update Quality Box ---
+    if (qualityLabel && qualityDesc && qualityDot) {
+        // Remove initial loading shimmer
+        qualityLabel.classList.remove('text-slate-300', 'animate-pulse');
+        qualityDot.classList.remove('bg-slate-200', 'animate-pulse');
+
+        if (quality === 'GREEN' || quality === 'HIGH') {
+            qualityLabel.innerText = "HIGH (GREEN)";
+            qualityLabel.className = "text-2xl font-black text-emerald-500 tracking-tight uppercase";
+            qualityDesc.innerText = "Account is healthy and fully active.";
+            qualityDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]";
+        } else if (quality === 'YELLOW' || quality === 'MEDIUM') {
+            qualityLabel.innerText = "MEDIUM (YELLOW)";
+            qualityLabel.className = "text-2xl font-black text-yellow-500 tracking-tight uppercase";
+            qualityDesc.innerText = "Warning: Users are reporting your messages.";
+            qualityDot.className = "w-2.5 h-2.5 rounded-full bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.5)]";
+        } else if (quality === 'RED' || quality === 'LOW') {
+            qualityLabel.innerText = "LOW (RED)";
+            qualityLabel.className = "text-2xl font-black text-red-500 tracking-tight uppercase";
+            qualityDesc.innerText = "Critical: Meta has restricted your account.";
+            qualityDot.className = "w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]";
+        }
     }
 
-    if (limitLabel) {
-        limitLabel.innerText = dailyLimit === Infinity ? "UNLIMITED" : `${dailyLimit.toLocaleString()} MSGS/DAY`;
-    }
-
-    if (sentLabel) {
+    // --- Update Usage & Capacity Box ---
+    if (limitLabel && sentLabel && progressBar) {
+        // Remove initial loading shimmer
+        sentLabel.classList.remove('animate-pulse');
+        
         sentLabel.innerText = sentToday.toLocaleString();
-    }
+        let displayLimit = dailyLimit === Infinity ? "Unlimited" : dailyLimit.toLocaleString();
+        limitLabel.innerText = displayLimit;
 
-    // 2. Update Progress Dashboard (If exists)
-    renderHealthDashboard();
+        // Calculate and animate Progress Bar
+        let usagePercent = 0;
+        if (dailyLimit === Infinity) {
+            usagePercent = sentToday > 0 ? 5 : 0; // Show a tiny sliver if unlimited but used
+            progressBar.className = "bg-blue-500 h-1.5 rounded-full transition-all duration-1000 ease-out";
+        } else {
+            usagePercent = Math.min((sentToday / dailyLimit) * 100, 100);
+            // Smart color coding: turns yellow at 75%, red at 90%
+            if (usagePercent > 90) {
+                progressBar.className = "bg-red-500 h-1.5 rounded-full transition-all duration-1000 ease-out";
+            } else if (usagePercent > 75) {
+                progressBar.className = "bg-yellow-500 h-1.5 rounded-full transition-all duration-1000 ease-out";
+            } else {
+                progressBar.className = "bg-blue-500 h-1.5 rounded-full transition-all duration-1000 ease-out";
+            }
+        }
+        
+        // Trigger animation
+        setTimeout(() => {
+            progressBar.style.width = `${usagePercent}%`;
+        }, 100);
+    }
 }
 
 async function fetchWabaHealth() {

@@ -61,8 +61,16 @@ export async function init() {
     const stripeWebhookInput = document.getElementById('set_stripeWebhookUrl');
     if (stripeWebhookInput) stripeWebhookInput.value = `${WORKER_API}/stripe-webhook`;
 
-    await detectCurrency();
-    await loadSettings();
+    // NAYA CODE: Dono functions ko ek sath (parallel) chalayega
+    await Promise.all([
+        detectCurrency(),
+        loadSettings()
+    ]);
+
+    // Parallel loading me currency baad me aa sakti hai, isliye UI wapas update karna zaroori hai
+    if (Object.keys(state.settingsData).length > 0) {
+        calculateBillingUI(state.settingsData);
+    }
     applyRolePermissions(); 
     
     window.inviteTeamMember = inviteTeamMember;
@@ -79,14 +87,17 @@ window.handleLogout = async () => {
     }
 }
 
-// 🚀 NAYA: Exact Landing Page wala IP-detection method
 async function detectCurrency() {
     try {
-        const response = await fetch('https://ipapi.co/json/');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000); 
+
+        const response = await fetch('https://ipapi.co/json/', { signal: controller.signal });
+        clearTimeout(timeoutId); 
+        
         const data = await response.json();
         
         if (data.country_code !== 'IN') {
-            // Agar bahar ka user hai, toh USD set kar do
             state.pricing = {
                 isIndia: false,
                 symbol: '$',
@@ -97,7 +108,12 @@ async function detectCurrency() {
             };
         }
     } catch (error) {
-        console.error("Auto-currency detection failed. Defaulting to INR.");
+        // NAYA CODE: Error ko smartly handle karne ke liye
+        if (error.name === 'AbortError') {
+            console.log("⏳ IP API slow thi, isliye timer ne request cancel kar di. Defaulting to INR.");
+        } else {
+            console.log("⚠️ IP detection failed. Defaulting to INR.");
+        }
     }
 }
 
@@ -361,9 +377,13 @@ function populateForm(data) {
     document.getElementById('set_serviceableStates').value = data.serviceableStates || "";
     document.getElementById('set_serviceablePincodes').value = data.serviceablePincodes || "";
     window.toggleServiceArea();
-
+    
+    if(document.getElementById('set_metaAppId')) document.getElementById('set_metaAppId').value = data.metaAppId || "";
     if(document.getElementById('set_metaCatalogId')) document.getElementById('set_metaCatalogId').value = data.metaCatalogId || "";
     if(document.getElementById('set_paymentGatewayUrl')) document.getElementById('set_paymentGatewayUrl').value = data.paymentGatewayUrl || "";
+    
+    if(document.getElementById('set_metaWabaId')) 
+    document.getElementById('set_metaWabaId').value = data.metaWabaId || "";
     
     // 🚀 NAYA: Payment Keys Populate (Razorpay + Stripe)
     if(document.getElementById('set_razorpayKeyId')) document.getElementById('set_razorpayKeyId').value = data.razorpayKeyId || "";
@@ -450,9 +470,10 @@ window.saveAllSettings = async () => {
 
         // SECURITY LOCK - Yeh data sirf Owner save kar sakta hai
         if (state.role === 'owner') {
+            newData.metaAppId = document.getElementById('set_metaAppId')?.value.trim() || "";
             newData.metaPhoneId = document.getElementById('set_metaPhoneId')?.value.trim() || "";
             newData.metaToken = document.getElementById('set_metaToken')?.value.trim() || "";
-            
+            newData.metaWabaId = document.getElementById('set_metaWabaId')?.value.trim() || "";
             newData.ownerWhatsApp = document.getElementById('set_ownerWhatsApp')?.value.trim() || "";
             newData.aiBudgetLimit = Number(document.getElementById('set_aiBudgetLimit')?.value) || 0;
             newData.autoPauseAi = document.getElementById('set_autoPauseAi')?.checked ?? false;

@@ -50,10 +50,13 @@ export async function init() {
         document.getElementById('tpl-footer')?.addEventListener('input', () => { validateField('tpl-footer'); updatePreview(); });
         document.getElementById('header-text-input')?.addEventListener('input', () => { updatePreview(); });
         
-        // URL se Edit Mode handle karna
-        const urlParams = new URLSearchParams(window.location.search);
-        if(urlParams.has('edit_id')) {
-            await loadTemplateForEdit(urlParams.get('edit_id'));
+        // 🚀 FIX: Hash URL se Edit Mode handle karna
+        const hash = window.location.hash;
+        if(hash.includes('?edit_id=')) {
+            const editId = hash.split('?edit_id=')[1];
+            if (editId) {
+                await loadTemplateForEdit(editId);
+            }
         } else {
             updatePreview();
         }
@@ -253,6 +256,12 @@ async function loadTemplateForEdit(docId) {
                 nameInput.classList.add('bg-slate-100', 'text-slate-400');
             }
 
+            // 🚀 FIX: Category pre-fill
+            const categoryInput = document.getElementById('tpl-category');
+            if (categoryInput && tpl.category) {
+                categoryInput.value = tpl.category;
+            }
+
             // Loop through components to fill form inputs
             if(tpl.components && Array.isArray(tpl.components)) {
                 tpl.components.forEach(comp => {
@@ -288,12 +297,18 @@ async function loadTemplateForEdit(docId) {
             
             updatePreview();
             showToast("Edit Mode Active", "info");
+            
+            // Submit Button ka text change kar do
+            const submitBtn = document.getElementById('submit-btn');
+            if (submitBtn) {
+                submitBtn.innerText = "Update Template";
+            }
         }
     } catch(e) { 
         console.error("Load Template Error:", e); 
+        showToast("Error loading template details", "error");
     }
 }
-
 
 // --- COMPLETE TEMPLATE SYNC LOGIC (FETCH ALL FROM META) ---
 async function syncMetaTemplates() {

@@ -279,8 +279,31 @@ window.handleKnowledgeUpload = async (event) => {
     }
 };
 
-window.scrapeWebsite = () => {
+window.scrapeWebsite = async () => {
     const url = document.getElementById('ai_webUrl').value.trim();
     if(!url) return showToast("Enter a valid URL", "warning");
+    
+    // Status update
+    const statusLabel = document.getElementById('pdf-status'); // Knowledge status area use kar sakte hain
+    if(statusLabel) statusLabel.innerText = "Saving Website Data...";
     showToast("Website scraping started... AI will learn from it.", "info");
+
+    try {
+        // Firebase mein workspaceId ke andar URL ko save karna
+        await setDoc(doc(db, "sellers", state.workspaceId), {
+            botTraining: { 
+                knowledgeWebsiteUrl: url, 
+                websiteScrapeTime: serverTimestamp() 
+            }
+        }, { merge: true });
+
+        if(statusLabel) statusLabel.innerText = "✅ Website Synced: " + url;
+        showToast("Website added to AI Knowledge!", "success");
+        document.getElementById('ai_webUrl').value = ""; // Input clear kar do
+        
+    } catch (e) {
+        console.error("Scraping error:", e);
+        if(statusLabel) statusLabel.innerText = "❌ Sync Failed";
+        showToast("Failed to save website data.", "error");
+    }
 };

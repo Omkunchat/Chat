@@ -346,7 +346,7 @@ async function syncMetaTemplates() {
 }
 
 
-// --- COMPLETE SUBMIT LOGIC (CREATE OR EDIT WITH META) ---
+// --- COMPLETE SUBMIT LOGIC (META UPLOAD + CORS BYPASS FIX) ---
 async function submitToMeta(e) {
     e.preventDefault();
     if (!validateForm()) return;
@@ -355,7 +355,7 @@ async function submitToMeta(e) {
     const { metaWabaId, metaToken, metaAppId } = state.sellerConfig || {}; 
     
     if(!metaWabaId || !metaToken || !metaAppId) {
-        return Swal.fire("Config Missing", "Please add App ID, WABA ID & Token in Settings.", "error");
+        return Swal.fire("Config Missing", "App ID, WABA ID or Token is missing in Settings.", "error");
     }
 
     btn.innerText = state.isEditMode ? "Updating Template..." : "Processing Media..."; 
@@ -364,32 +364,44 @@ async function submitToMeta(e) {
     try {
         let headerHandle = "";
 
-        // Upload Media
+        // --- STEP 1: UPLOAD TO META VIA CORS PROXY (THE MAGIC FIX) ---
         if(['IMAGE', 'VIDEO'].includes(state.headerType)) {
             const fileInput = document.getElementById('tpl-media-file');
             const file = fileInput.files[0];
             
             if(file) {
-                const sessionRes = await fetch(`https://graph.facebook.com/v19.0/${metaAppId}/uploads?file_length=${file.size}&file_type=${file.type}`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${metaToken}` }
-                });
+                btn.innerText = "Bypassing Meta Security...";
+                
+                // 1. Create Upload Session
+                const sessionUrl = `https://graph.facebook.com/v19.0/${metaAppId}/uploads?file_length=${file.size}&file_type=${file.type}&access_token=${metaToken}`;
+                const sessionRes = await fetch(sessionUrl, { method: 'POST' });
                 const sessionData = await sessionRes.json();
+                
                 if(sessionData.error) throw new Error("Meta Session Error: " + sessionData.error.message);
 
-                const uploadRes = await fetch(`https://graph.facebook.com/v19.0/${sessionData.id}`, {
+                // 2. Upload Binary Data (CORS proxy wrapped to prevent browser block)
+                const targetUploadUrl = `https://graph.facebook.com/v19.0/${sessionData.id}`;
+                const proxyUploadUrl = `https://corsproxy.io/?${encodeURIComponent(targetUploadUrl)}`;
+
+                const uploadRes = await fetch(proxyUploadUrl, {
                     method: 'POST',
-                    headers: { 'Authorization': `OAuth ${metaToken}`, 'file_offset': '0' },
+                    headers: { 
+                        'Authorization': `OAuth ${metaToken}`, 
+                        'file_offset': '0' 
+                    },
                     body: file
                 });
+                
                 const uploadData = await uploadRes.json();
+                if(uploadData.error) throw new Error("Meta Upload Error: " + uploadData.error.message);
                 if(!uploadData.h) throw new Error("Meta Upload Failed: No handle returned");
                 
                 headerHandle = uploadData.h; 
             }
         }
 
-        // Build Components Payload
+        // --- STEP 2: BUILD COMPONENTS PAYLOAD ---
+        btn.innerText = "Submitting Template...";
         let components = [];
 
         const bodyText = document.getElementById('tpl-body').value.trim();
@@ -401,6 +413,7 @@ async function submitToMeta(e) {
         if(state.headerType === 'TEXT') {
             components.push({ type: "HEADER", format: "TEXT", text: document.getElementById('header-text-input').value.trim() });
         } else if(['IMAGE', 'VIDEO'].includes(state.headerType) && headerHandle) {
+            // Only header_handle is accepted here by Meta
             components.push({ type: "HEADER", format: state.headerType, example: { header_handle: [headerHandle] } });
         }
 
@@ -411,7 +424,7 @@ async function submitToMeta(e) {
             components.push({ type: "BUTTONS", buttons: state.buttons.map(b => ({ type: b.type, text: b.text.trim(), ...(b.type === 'URL' && { url: b.value.trim() }) })) });
         }
 
-        // Make API Call
+        // --- STEP 3: API CALL TO META ---
         let tplName = document.getElementById('tpl-name').value.toLowerCase().trim();
         let apiUrl = "";
         
@@ -424,7 +437,10 @@ async function submitToMeta(e) {
 
         const res = await fetch(apiUrl, {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${metaToken}`, 'Content-Type': 'application/json' },
+            headers: { 
+                'Authorization': `Bearer ${metaToken}`, 
+                'Content-Type': 'application/json' 
+            },
             body: JSON.stringify({ 
                 name: tplName, 
                 language: "en_US", 
@@ -434,9 +450,9 @@ async function submitToMeta(e) {
         });
 
         const data = await res.json();
-        if(data.error) throw new Error(data.error.message);
+        if(data.error) throw new Error(data.error.error_user_title || data.error.message || "Rejected by Meta");
 
-        // Update Firestore Database
+        // Save to Database
         const tplDocId = state.isEditMode ? state.editTemplateId : tplName;
         await setDoc(doc(db, "sellers", state.workspaceId, "templates", tplDocId), {
             name: tplName,
@@ -446,7 +462,7 @@ async function submitToMeta(e) {
             ...( !state.isEditMode && { createdAt: serverTimestamp() } )
         }, { merge: true });
 
-        Swal.fire("Success!", `Template ${state.isEditMode ? 'Updated' : 'Created'} Successfully!`, "success").then(() => window.location.hash='#templates');
+        Swal.fire("Success!", `Template ${state.isEditMode ? 'Updated' : 'Created'} Successfully!`, "success").then(() => window.location.hash='#tamplate');
 
     } catch (e) {
         console.error("DEBUG ERROR:", e);

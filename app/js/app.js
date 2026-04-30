@@ -2,38 +2,40 @@ import { auth, db } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { doc, getDoc, getDocs, collectionGroup, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"; 
 
-//  NAYA: Central Permissions System
+//  NAYA: Central Permissions System
 import { hasNavPermission } from "./role.js";
 
 // --- CONFIGURATION & CACHE ---
 const CACHE = new Map(); 
 let currentCleanup = null; 
 
-// Chatkun AI WhatsApp Routes
+// Omkun Chat AI WhatsApp Routes
 const routes = {
-    '#dashboard': { file: 'pages/dashboard.html', title: 'Chatkun | Dashboard', module: './pages/dashboard.js' },
-    '#inbox':     { file: 'pages/inbox.html', title: 'Chatkun | Live Inbox', module: './pages/inbox.js' },
-    '#leads':     { file: 'pages/leads.html', title: 'Chatkun | Leads & Orders', module: './pages/leads.js' },
-    '#lead-form': { file: 'pages/lead-form.html', title: 'Chatkun | Lead Workspace', module: './pages/lead-form.js' },
-    '#add-product': { file: 'pages/add-product.html', title: 'Chatkun | Item Workspace', module: './pages/add-product.js' },
-    '#order':     { file: 'pages/order.html', title: 'Chatkun | Manage Orders', module: './pages/order.js' },
-    '#catalog':   { file: 'pages/catalog.html', title: 'Chatkun | Catalog Manager', module: './pages/catalog.js' },
-    '#campaigns': { file: 'pages/campaigns.html', title: 'Chatkun | Broadcast', module: './pages/campaigns.js' },
-    '#send-campaigns': { file: 'pages/send-campaigns.html', title: 'Chatkun | Broadcast', module: './pages/send-campaigns.js' },
-    '#analytics': { file: 'pages/analytics.html', title: 'Chatkun | Analytics', module: './pages/analytics.js' },
-    '#settings':  { file: 'pages/settings.html', title: 'Chatkun | AI Training', module: './pages/settings.js' },
-    '#bot-setup':  { file: 'pages/bot-setup.html', title: 'Chatkun | AI Training', module: './pages/bot-setup.js' },
-    '#booking':  { file: 'pages/booking.html', title: 'Chatkun | AI Training', module: './pages/booking.js' },
-    '#team':      { file: 'pages/team.html', title: 'Chatkun | Team Management', module: './pages/team.js' },
-    '#offers':    { file: 'pages/offers.html', title: 'Chatkun | Offers & Coupons', module: './pages/offers.js' },
-    '#bookings':  { file: 'pages/bookings.html', title: 'Chatkun | Bookings & Pickups', module: './pages/bookings.js' },
-    '#support':   { file: 'pages/support.html', title: 'Chatkun | Support Tickets', module: './pages/support.js' },
-    '#reviews':   { file: 'pages/reviews.html', title: 'Chatkun | Customer Reviews', module: './pages/reviews.js' },
-    '#quotes':    { file: 'pages/quotes.html', title: 'Chatkun | B2B Custom Quotes', module: './pages/quotes.js' },
+    '#dashboard': { file: 'pages/dashboard.html', title: 'Omkun Chat | Dashboard', module: './pages/dashboard.js' },
+    '#inbox':     { file: 'pages/inbox.html', title: 'Omkun Chat | Live Inbox', module: './pages/inbox.js' },
+    '#leads':     { file: 'pages/leads.html', title: 'Omkun Chat | Leads & Orders', module: './pages/leads.js' },
+    '#lead-form': { file: 'pages/lead-form.html', title: 'Omkun Chat | Lead Workspace', module: './pages/lead-form.js' },
+    '#add-product': { file: 'pages/add-product.html', title: 'Omkun Chat | Item Workspace', module: './pages/add-product.js' },
+    '#order':     { file: 'pages/order.html', title: 'Omkun Chat | Manage Orders', module: './pages/order.js' },
+    '#catalog':   { file: 'pages/catalog.html', title: 'Omkun Chat | Catalog Manager', module: './pages/catalog.js' },
+    '#campaigns': { file: 'pages/campaigns.html', title: 'Omkun Chat | Broadcast', module: './pages/campaigns.js' },
+    '#send-campaigns': { file: 'pages/send-campaigns.html', title: 'Omkun Chat | Broadcast', module: './pages/send-campaigns.js' },
+    '#analytics': { file: 'pages/analytics.html', title: 'Omkun Chat | Analytics', module: './pages/analytics.js' },
+    '#settings':  { file: 'pages/settings.html', title: 'Omkun Chat | AI Training', module: './pages/settings.js' },
+    '#bot-setup':  { file: 'pages/bot-setup.html', title: 'Omkun Chat | AI Training', module: './pages/bot-setup.js' },
+    '#booking':  { file: 'pages/booking.html', title: 'Omkun Chat | AI Training', module: './pages/booking.js' },
+    '#tamplate':  { file: 'pages/tamplate.html', title: 'Tamplate Mangement', module: './pages/tamplate.js' },
+    '#create-tamplate':  { file: 'pages/create-tamplate.html', title: 'Tamplate Mangement', module: './pages/create-tamplate.js' },
+    '#team':      { file: 'pages/team.html', title: 'Omkun Chat | Team Management', module: './pages/team.js' },
+    '#offers':    { file: 'pages/offers.html', title: 'Omkun Chat | Offers & Coupons', module: './pages/offers.js' },
+    '#bookings':  { file: 'pages/bookings.html', title: 'Omkun Chat | Bookings & Pickups', module: './pages/bookings.js' },
+    '#support':   { file: 'pages/support.html', title: 'Omkun Chat | Support Tickets', module: './pages/support.js' },
+    '#reviews':   { file: 'pages/reviews.html', title: 'Omkun Chat | Customer Reviews', module: './pages/reviews.js' },
+    '#quotes':    { file: 'pages/quotes.html', title: 'Omkun Chat | B2B Custom Quotes', module: './pages/quotes.js' },
     '404':        { file: 'pages/404.html', title: 'Page Not Found' }
 };
 
-//  GATEKEEPER MAPPING:   (Route)        
+//  GATEKEEPER MAPPING:   (Route)        
 const routeFeatures = {
     '#dashboard': 'navDashboard',
     '#leads': 'navLeads',
@@ -43,7 +45,7 @@ const routeFeatures = {
     '#analytics': 'navAnalytics',
     '#support': 'navSupportTickets',
     '#settings': 'navSettings',
-    '#inbox': null // Inbox    
+    '#inbox': null // 
 };
 
 // --- ROUTER ENGINE ---
@@ -193,7 +195,7 @@ async function initializeUserAndUI(user) {
     let workspaceName = "My Workspace";
 
     try {
-        // 1.  BULLETPROOF WORKSPACE FINDER (No dependency on 'users' collection)
+        // 1.  BULLETPROOF WORKSPACE FINDER (No dependency on 'users' collection)
         const ownerDocSnap = await getDoc(doc(db, "sellers", user.uid));
         
         if (ownerDocSnap.exists()) {
@@ -219,7 +221,7 @@ async function initializeUserAndUI(user) {
             }
         }
 
-        // 2.  FETCH SHOP DETAILS (For Workspace Name and API Status)
+        // 2.  FETCH SHOP DETAILS (For Workspace Name and API Status)
         const sellerDoc = await getDoc(doc(db, "sellers", workspaceId));
         if (sellerDoc.exists()) {
             const sellerData = sellerDoc.data();
@@ -247,13 +249,13 @@ async function initializeUserAndUI(user) {
             }
         }
 
-        // 3.  UPDATE HEADER UI
+        // 3.  UPDATE HEADER UI
         if (headerImg) headerImg.src = finalImageUrl;
         if (headerName) headerName.innerText = nameFallback;
         if (headerRole) headerRole.innerText = role.toUpperCase();
         if (headerWorkspace) headerWorkspace.innerText = workspaceName;
 
-        // 4.  DYNAMIC MENU HIDING (Driven by roles.js)
+        // 4.  DYNAMIC MENU HIDING (Driven by roles.js)
         const featureElements = document.querySelectorAll('[data-feature]');
         featureElements.forEach(el => {
             const featureName = el.getAttribute('data-feature');
@@ -278,7 +280,7 @@ async function initializeUserAndUI(user) {
             }
         });
 
-        // 5.  ROUTE GATEKEEPER
+        // 5.  ROUTE GATEKEEPER
         const currentHash = window.location.hash || '#dashboard';
         const hashBase = currentHash.split('?')[0];
         const requiredFeature = routeFeatures[hashBase];

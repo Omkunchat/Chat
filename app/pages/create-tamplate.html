@@ -1,0 +1,140 @@
+<div id="create-tpl-wrapper" class="w-full max-w-[95rem] mx-auto space-y-4 animate-fade-in pb-24 relative">
+
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mt-2">
+        <div class="p-4 flex flex-row justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
+                    <i class="fa-solid fa-wand-magic-sparkles text-white text-sm"></i>
+                </div>
+                <div>
+                    <h2 id="page-title" class="text-lg font-black text-slate-800 uppercase tracking-tight">Template Builder</h2>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Design or edit your Meta WhatsApp message</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <!-- Advanced Sync Button -->
+                <button type="button" id="sync-btn" onclick="window.syncMetaTemplates()" class="hidden md:flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black text-slate-600 uppercase tracking-widest hover:bg-slate-100 transition shadow-sm">
+                    <i class="fa-solid fa-rotate"></i> Sync Meta
+                </button>
+
+                <button onclick="window.location.hash='#templates'" class="text-slate-400 hover:text-slate-600 transition p-2 bg-slate-50 rounded-xl border border-slate-100">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        
+        <!-- Form Section -->
+        <div class="lg:col-span-7">
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-8">
+                <form id="adv-tpl-form" class="space-y-6">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Template Name</label>
+                            <input type="text" id="tpl-name" required pattern="[a-z0-9_]+" placeholder="e.g. order_update_v1" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-[12px] font-bold text-slate-700 outline-none focus:border-blue-500 transition shadow-sm placeholder:text-slate-300">
+                            <p id="error-tpl-name" class="text-[10px] text-red-500 font-bold mt-1 hidden ml-1"></p>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
+                            <select id="tpl-category" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-[12px] font-bold text-slate-700 outline-none focus:border-blue-500 cursor-pointer shadow-sm">
+                                <option value="MARKETING">Marketing</option>
+                                <option value="UTILITY">Utility</option>
+                                <option value="AUTHENTICATION">Authentication</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Header (Optional)</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" onclick="window.setTplHeader('NONE')" class="header-btn px-4 py-2 rounded-xl bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest transition-all" data-type="NONE">None</button>
+                            <button type="button" onclick="window.setTplHeader('TEXT')" class="header-btn px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-400 text-[9px] font-black uppercase tracking-widest transition-all" data-type="TEXT">Text</button>
+                            <button type="button" onclick="window.setTplHeader('IMAGE')" class="header-btn px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-400 text-[9px] font-black uppercase tracking-widest transition-all" data-type="IMAGE">Image</button>
+                            <button type="button" onclick="window.setTplHeader('VIDEO')" class="header-btn px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-400 text-[9px] font-black uppercase tracking-widest transition-all" data-type="VIDEO">Video</button>
+                        </div>
+                        
+                        <input type="text" id="header-text-input" placeholder="Enter header text..." class="hidden w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-[12px] font-bold text-slate-700 shadow-sm focus:border-blue-500 outline-none">
+                        
+                        <div id="media-upload-area" class="hidden p-8 border-2 border-dashed border-slate-200 rounded-[2rem] bg-slate-50/50 text-center group hover:border-blue-400 transition-all">
+                            <input type="file" id="tpl-media-file" class="hidden" accept="image/*,video/*" onchange="window.handleMediaUpload(this)">
+                            <label for="tpl-media-file" class="cursor-pointer block">
+                                <i class="fa-solid fa-cloud-arrow-up text-3xl text-blue-500 mb-3 block group-hover:scale-110 transition-transform"></i>
+                                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Select Media for Upload</span>
+                            </label>
+                            <p id="upload-status" class="text-[9px] font-black mt-3 hidden"></p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Message Details</label>
+                        
+                        <div>
+                            <textarea id="tpl-body" required rows="4" onkeyup="window.updatePreview()" placeholder="Example: Hello {{1}}, your order {{2}} is ready! 🚀" class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-[2rem] text-[12px] font-medium leading-relaxed text-slate-700 outline-none focus:border-blue-500 transition shadow-sm"></textarea>
+                            <p id="error-tpl-body" class="text-[10px] text-red-500 font-bold mt-1 hidden ml-2"></p>
+                        </div>
+                        
+                        <div>
+                            <input type="text" id="tpl-footer" onkeyup="window.updatePreview()" placeholder="Footer text (e.g. Reply STOP to opt out)" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-bold text-slate-500 shadow-sm focus:border-blue-500 outline-none">
+                            <p id="error-tpl-footer" class="text-[10px] text-red-500 font-bold mt-1 hidden ml-2"></p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center px-1">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Interactive Buttons (Max 3)</label>
+                            <button type="button" onclick="window.addButton()" class="text-[9px] font-black text-blue-600 uppercase tracking-widest hover:underline">+ Add Button</button>
+                        </div>
+                        <div id="btn-container" class="space-y-3"></div>
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="submit" id="submit-btn" class="w-full bg-slate-900 text-white p-4 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl hover:bg-black transition-all active:scale-95">
+                            Submit for Meta Approval
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="lg:col-span-5 flex justify-center lg:justify-start">
+            <div class="sticky top-4 w-full max-w-[320px]">
+                <div class="relative w-full h-[580px] bg-slate-900 rounded-[2.8rem] border-[7px] border-slate-800 shadow-2xl overflow-hidden">
+                    <div class="absolute inset-0 bg-[#e5ddd5] flex flex-col">
+                        
+                        <!-- WhatsApp Top Bar -->
+                        <div class="bg-[#075e54] p-3 flex items-center gap-2 text-white">
+                            <i class="fa-solid fa-arrow-left text-[10px]"></i>
+                            <div class="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
+                                <i class="fa-solid fa-robot text-[10px] text-white"></i>
+                            </div>
+                            <span class="text-[9px] font-black uppercase tracking-[0.2em] ml-1">Live Preview</span>
+                        </div>
+
+                        <!-- Chat Area -->
+                        <div class="flex-1 p-3 space-y-4 overflow-y-auto chat-bg">
+                            <div class="bg-white rounded-xl rounded-tl-none p-2.5 shadow-sm max-w-[90%] border-b border-slate-200">
+                                <p id="pre-header-text" class="text-[10px] font-black text-slate-800 mb-1"></p>
+                                
+                                <div id="pre-media-box" class="hidden w-full aspect-video bg-slate-50 rounded-lg mb-2 flex items-center justify-center border border-slate-100 overflow-hidden relative">
+                                    <img id="pre-img" class="w-full h-full object-cover hidden absolute inset-0 z-10">
+                                    <i id="pre-icon" class="fa-solid fa-image text-slate-200 text-2xl"></i>
+                                </div>
+                                
+                                <p id="pre-body" class="text-[11px] text-slate-600 leading-normal font-medium"></p>
+                                <p id="pre-footer" class="text-[8px] text-slate-400 mt-2 font-black uppercase tracking-tighter"></p>
+                            </div>
+                            
+                            <div id="pre-buttons" class="space-y-1 max-w-[90%]"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>

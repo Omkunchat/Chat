@@ -589,7 +589,7 @@ window.handleMainAction = async (e) => {
             sender: agentName, 
             agentUid: state.user.uid,
             message: text, 
-            timestamp: serverTimestamp(), 
+            timestamp: Math.floor(Date.now() / 1000), // 🚀 FIX: Sync sequence with AI Number format
             type: "note" 
         });
         
@@ -597,7 +597,6 @@ window.handleMainAction = async (e) => {
         showToast("Note saved internally", "success");
         
     } else {
-        // 🚀 FIX: Prefix hata diya gaya hai. Ab seedha natural text jayega.
         const finalWhatsappPayload = text;
 
         try {
@@ -607,21 +606,20 @@ window.handleMainAction = async (e) => {
                 body: JSON.stringify({ messaging_product: "whatsapp", to: state.activeChatPhone, text: { body: finalWhatsappPayload } })
             });
 
-            // 🚀 FIX: Jab agent reply kare, toh needsHuman ko hata do, par bot ko 5 minute ke liye aur sula do
             await updateDoc(chatRef, {
                 lastMessage: `You: ${text.substring(0, 20)}`,
                 aiActive: false,            
-                needsHuman: false,  // Isko false karna zaroori hai warna red badge nahi hatega        
-                aiPausedAt: serverTimestamp(), // Timer wapas shuru
-                assignedTo: agentName, // Jisne reply kiya, uske naam kar do
-                updatedAt: serverTimestamp()
+                needsHuman: false,          
+                aiPausedAt: serverTimestamp(), 
+                assignedTo: agentName, 
+                updatedAt: serverTimestamp() // Chat list ke liye serverTimestamp theek hai
             });
 
             addDoc(messagesSubRef, { 
                 sender: agentName, 
                 agentUid: state.user.uid, 
                 message: text, 
-                timestamp: serverTimestamp(), 
+                timestamp: Math.floor(Date.now() / 1000), // 🚀 FIX: Sync sequence with AI Number format
                 type: "text" 
             });
 
@@ -659,7 +657,6 @@ window.handleAttachment = async (event) => {
         
         const agentName = state.user.displayName || "Agent";
         
-        // 🚀 FIX: Image aur Document se faltu caption aur prefix hata diya hai
         if (isImage) {
             messagePayload.type = "image";
             messagePayload.image = { link: fileUrl }; 
@@ -688,7 +685,7 @@ window.handleAttachment = async (event) => {
             agentUid: state.user.uid, 
             message: fileUrl, 
             fileName: file.name, 
-            timestamp: serverTimestamp(), 
+            timestamp: Math.floor(Date.now() / 1000), // 🚀 FIX: Sync sequence with AI Number format
             type: isImage ? "image" : "document" 
         });
 
@@ -720,8 +717,6 @@ window.stopAndPrepareSend = async () => {
 
     try {
         const agentName = state.user.displayName || "Agent";
-        
-        // 🚀 FIX: Voice note ka bhi prefix hata diya hai
         const finalWhatsappPayload = textMsg;
 
         await fetch(`https://graph.facebook.com/v18.0/${state.sellerConfig.metaPhoneId}/messages`, {
@@ -743,7 +738,7 @@ window.stopAndPrepareSend = async () => {
             sender: agentName, 
             agentUid: state.user.uid,
             message: textMsg, 
-            timestamp: serverTimestamp(), 
+            timestamp: Math.floor(Date.now() / 1000), // 🚀 FIX: Sync sequence with AI Number format
             type: "text" 
         });
 

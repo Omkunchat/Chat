@@ -344,11 +344,26 @@
             const sidebarLinks = document.querySelectorAll('.nav-item');
             const headerTitle = document.getElementById('header-title');
 
-            if (hash === '#inbox' && window.innerWidth >= 768) {
-                window.toggleDesktopSidebar(true); 
-            } else if (hash !== '#inbox' && window.innerWidth >= 768) {
-                window.toggleDesktopSidebar(false); 
+            // 🟢 FIX START: Inbox ke liye main container ki padding aur layout control karna
+            const appRoot = document.getElementById('app-root');
+            const mainFooter = document.querySelector('main + footer'); // Footer ko select kiya
+
+            if (hash === '#inbox') {
+                // Inbox Mode: Desktop sidebar chhota, No padding, No footer, Lock scroll
+                if (window.innerWidth >= 768) window.toggleDesktopSidebar(true);
+                
+                appRoot.className = "flex-1 w-full mx-auto p-0 min-h-0 flex flex-col";
+                if (mainFooter) mainFooter.style.display = 'none';
+                document.body.style.overflow = 'hidden'; 
+            } else {
+                // Default Mode (Dashboard, Leads etc): Normal sidebar, Normal padding, Show footer
+                if (window.innerWidth >= 768) window.toggleDesktopSidebar(false);
+                
+                appRoot.className = "flex-1 p-4 md:p-8 mx-auto w-full pb-32";
+                if (mainFooter) mainFooter.style.display = 'flex';
+                document.body.style.overflow = ''; 
             }
+            // 🟢 FIX END
 
             sidebarLinks.forEach(link => {
                 const linkHash = link.getAttribute('href');

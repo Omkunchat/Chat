@@ -396,7 +396,7 @@ function appendBubble(text, side, type, timeStr) {
 
     if (type === "note") {
         div.className = "flex justify-center my-2 w-full";
-        //  Tailwind CSS directly applied
+        // Tailwind CSS directly applied for Internal Note
         div.innerHTML = `
             <div class="bg-[#FFF3C4] border border-[#FDE047] rounded-lg shadow-sm px-3 py-1.5 max-w-[85%] text-center relative">
                 <p class="text-[12px] font-medium text-[#854D0E]"><i class="fa-solid fa-eye-slash mr-1 opacity-70"></i> ${formattedContent}</p>
@@ -405,15 +405,16 @@ function appendBubble(text, side, type, timeStr) {
     else if (side === "left") {
         div.className = "flex justify-start w-full";
         if (isImage) {
+            // NAYA: onclick="window.openImageModal('${text}')" add kiya image zoom ke liye
             div.innerHTML = `
                 <div class="bg-white p-1 rounded-tr-xl rounded-br-xl rounded-bl-xl shadow-sm relative group max-w-[75%] md:max-w-[50%] border border-slate-100">
-                    <img src="${text}" class="w-full max-h-[300px] object-cover rounded-xl cursor-pointer hover:opacity-90 transition">
+                    <img src="${text}" onclick="window.openImageModal('${text}')" class="w-full max-h-[300px] object-cover rounded-xl cursor-pointer hover:opacity-90 transition">
                     <div class="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/40 backdrop-blur-sm rounded-full text-[10px] text-white font-medium">
                         ${timeStr}
                     </div>
                 </div>`;
         } else {
-            //  Tailwind CSS directly applied for Customer Message
+            // Tailwind CSS directly applied for Customer Message
             div.innerHTML = `
                 <div class="bg-white rounded-tr-xl rounded-br-xl rounded-bl-xl shadow-sm border border-slate-100 px-2.5 pt-2 pb-1.5 max-w-[85%] md:max-w-[70%] relative group">
                     <div class="text-[14.5px] text-slate-800 leading-[20px] whitespace-pre-wrap">${formattedContent}<span class="inline-block w-12 opacity-0">.</span></div>
@@ -425,21 +426,25 @@ function appendBubble(text, side, type, timeStr) {
         div.className = "flex justify-end w-full";
         const aiIcon = type === "ai" ? '<i class="fa-solid fa-robot text-[9px] mr-1 text-emerald-800/80"></i>' : '<i class="fa-solid fa-user-tie text-[9px] mr-1 text-emerald-800/80"></i>';
         
+        // NAYA: Read Receipt icon yahan se control hoga (Blue Ticks)
+        const tickIcon = `<i class="fa-solid fa-check-double text-[#53bdeb]"></i>`;
+        
         if (isImage) {
+            // NAYA: onclick="window.openImageModal('${text}')" add kiya
             div.innerHTML = `
                 <div class="bg-[#D9FDD3] p-1 rounded-tl-xl rounded-bl-xl rounded-br-xl shadow-sm relative group max-w-[75%] md:max-w-[50%] border border-[#c3f7bc]">
-                    <img src="${text}" class="w-full max-h-[300px] object-cover rounded-xl cursor-pointer hover:opacity-90 transition">
+                    <img src="${text}" onclick="window.openImageModal('${text}')" class="w-full max-h-[300px] object-cover rounded-xl cursor-pointer hover:opacity-90 transition">
                     <div class="absolute bottom-2 right-2 px-2 py-0.5 bg-black/40 backdrop-blur-sm rounded-full text-[10px] text-white font-medium flex items-center gap-1 shadow-sm">
-                        ${aiIcon}${timeStr} <i class="fa-solid fa-check-double text-[#53bdeb] ml-0.5"></i>
+                        ${aiIcon}${timeStr} <span class="ml-0.5">${tickIcon}</span>
                     </div>
                 </div>`;
         } else {
-            //  Tailwind CSS directly applied for Agent/AI Message
+            // Tailwind CSS directly applied for Agent/AI Message
             div.innerHTML = `
                 <div class="bg-[#D9FDD3] rounded-tl-xl rounded-bl-xl rounded-br-xl shadow-sm border border-[#c3f7bc] px-2.5 pt-2 pb-1.5 max-w-[85%] md:max-w-[70%] relative group">
                     <div class="text-[14.5px] text-[#111b21] leading-[20px] whitespace-pre-wrap">${formattedContent}<span class="inline-block w-16 opacity-0">.</span></div>
                     <div class="absolute bottom-1 right-2 flex items-center text-[10px] text-emerald-700 font-medium gap-1">
-                        ${aiIcon}${timeStr} <i class="fa-solid fa-check-double text-[#53bdeb]"></i>
+                        ${aiIcon}${timeStr} <span class="ml-0.5">${tickIcon}</span>
                     </div>
                 </div>`;
         }
@@ -883,3 +888,29 @@ async function setupPushNotifications() {
         console.log('❌ FCM Setup Error:', err);
     }
 }
+
+// New function for Image Modal
+window.openImageModal = (src) => {
+    const modal = document.getElementById('image-modal');
+    const modalImg = document.getElementById('modal-image-src');
+    const downloadBtn = document.getElementById('modal-download-btn');
+    
+    modalImg.src = src;
+    downloadBtn.href = src; // User can click to download
+    
+    modal.classList.remove('hidden');
+};
+
+window.closeImageModal = () => {
+    const modal = document.getElementById('image-modal');
+    modal.classList.add('hidden');
+    document.getElementById('modal-image-src').src = '';
+};
+// New function for Quick Replies
+window.sendQuickReply = (text) => {
+    const inputArea = document.getElementById('msg-input');
+    inputArea.value = text;
+    window.checkTypingStatus();
+    // Simulate Enter key/Send button click
+    window.handleMainAction();
+};

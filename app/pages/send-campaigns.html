@@ -10,6 +10,10 @@
             </h2>
         </div>
         <div class="flex gap-3">
+            <!-- NAYA: Test Campaign Button -->
+            <button id="btn-test-now" onclick="window.handleTestCampaign(event)" class="px-5 py-3 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-2xl text-[10px] font-black uppercase tracking-widest transition active:scale-95 flex items-center gap-2 hidden md:flex">
+                Send Test <i class="fa-solid fa-flask"></i>
+            </button>
             <button id="btn-send-now" onclick="window.handleSaveCampaign(event)" class="px-8 py-3 bg-slate-900 text-white hover:bg-black rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl transition active:scale-95 flex items-center gap-2">
                 Launch Campaign <i class="fa-solid fa-paper-plane"></i>
             </button>
@@ -30,15 +34,24 @@
                     <select id="campAudience" onchange="window.toggleCsvUpload()" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-[11px] font-black text-slate-700 outline-none uppercase focus:border-blue-500 transition">
                         <option value="all">All CRM Contacts</option>
                         <option value="hot">Hot Leads Only</option>
-                        <option value="past">Past Buyers</option>
                         <option value="csv">Custom CSV Upload</option>
+                        <option value="manual">Enter Number Manually (Testing)</option>
                     </select>
                     <input type="text" id="campName" required placeholder="CAMPAIGN NAME (E.G. DIWALI_PROMO)" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl font-black text-[11px] uppercase outline-none focus:border-blue-500 transition">
                 </div>
 
+                <!-- CSV Upload Wrapper -->
                 <div id="csv-upload-wrapper" class="hidden mt-4 p-4 bg-blue-50/50 border border-dashed border-blue-200 rounded-2xl">
-                    <input type="file" id="campCsvFile" accept=".csv" class="block w-full text-[10px] text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[9px] file:font-black file:uppercase file:bg-blue-600 file:text-white">
-                    <p class="text-[8px] font-bold text-blue-400 mt-2 uppercase tracking-widest">Format: Col A: Phone, Col B: Name</p>
+                    <label class="block text-[10px] font-black text-blue-600 uppercase tracking-widest mb-2">Upload CSV File (Max 1 Lakh limit)</label>
+                    <input type="file" id="campCsvFile" accept=".csv" class="block w-full text-[10px] text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[9px] file:font-black file:uppercase file:bg-blue-600 file:text-white cursor-pointer hover:file:bg-blue-700 transition">
+                    <p class="text-[9px] font-bold text-slate-400 mt-2">Required Format: Col A = Phone Number, Col B = Name</p>
+                </div>
+
+                <!-- NAYA: Manual Number Wrapper -->
+                <div id="manual-number-wrapper" class="hidden mt-4 p-4 bg-orange-50/50 border border-dashed border-orange-200 rounded-2xl">
+                    <label class="block text-[10px] font-black text-orange-600 uppercase tracking-widest mb-2">Test Phone Number (With Country Code)</label>
+                    <input type="number" id="campManualPhone" placeholder="918447815135" class="w-full px-4 py-3 bg-white border border-orange-200 rounded-xl text-[11px] font-bold text-slate-700 outline-none focus:border-orange-500 transition">
+                    <p class="text-[9px] font-bold text-slate-400 mt-2">Example: 919876543210 (Don't use + sign)</p>
                 </div>
             </div>
 
@@ -54,13 +67,23 @@
                     </select>
 
                     <div id="variable-info" class="hidden p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Dynamic Mapping</p>
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Dynamic Mapping Active</p>
                         <div class="flex items-center gap-3">
                             <span class="px-2 py-1 bg-blue-100 text-blue-600 rounded text-[10px] font-black">{{1}}</span>
-                            <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Will be replaced with Customer's Name</span>
+                            <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Will be replaced with Customer's Name from DB/CSV</span>
                         </div>
                     </div>
                 </div>
+            </div>
+            
+            <!-- NAYA: Media Attachment box for Media Templates -->
+            <div id="media-upload-wrapper" class="hidden bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
+                <h3 class="text-[11px] font-black text-slate-800 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-[10px]"><i class="fa-solid fa-paperclip"></i></span>
+                    Attach Media (PDF / Image)
+                </h3>              
+                <input type="file" id="campMediaFile" accept=".jpg,.jpeg,.png,.pdf" onchange="window.handleMediaPreview(event)" class="block w-full text-[10px] text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[9px] file:font-black file:uppercase file:bg-slate-800 file:text-white cursor-pointer hover:file:bg-black transition">
+                <p class="text-[9px] font-bold text-slate-400 mt-2" id="media-help-text">Choose file based on your Meta Template Header type.</p>
             </div>
 
             <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm flex items-center justify-between">
@@ -90,8 +113,20 @@
                             <span class="text-[9px] font-black uppercase tracking-widest" id="preview-biz-name">Chatkun Preview</span>
                         </div>
                         <div class="flex-1 p-3 overflow-y-auto space-y-3">
-                            <div class="bg-white rounded-xl rounded-tl-none p-3 shadow-sm max-w-[90%] border-b border-slate-100">
-                                <p id="preview-body" class="text-[11px] text-slate-700 leading-normal font-medium italic">Select a template to see preview...</p>
+                            <div class="bg-white rounded-xl rounded-tl-none shadow-sm max-w-[90%] overflow-hidden border-b border-slate-100">
+                                <!-- Is block ko replace karein -->
+<div id="preview-media" class="hidden w-full h-32 bg-slate-200 flex flex-col items-center justify-center border-b border-slate-100 relative overflow-hidden">
+    <!-- Default Gray Box -->
+    <div id="preview-media-placeholder" class="flex flex-col items-center justify-center w-full h-full p-2 text-center">
+        <i class="fa-solid fa-image text-slate-400 text-2xl mb-1"></i>
+        <span class="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Media Header</span>
+    </div>
+    <!-- NAYA: Asli Image Preview -->
+    <img id="preview-media-img" src="" class="hidden absolute inset-0 w-full h-full object-cover">
+</div>
+                                <div class="p-3">
+                                    <p id="preview-body" class="text-[11px] text-slate-700 leading-normal font-medium italic">Select a template to see preview...</p>
+                                </div>
                             </div>
                             <div id="preview-buttons" class="space-y-1 max-w-[90%]"></div>
                         </div>

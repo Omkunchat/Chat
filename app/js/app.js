@@ -22,6 +22,7 @@ const routes = {
     '#send-campaigns': { file: 'pages/send-campaigns.html', title: 'Omkun Chat | Broadcast', module: './pages/send-campaigns.js' },
     '#analytics': { file: 'pages/analytics.html', title: 'Omkun Chat | Analytics', module: './pages/analytics.js' },
     '#settings':  { file: 'pages/settings.html', title: 'Omkun Chat | AI Training', module: './pages/settings.js' },
+    '#price':  { file: 'pages/price.html', title: 'Omkun Chat | Plan Mangement', module: './pages/price.js' },
     '#bot-setup':  { file: 'pages/bot-setup.html', title: 'Omkun Chat | AI Training', module: './pages/bot-setup.js' },
     '#booking':  { file: 'pages/booking.html', title: 'Omkun Chat | AI Training', module: './pages/booking.js' },
     '#tamplate':  { file: 'pages/tamplate.html', title: 'Tamplate Mangement', module: './pages/tamplate.js' },

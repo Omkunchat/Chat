@@ -1,0 +1,141 @@
+<div class="w-full max-w-7xl mx-auto space-y-6 animate-fade-in pb-24 relative">
+
+    <!-- Top Header Card -->
+    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10">
+        <div>
+            <h2 class="text-2xl font-black text-slate-900 mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-layer-group text-blue-600"></i> Plans & Billing
+            </h2>
+            <p class="text-[11px] font-bold text-slate-500">Manage your subscription, limits, and estimate your monthly costs.</p>
+        </div>
+        <button onclick="window.location.hash='#settings'" class="px-5 py-2.5 bg-slate-50 text-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition shadow-sm border border-slate-200">
+            <i class="fa-solid fa-arrow-left"></i> Back to Settings
+        </button>
+    </div>
+
+    <!-- Pricing Cards -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Spark Plan Card -->
+        <div id="card-spark" class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm relative overflow-hidden transition-all">
+            <div id="badge-spark" class="hidden inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-black uppercase tracking-widest mb-4">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Active Plan
+            </div>
+
+            <h2 class="text-3xl font-black text-slate-900">Spark Plan</h2>
+            <p class="text-[11px] font-bold text-slate-500 mt-1">Fixed limits. Best for small businesses getting started.</p>
+            
+            <div class="mt-6 flex items-end gap-1 mb-8">
+                <span class="text-5xl font-black text-slate-900" id="price-spark">₹599</span>
+                <span class="text-[10px] text-slate-400 font-bold tracking-widest uppercase mb-1.5">/ Month</span>
+            </div>
+
+            <ul class="space-y-3 mb-8 text-[12px] font-bold text-slate-600">
+                <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-3 text-lg"></i> 100 AI (Gemini) Replies / mo</li>
+                <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-3 text-lg"></i> Max 2 Team Agents</li>
+                <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-3 text-lg"></i> Max 100 CRM Contacts</li>
+                <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-3 text-lg"></i> Max 50 Products</li>
+                <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-3 text-lg"></i> Max 5 Offers</li>
+                <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-3 text-lg"></i> Max 5 Broadcast Templates</li>
+                <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-3 text-lg"></i> 1 API WhatsApp Number</li>
+            </ul>
+
+            <button id="btn-activate-spark" onclick="window.activateSpark()" class="w-full py-4 bg-slate-900 text-white rounded-2xl text-[12px] font-black uppercase tracking-widest hover:bg-black transition active:scale-95 shadow-sm">
+                Subscribe to Spark
+            </button>
+        </div>
+
+        <!-- Blaze Plan Card -->
+        <div id="card-blaze" class="bg-gradient-to-br from-slate-900 to-black p-8 rounded-[2rem] border border-slate-800 shadow-xl relative overflow-hidden transition-all">
+            <div id="badge-blaze" class="hidden inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 text-[10px] font-black uppercase tracking-widest mb-4">
+                <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span> Active Plan
+            </div>
+
+            <h2 class="text-3xl font-black text-white">Blaze Plan <span class="text-[10px] bg-amber-500 text-black px-2 py-0.5 rounded-lg ml-2 uppercase align-middle">Pay as you go</span></h2>
+            <p class="text-[11px] font-bold text-slate-400 mt-1">Unlimited scale. Pay only for what you use above base limits.</p>
+            
+            <div class="mt-6 flex items-end gap-1 mb-8 text-white">
+                <span class="text-5xl font-black" id="price-blaze">₹599</span>
+                <span class="text-[10px] text-slate-500 font-bold tracking-widest uppercase mb-1.5">/ One-time Setup</span>
+            </div>
+
+            <ul class="space-y-3 mb-8 text-[12px] font-bold text-slate-300">
+                <li class="flex items-center"><i class="fa-solid fa-bolt text-amber-500 mr-3 text-lg"></i> <span class="text-white mr-1">Metered AI:</span> ₹0.30 per Gemini Reply</li>
+                <li class="flex items-center"><i class="fa-solid fa-bolt text-amber-500 mr-3 text-lg"></i> <span class="text-white mr-1">Team:</span> +₹500/mo per extra agent</li>
+                <li class="flex items-center"><i class="fa-solid fa-infinity text-blue-400 mr-3 text-lg"></i> <span class="text-white mr-1">Unlimited</span> CRM (₹0.5 / extra contact)</li>
+                <li class="flex items-center"><i class="fa-solid fa-infinity text-blue-400 mr-3 text-lg"></i> <span class="text-white mr-1">Unlimited</span> Products (₹1 / extra product)</li>
+                <li class="flex items-center"><i class="fa-solid fa-infinity text-blue-400 mr-3 text-lg"></i> <span class="text-white mr-1">Unlimited</span> Offers (₹2 / extra offer)</li>
+                <li class="flex items-center"><i class="fa-solid fa-infinity text-blue-400 mr-3 text-lg"></i> <span class="text-white mr-1">Unlimited</span> Templates (Metered pricing)</li>
+                <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-3 text-lg"></i> 5 API WhatsApp Numbers</li>
+            </ul>
+
+            <button id="btn-activate-blaze" onclick="window.activateBlaze()" class="w-full py-4 bg-white text-black rounded-2xl text-[12px] font-black uppercase tracking-widest hover:bg-slate-200 transition active:scale-95 shadow-sm">
+                Upgrade to Blaze
+            </button>
+        </div>
+    </div>
+
+    <!-- 🚀 NAYA: Interactive Cost Calculator -->
+    <div class="bg-white p-6 md:p-8 rounded-[2rem] border border-blue-100 shadow-lg relative overflow-hidden">
+        <div class="absolute top-0 right-0 p-6 opacity-5 pointer-events-none"><i class="fa-solid fa-calculator text-8xl text-blue-900"></i></div>
+        
+        <h3 class="text-xl font-black text-slate-900 mb-2 relative z-10">Estimate Your Blaze Bill</h3>
+        <p class="text-[11px] font-bold text-slate-500 mb-6 relative z-10 max-w-2xl">Use the calculator below to estimate your monthly cost on the Blaze plan. You only pay extra when you cross the base limits.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+            <!-- Inputs -->
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-black text-slate-600 uppercase tracking-widest flex justify-between">AI Replies (Monthly) <span class="text-blue-500">₹0.30/msg</span></label>
+                    <input type="number" id="calc-ai" value="100" class="w-full mt-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-blue-500 transition" oninput="window.calculateBill()">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-black text-slate-600 uppercase tracking-widest">Total Agents</label>
+                        <input type="number" id="calc-team" value="2" class="w-full mt-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-blue-500 transition" oninput="window.calculateBill()">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black text-slate-600 uppercase tracking-widest">CRM Contacts</label>
+                        <input type="number" id="calc-crm" value="100" class="w-full mt-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-blue-500 transition" oninput="window.calculateBill()">
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label class="text-[10px] font-black text-slate-600 uppercase tracking-widest">Products</label>
+                        <input type="number" id="calc-prod" value="50" class="w-full mt-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-blue-500 transition" oninput="window.calculateBill()">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black text-slate-600 uppercase tracking-widest">Offers</label>
+                        <input type="number" id="calc-offer" value="5" class="w-full mt-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-blue-500 transition" oninput="window.calculateBill()">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black text-slate-600 uppercase tracking-widest">Templates</label>
+                        <input type="number" id="calc-tpl" value="5" class="w-full mt-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-blue-500 transition" oninput="window.calculateBill()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Receipt Breakdown -->
+            <div class="bg-slate-900 rounded-2xl p-6 text-white shadow-inner flex flex-col">
+                <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b border-slate-800 pb-2">Estimated Breakdown</h4>
+                
+                <div class="space-y-2.5 text-sm font-medium flex-1">
+                    <div class="flex justify-between"><span class="text-slate-400">Blaze Base Fee</span> <span>₹0.00</span></div> <!-- One time setup, monthly base is 0 as metered -->
+                    <div class="flex justify-between"><span class="text-slate-400">AI Cost</span> <span id="out-ai">₹30.00</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">Extra Agents</span> <span id="out-team">₹0.00</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">Extra CRM</span> <span id="out-crm">₹0.00</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">Extra Products</span> <span id="out-prod">₹0.00</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">Extra Offers</span> <span id="out-offer">₹0.00</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">Extra Templates</span> <span id="out-tpl">₹0.00</span></div>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-slate-700">
+                    <div class="flex justify-between items-end">
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Estimated Total / Month</span>
+                        <span class="text-3xl font-black text-emerald-400" id="out-total">₹30.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

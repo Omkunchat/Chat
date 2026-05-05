@@ -238,84 +238,95 @@ function disableInputsIn(id) {
     section.querySelectorAll('input, select, textarea').forEach(el => el.disabled = true);
 }
 
+// 🚀 NAYA: Updated logic for Spark vs Blaze in Settings UI
 function calculateBillingUI(data) {
-    const config = state.pricing; // 🚀 NAYA: State se IP wali config nikali
+    const config = state.pricing || { symbol: '₹', locale: 'en-IN' };
     
-    const messagesUsed = data.totalMessagesThisMonth || 0;
-    const currentTeamCount = data.teamCount || 1; 
-    
-    let extraAgentsCount = Math.max(0, currentTeamCount - 10);
-    let totalExtraAgentFee = extraAgentsCount * config.extraAgentFee;
-    
-    // Calculation ab config ke hisaab se hoga
-    const totalDue = config.baseFee + (messagesUsed * config.perMessageRate) + totalExtraAgentFee;
-
-    document.getElementById('bill-msg-count').innerText = messagesUsed.toLocaleString(config.locale);
-    const extraAgentUI = document.getElementById('bill-extra-agents');
-    if(extraAgentUI) {
-        extraAgentUI.innerText = extraAgentsCount > 0 
-            ? `+ ${config.symbol}${totalExtraAgentFee.toLocaleString(config.locale)} (${extraAgentsCount} Extra Agents)` 
-            : "10 Agents Included (Free)";
-    }
-    
+    const badgeEl = document.getElementById('plan-badge');
+    const subtitleEl = document.getElementById('bill-subtitle');
     const amountEl = document.getElementById('bill-amount');
-    const planTextEl = amountEl.previousElementSibling; 
-    
+    const msgCountEl = document.getElementById('bill-msg-count');
+    const dateLabelEl = document.getElementById('bill-date-label');
+    const dateValueEl = document.getElementById('bill-date-value');
+
+    const aiUsed = data.aiUsageThisMonth || data.totalMessagesThisMonth || 0;
+    const currentPlan = data.planType || 'spark';
     const nowMs = Date.now();
-    let statusText = `Base Plan (${config.symbol}${config.baseFee}) + AI + Agents`;
-    
-    if (data.subscriptionEndsAt) {
-        const subEndMs = data.subscriptionEndsAt.toMillis ? data.subscriptionEndsAt.toMillis() : new Date(data.subscriptionEndsAt).getTime();
-        if (nowMs < subEndMs) {
-            const daysLeft = Math.ceil((subEndMs - nowMs) / (1000 * 60 * 60 * 24));
-            statusText = `<span class="text-emerald-400 font-bold">Active (${daysLeft} Days Left)</span> - Next Bill`;
-        } else {
-            statusText = `<span class="text-red-400 font-bold">Plan Expired</span> - Pay Now`;
+
+    if (msgCountEl) msgCountEl.innerText = aiUsed.toLocaleString(config.locale);
+
+    if (currentPlan === 'blaze') {
+        // --- BLAZE PLAN LOGIC (Shows Wallet Balance) ---
+        if(badgeEl) {
+            badgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse mr-1 inline-block"></span> BLAZE`;
+            badgeEl.className = "px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-blue-500/20 text-blue-400 border border-blue-500/30";
+            badgeEl.classList.remove('hidden');
         }
-    } else if (data.createdAt) {
-        const createdMs = data.createdAt.toMillis ? data.createdAt.toMillis() : new Date(data.createdAt).getTime();
-        const trialEndMs = createdMs + (14 * 24 * 60 * 60 * 1000);
         
-        if (nowMs < trialEndMs) {
-            const daysLeft = Math.ceil((trialEndMs - nowMs) / (1000 * 60 * 60 * 24));
-            statusText = `<span class="text-blue-400 font-bold">Free Trial (${daysLeft} Days Left)</span> - Pay anytime`;
+        if(subtitleEl) subtitleEl.innerText = "Blaze Wallet Balance";
+        
+        const balance = data.walletBalance || 0;
+        if(amountEl) amountEl.innerHTML = `${config.symbol}${balance.toLocaleString(config.locale, { minimumFractionDigits: 2 })}`;
+
+        if(dateLabelEl) dateLabelEl.innerText = "Billing Type:";
+        if(dateValueEl) {
+            dateValueEl.innerText = "Pay as you go";
+            dateValueEl.className = "text-blue-400";
+        }
+
+    } else {
+        // --- SPARK PLAN LOGIC (Shows Expiry / Trial) ---
+        if(badgeEl) {
+            badgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-1 inline-block"></span> SPARK`;
+            badgeEl.className = "px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+            badgeEl.classList.remove('hidden');
+        }
+
+        if(subtitleEl) subtitleEl.innerText = "Fixed Monthly Plan";
+        if(amountEl) amountEl.innerHTML = `Active`;
+
+        if(dateLabelEl) dateLabelEl.innerText = "Plan Expires On:";
+        
+        // Expiry Date check
+        if (data.subscriptionEndsAt) {
+            const endMs = data.subscriptionEndsAt.toMillis ? data.subscriptionEndsAt.toMillis() : new Date(data.subscriptionEndsAt).getTime();
+            
+            if (nowMs < endMs) {
+                if(dateValueEl) {
+                    dateValueEl.innerText = new Date(endMs).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+                    dateValueEl.className = "text-emerald-400";
+                }
+            } else {
+                if(amountEl) amountEl.innerHTML = `<span class="text-red-500">Expired</span>`;
+                if(dateValueEl) {
+                    dateValueEl.innerText = "Please Renew";
+                    dateValueEl.className = "text-red-500";
+                }
+            }
         } else {
-            statusText = `<span class="text-red-400 font-bold">Trial Expired</span> - Pay to activate`;
+            // Free Trial Check
+            const createdMs = data.createdAt ? (data.createdAt.toMillis ? data.createdAt.toMillis() : new Date(data.createdAt).getTime()) : nowMs;
+            const trialEndMs = createdMs + (7 * 24 * 60 * 60 * 1000); 
+            
+            if (nowMs < trialEndMs) {
+                const daysLeft = Math.ceil((trialEndMs - nowMs) / (1000 * 60 * 60 * 24));
+                if(subtitleEl) subtitleEl.innerText = "Free Trial Active";
+                if(dateValueEl) {
+                    dateValueEl.innerText = `${daysLeft} Days Left`;
+                    dateValueEl.className = "text-emerald-400";
+                }
+            } else {
+                if(amountEl) amountEl.innerHTML = `<span class="text-red-500">Trial Ended</span>`;
+                if(dateValueEl) {
+                    dateValueEl.innerText = "Upgrade Required";
+                    dateValueEl.className = "text-red-500";
+                }
+            }
         }
     }
-    
-    if (planTextEl) planTextEl.innerHTML = statusText;
-    
-    // UI pe Amount render
-    // Agar international hai toh decimal points dikhayenge, India hai toh direct ₹2,000
-    amountEl.innerHTML = `${config.symbol}${totalDue.toLocaleString(config.locale, config.isIndia ? undefined : { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-window.payBill = async () => {
-    const btn = document.getElementById('btn-pay-bill');
-    const ogHtml = btn.innerHTML;
-    btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...`;
-    btn.disabled = true;
 
-    try {
-        const response = await fetch(`${BILLING_API}/create-checkout`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            // 🚀 NAYA: Yahan body me 'currency' pass kar rahe hain jo humne IP se detect ki thi
-            body: JSON.stringify({ 
-                sellerUid: state.workspaceId,
-                currency: state.pricing.isIndia ? "INR" : "USD" 
-            }) 
-        });
-        const data = await response.json();
-        
-        if(data.paymentUrl) window.location.href = data.paymentUrl; 
-        else throw new Error(data.error || "Invalid payment link");
-    } catch (e) {
-        showToast("Error connecting to payment gateway", "error");
-        btn.innerHTML = ogHtml; btn.disabled = false;
-    }
-}
 
 async function inviteTeamMember() {
     const emailInput = document.getElementById('invite_agent_email');

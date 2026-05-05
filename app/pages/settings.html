@@ -47,30 +47,42 @@
     </div>
 
     <div id="billing-section" class="bg-gradient-to-br from-slate-900 to-black p-5 rounded-3xl border border-slate-800 shadow-xl space-y-3 relative overflow-hidden">
-        <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-file-invoice-dollar text-6xl text-white"></i></div>
-        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Billing & Subscription</h3>
-        <div class="flex justify-between items-center text-white relative z-10">
-            <div>
-                <p class="text-xs text-slate-400 font-medium mb-0.5">Base Plan (&#8377;2000) + AI + Agents</p>
-                <h2 class="text-3xl font-black" id="bill-amount">
-                    <i class="fa-solid fa-circle-notch fa-spin text-xl text-slate-500"></i>
-                </h2>
-            </div>
-            <button onclick="window.payBill()" id="btn-pay-bill" class="px-5 py-2.5 bg-white text-black rounded-full text-xs font-black uppercase tracking-wide hover:bg-slate-200 transition active:scale-95 flex items-center gap-2 shadow-lg">
-                Pay Now <i class="fa-solid fa-arrow-right"></i>
-            </button>
+    <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-wallet text-6xl text-white"></i></div>
+    
+    <!-- Header & Dynamic Badge -->
+    <div class="flex justify-between items-center relative z-10 mb-1">
+        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Billing & Subscription</h3>
+        <span id="plan-badge" class="px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-slate-800 text-slate-400 border border-slate-700 hidden">
+            <i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Checking
+        </span>
+    </div>
+
+    <!-- Main Amount & Action -->
+    <div class="flex justify-between items-center text-white relative z-10">
+        <div>
+            <p id="bill-subtitle" class="text-xs text-slate-400 font-medium mb-0.5">Current Plan Status</p>
+            <h2 class="text-3xl font-black" id="bill-amount">
+                <i class="fa-solid fa-circle-notch fa-spin text-xl text-slate-500"></i>
+            </h2>
         </div>
-        <div class="pt-3 space-y-1.5 border-t border-slate-800 relative z-10">
-            <div class="flex justify-between text-[10px] font-bold">
-                <span class="text-slate-400">Total AI Messages this month:</span>
-                <span id="bill-msg-count" class="text-white">0</span>
-            </div>
-            <div class="flex justify-between text-[10px] font-bold">
-                <span class="text-slate-400">Extra Agents Cost:</span>
-                <span id="bill-extra-agents" class="text-red-400">10 Agents Included (Free)</span>
-            </div>
+        <!-- 🚀 NAYA: Redirects to your new Pricing Page -->
+        <button onclick="window.location.hash='#price'" class="px-5 py-2.5 bg-white text-black rounded-full text-xs font-black uppercase tracking-wide hover:bg-slate-200 transition active:scale-95 flex items-center gap-2 shadow-lg">
+            Manage <i class="fa-solid fa-arrow-right"></i>
+        </button>
+    </div>
+    
+    <!-- Dynamic Stats (Usage & Expiry/Wallet) -->
+    <div class="pt-3 space-y-1.5 border-t border-slate-800 relative z-10">
+        <div class="flex justify-between text-[10px] font-bold">
+            <span class="text-slate-400">AI Replies this month:</span>
+            <span id="bill-msg-count" class="text-white">0</span>
+        </div>
+        <div class="flex justify-between text-[10px] font-bold">
+            <span id="bill-date-label" class="text-slate-400">Next Bill / Expiry:</span>
+            <span id="bill-date-value" class="text-emerald-400"><i class="fa-solid fa-ellipsis"></i></span>
         </div>
     </div>
+</div>
 
     <div id="ai-studio-banner" class="bg-white p-5 rounded-3xl border border-indigo-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden">
         <div class="absolute top-0 right-0 p-4 opacity-[0.03] pointer-events-none"><i class="fa-solid fa-microchip text-6xl text-indigo-900"></i></div>

@@ -10,8 +10,9 @@ let state = {
     workspaceId: null,
     role: "owner",
     canEdit: false,
-    offers: [], // 🟢 Local Cache (Saves Firebase Reads - Extremely scalable)
-    searchQuery: ''
+    offers: [], // 🟢 Local Cache (Saves Firebase Reads)
+    searchQuery: '',
+    sellerConfig: null // 🚀 NAYA: Pricing aur Wallet limits check karne ke liye
 };
 
 export async function init() {
@@ -20,21 +21,24 @@ export async function init() {
     
     const userEmail = state.user.email.toLowerCase();
 
-    // 🚀 1. BULLETPROOF WORKSPACE & ROLE FINDER (Supports Team Members)
+    // 🚀 1. BULLETPROOF WORKSPACE & ROLE FINDER
     const ownerDocSnap = await getDoc(doc(db, "sellers", state.user.uid));
     
     if (ownerDocSnap.exists()) {
         state.role = "owner";
         state.workspaceId = state.user.uid;
+        state.sellerConfig = ownerDocSnap.data(); // Config save kar li
     } else {
-        // Check if user is a team member
         const teamQuery = query(collectionGroup(db, 'team'), where('email', '==', userEmail));
         const teamSnapshot = await getDocs(teamQuery);
 
         if (!teamSnapshot.empty) {
             const agentDoc = teamSnapshot.docs[0]; 
-            state.workspaceId = agentDoc.ref.parent.parent.id; // Get Seller's UID
+            state.workspaceId = agentDoc.ref.parent.parent.id; 
             state.role = (agentDoc.data().role || 'chat').toLowerCase(); 
+            
+            const parentDoc = await getDoc(doc(db, "sellers", state.workspaceId));
+            if(parentDoc.exists()) state.sellerConfig = parentDoc.data();
         } else {
             state.role = "owner";
             state.workspaceId = state.user.uid;
@@ -45,19 +49,16 @@ export async function init() {
     if (!hasNavPermission(state.role, 'navOffers')) {
         const grid = document.getElementById('offers-grid');
         if(grid) grid.innerHTML = `<div class="col-span-full text-center py-20 text-red-500 font-black uppercase tracking-widest bg-red-50 rounded-3xl border border-red-100"><i class="fa-solid fa-lock text-3xl mb-3 block"></i> Access Denied</div>`;
-        return; // Stop execution if no permission
+        return; 
     }
 
-    // Only Owners, Managers, and Support can Create/Edit/Delete
     state.canEdit = ['owner', 'manager', 'support'].includes(state.role);
 
-    // Secure UI Buttons based on Roles
     if (!state.canEdit) {
         const createBtn = document.getElementById('btn-open-offer-modal');
         if(createBtn) createBtn.style.display = 'none';
     }
     
-    // Bind functions to window for HTML access
     window.openOfferModal = openOfferModal;
     window.closeOfferModal = closeOfferModal;
     window.saveOffer = saveOffer;
@@ -70,18 +71,17 @@ export async function init() {
 }
 
 export function destroy() {
-    // Cleanup if necessary when navigating away
     state.offers = [];
 }
 
-// 🟢 3. COST SAVING LOADER: Fetch once, limit to 100 for extreme scale
+// 🟢 3. COST SAVING LOADER
 async function loadOffersOnce() {
     try {
         const q = query(
             collection(db, "offers"), 
-            where("sellerId", "==", state.workspaceId), // Use workspaceId, not user.uid
+            where("sellerId", "==", state.workspaceId), 
             orderBy("createdAt", "desc"),
-            limit(100) // Protection for 1Lakh+ scale (avoids massive document reads)
+            limit(100) 
         );
         
         const snapshot = await getDocs(q);
@@ -98,7 +98,7 @@ async function loadOffersOnce() {
     }
 }
 
-// 🟢 4. UI RENDERER
+// 🟢 4. UI RENDERER (With Advanced Stats Support)
 function renderOffers() {
     const grid = document.getElementById('offers-grid');
     if (!grid) return;
@@ -128,10 +128,16 @@ function renderOffers() {
     let html = '';
     filtered.forEach(offer => {
         const isExp = new Date(offer.expiryDate) < new Date();
-        const statusColor = offer.isActive && !isExp ? 'text-emerald-500 bg-emerald-50' : 'text-slate-400 bg-slate-100';
-        const statusText = isExp ? 'EXPIRED' : (offer.isActive ? 'ACTIVE' : 'PAUSED');
+        const isLimitReached = offer.maxRedemptions > 0 && offer.redemptionCount >= offer.maxRedemptions;
+        
+        // Smart Status Logic
+        let statusColor = 'text-slate-400 bg-slate-100';
+        let statusText = 'PAUSED';
+        
+        if (isExp) { statusText = 'EXPIRED'; }
+        else if (isLimitReached) { statusText = 'LIMIT REACHED'; }
+        else if (offer.isActive) { statusColor = 'text-emerald-500 bg-emerald-50'; statusText = 'ACTIVE'; }
 
-        // Render Action Buttons ONLY if user has edit permissions
         let actionButtons = '';
         if (state.canEdit) {
             actionButtons = `
@@ -146,6 +152,11 @@ function renderOffers() {
             `;
         }
 
+        // 🚀 Displaying Smart Stats 
+        const redemptions = offer.redemptionCount || 0;
+        const revenue = offer.revenueGenerated || 0;
+        const targetBadge = offer.targetAudience === 'NEW' ? '🎟️ New Customers' : (offer.targetAudience === 'REPEAT' ? '👑 VIP Customers' : '🌐 All Customers');
+
         html += `
         <div class="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm hover:shadow-xl transition-all flex flex-col relative group">
             <div class="flex justify-between items-start mb-3">
@@ -156,44 +167,130 @@ function renderOffers() {
             </div>
 
             <h3 class="text-lg font-black text-slate-900 tracking-tight">${offer.name}</h3>
-            <div class="mt-2 mb-4 inline-block px-3 py-1.5 border-2 border-dashed border-blue-200 bg-blue-50 text-blue-700 font-black text-sm tracking-wider rounded-xl uppercase w-max">
-                ${offer.promoCode}
+            
+            <div class="mt-2 mb-3 flex items-center gap-2">
+                <div class="inline-block px-3 py-1.5 border-2 border-dashed border-blue-200 bg-blue-50 text-blue-700 font-black text-sm tracking-wider rounded-xl uppercase">
+                    ${offer.promoCode}
+                </div>
+                <span class="text-[9px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg">${targetBadge}</span>
             </div>
             
             <p class="text-xs font-medium text-slate-500 leading-relaxed mb-4 flex-1">${offer.description}</p>
             
-            <div class="pt-3 border-t border-slate-100 flex items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                <i class="fa-regular fa-clock mr-1.5"></i> Valid till: ${new Date(offer.expiryDate).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'})}
+            <div class="grid grid-cols-2 gap-2 mb-4 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <div>
+                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Used By</p>
+                    <p class="text-xs font-bold text-slate-800">${redemptions} <span class="text-[10px] text-slate-400 font-medium">times</span></p>
+                </div>
+                <div>
+                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Sales (ROI)</p>
+                    <p class="text-xs font-bold text-emerald-600">₹${revenue.toLocaleString('en-IN')}</p>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 flex items-center text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                <i class="fa-regular fa-clock mr-1.5 text-indigo-400"></i> Valid till: ${new Date(offer.expiryDate).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'})}
             </div>
         </div>`;
     });
     grid.innerHTML = html;
 }
 
-// 🟢 5. ADD NEW OFFER (Secured)
+// 🟢 5. ADD NEW OFFER (Secured with Pricing/Billing Limits)
 async function saveOffer(e) {
     e.preventDefault();
     if (!state.canEdit) return showToast("Permission Denied", "error");
+
+    // ==========================================
+    // 🚀 NAYA: BILLING & LIMIT CHECK LOGIC (Like Templates)
+    // ==========================================
+    const { planType, subscriptionEndsAt, createdAt, walletBalance } = state.sellerConfig || {};
+    const nowMs = Date.now();
+    let isPlanActive = false;
+
+    if (planType === 'blaze') {
+        const currentBalance = walletBalance || 0;
+        if (currentBalance <= 0) {
+            return Swal.fire({
+                title: "Low Wallet Balance!",
+                text: "Your Blaze wallet balance is ₹0 or negative. Please recharge your wallet to create offers.",
+                icon: "warning",
+                confirmButtonText: "Recharge Wallet",
+                confirmButtonColor: "#3b82f6"
+            }).then((result) => {
+                if (result.isConfirmed) window.location.hash = '#settings';
+            });
+        }
+        isPlanActive = true; 
+    } 
+    else if (subscriptionEndsAt) {
+        const endMs = subscriptionEndsAt.toMillis ? subscriptionEndsAt.toMillis() : new Date(subscriptionEndsAt).getTime();
+        if (nowMs < endMs) isPlanActive = true;
+    } 
+    else if (createdAt) {
+        const createdMs = createdAt.toMillis ? createdAt.toMillis() : new Date(createdAt).getTime();
+        if (nowMs < createdMs + (7 * 24 * 60 * 60 * 1000)) isPlanActive = true;
+    } 
+    else {
+        isPlanActive = true; 
+    }
+
+    if (!isPlanActive) {
+        return Swal.fire({
+            title: "Plan Expired!",
+            text: "Your trial or subscription has expired. Please upgrade your plan to create marketing offers.",
+            icon: "warning",
+            confirmButtonText: "Upgrade Plan",
+            confirmButtonColor: "#3b82f6"
+        }).then((result) => {
+            if (result.isConfirmed) window.location.hash = '#price';
+        });
+    }
+
+    // Spark Plan Limit Check (Max 5 Offers)
+    if (planType !== 'blaze' && state.offers.length >= 5) {
+        return Swal.fire({
+            title: "Limit Reached!",
+            text: "You have reached the limit of 5 Active Offers on the Spark plan. Upgrade to Blaze to create unlimited offers.",
+            icon: "warning",
+            confirmButtonText: "Upgrade to Blaze",
+            confirmButtonColor: "#3b82f6"
+        }).then((result) => {
+            if (result.isConfirmed) window.location.hash = '#price';
+        });
+    }
+    // ==========================================
 
     const btn = document.getElementById('btn-save-offer');
     const originalText = btn.innerHTML;
     btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Saving...`;
     btn.disabled = true;
 
+    // 🚀 Advanced DB Fields (Using Fallbacks if HTML inputs don't exist yet)
     const offerData = {
-        sellerId: state.workspaceId, // Save using Workspace ID, not User UID
+        sellerId: state.workspaceId, 
         name: document.getElementById('offerName').value.trim(),
         promoCode: document.getElementById('offerCode').value.trim().toUpperCase(),
         description: document.getElementById('offerDesc').value.trim(),
         expiryDate: document.getElementById('offerExpiry').value,
         isActive: true,
+        
+        // Smart Engine Fields
+        discountType: document.getElementById('offerDiscountType')?.value || 'PERCENT', // FLAT or PERCENT
+        discountValue: Number(document.getElementById('offerDiscountValue')?.value) || 0,
+        minOrderValue: Number(document.getElementById('offerMinOrder')?.value) || 0,
+        maxRedemptions: Number(document.getElementById('offerMaxLimit')?.value) || 0,
+        startDate: document.getElementById('offerStartDate')?.value || new Date().toISOString(),
+        targetAudience: document.getElementById('offerTargetAudience')?.value || 'ALL', // ALL, NEW, REPEAT
+        
+        // ROI Trackers
+        redemptionCount: 0,
+        revenueGenerated: 0,
         createdAt: serverTimestamp()
     };
 
     try {
         const docRef = await addDoc(collection(db, "offers"), offerData);
-        
-        // Push to local array directly to avoid re-fetching (Scale Strategy)
         offerData.id = docRef.id;
         offerData.createdAt = new Date(); 
         state.offers.unshift(offerData); 

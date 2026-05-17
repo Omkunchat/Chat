@@ -145,6 +145,9 @@
 
                 <ul class="space-y-3.5 text-[13px] font-bold text-slate-600">
                     <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-3 text-lg"></i> 100 AI (Gemini) Replies / mo</li>
+
+<li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-3 text-lg"></i> 100 AI Sessions / mo (24-Hr Window)</li>
+<li class="flex items-center"><i class="fa-solid fa-check text-indigo-500 mr-3 text-lg"></i> Unlimited AI Messages inside active sessions</li>
                     <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-3 text-lg"></i> Max 2 Team Agents</li>
                     <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-3 text-lg"></i> Max 100 CRM Contacts</li>
                     <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-3 text-lg"></i> Max 50 Products & 5 Offers</li>
@@ -172,7 +175,17 @@
     <a href="/app/login.html" class="block w-full text-center py-4 bg-white text-slate-900 rounded-2xl text-[12px] font-black uppercase tracking-widest hover:bg-slate-100 transition shadow-lg mb-8">Get Started with Blaze</a>
 
     <ul class="space-y-3.5 text-[13px] font-bold text-slate-300">
-        <li class="flex items-center"><i class="fa-solid fa-bolt text-amber-500 mr-3 text-lg"></i> <span class="text-white mr-1">Metered AI:</span> <span class="rate-ai">₹0.30</span> per Gemini Reply</li>
+        <li class="flex items-start">
+    <i class="fa-solid fa-bolt text-amber-500 mr-3 text-lg mt-0.5"></i> 
+    <div>
+        <span class="text-white mr-1">Metered AI:</span> 
+        <span class="text-amber-400 font-extrabold">₹0.30</span> per 24-Hr AI Session
+    </div>
+</li>
+<li class="flex items-start pl-7">
+    <i class="fa-solid fa-check text-emerald-500 mr-2 text-sm mt-0.5"></i> 
+    <span class="text-slate-400 text-xs">Unlimited AI Messages inside active sessions</span>
+</li>
         <li class="flex items-center"><i class="fa-solid fa-bolt text-amber-500 mr-3 text-lg"></i> <span class="text-white mr-1">Team:</span> +<span class="rate-team">₹500</span>/mo per extra agent</li>
         <li class="flex items-center"><i class="fa-solid fa-infinity text-blue-400 mr-3 text-lg"></i> <span class="text-white mr-1">Unlimited</span> CRM (<span class="rate-crm">₹0.5</span> / extra)</li>
         <li class="flex items-center"><i class="fa-solid fa-infinity text-blue-400 mr-3 text-lg"></i> <span class="text-white mr-1">Unlimited</span> Products (<span class="rate-prod">₹1</span> / extra)</li>
@@ -194,35 +207,35 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10 relative z-10">
                 <!-- Inputs -->
                 <div class="space-y-5">
-                    <div>
-                        <label class="text-[11px] font-black text-slate-600 uppercase tracking-widest flex justify-between">AI Replies (Monthly) <span class="text-blue-500 rate-ai-label">₹0.30/msg</span></label>
-                        <input type="number" id="calc-ai" value="1000" class="w-full mt-2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-blue-500 transition" oninput="calculateBill()">
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-[11px] font-black text-slate-600 uppercase tracking-widest">Total Agents</label>
-                            <input type="number" id="calc-team" value="5" class="w-full mt-2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-blue-500 transition" oninput="calculateBill()">
-                        </div>
-                        <div>
-                            <label class="text-[11px] font-black text-slate-600 uppercase tracking-widest">CRM Contacts</label>
-                            <input type="number" id="calc-crm" value="1000" class="w-full mt-2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-blue-500 transition" oninput="calculateBill()">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-3 gap-4">
-                        <div>
-                            <label class="text-[11px] font-black text-slate-600 uppercase tracking-widest">Products</label>
-                            <input type="number" id="calc-prod" value="50" class="w-full mt-2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-blue-500 transition" oninput="calculateBill()">
-                        </div>
-                        <div>
-                            <label class="text-[11px] font-black text-slate-600 uppercase tracking-widest">Offers</label>
-                            <input type="number" id="calc-offer" value="5" class="w-full mt-2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-blue-500 transition" oninput="calculateBill()">
-                        </div>
-                        <div>
-                            <label class="text-[11px] font-black text-slate-600 uppercase tracking-widest">Templates</label>
-                            <input type="number" id="calc-tpl" value="10" class="w-full mt-2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-blue-500 transition" oninput="calculateBill()">
-                        </div>
-                    </div>
-                </div>
+    <div>
+        <label class="text-[11px] font-black text-slate-600 uppercase tracking-widest flex justify-between">AI Sessions (Monthly) <span class="text-blue-500 rate-ai-label">₹0.30/session</span></label>
+        <input type="number" id="calc-ai" value="500" class="w-full mt-2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-blue-500 transition" oninput="calculateBill()">
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+        <div>
+            <label class="text-[11px] font-black text-slate-600 uppercase tracking-widest">Total Agents</label>
+            <input type="number" id="calc-team" value="3" class="w-full mt-2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-blue-500 transition" oninput="calculateBill()">
+        </div>
+        <div>
+            <label class="text-[11px] font-black text-slate-600 uppercase tracking-widest">CRM Contacts</label>
+            <input type="number" id="calc-crm" value="200" class="w-full mt-2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-blue-500 transition" oninput="calculateBill()">
+        </div>
+    </div>
+    <div class="grid grid-cols-3 gap-4">
+        <div>
+            <label class="text-[11px] font-black text-slate-600 uppercase tracking-widest">Products</label>
+            <input type="number" id="calc-prod" value="50" class="w-full mt-2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-blue-500 transition" oninput="calculateBill()">
+        </div>
+        <div>
+            <label class="text-[11px] font-black text-slate-600 uppercase tracking-widest">Offers</label>
+            <input type="number" id="calc-offer" value="5" class="w-full mt-2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-blue-500 transition" oninput="calculateBill()">
+        </div>
+        <div>
+            <label class="text-[11px] font-black text-slate-600 uppercase tracking-widest">Templates</label>
+            <input type="number" id="calc-tpl" value="5" class="w-full mt-2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-blue-500 transition" oninput="calculateBill()">
+        </div>
+    </div>
+</div>
 
                 <!-- Receipt Breakdown -->
                 <div class="bg-slate-900 rounded-3xl p-8 text-white shadow-inner flex flex-col justify-center">
@@ -360,22 +373,25 @@
         let isIndia = true;
         
         function calculateBill() {
-            const aiCount = parseInt(document.getElementById('calc-ai').value) || 0;
+            // Inputs representing quantities
+            const sessionCount = parseInt(document.getElementById('calc-ai').value) || 0; 
             const teamCount = parseInt(document.getElementById('calc-team').value) || 0;
             const crmCount = parseInt(document.getElementById('calc-crm').value) || 0;
             const prodCount = parseInt(document.getElementById('calc-prod').value) || 0;
             const offerCount = parseInt(document.getElementById('calc-offer').value) || 0;
             const tplCount = parseInt(document.getElementById('calc-tpl').value) || 0;
 
+            // Global Tier Rates (Session Based Logic)
             const rates = isIndia ? 
                 { ai: 0.30, team: 500, crm: 0.5, prod: 1, offer: 2, tplFlat: 200, tplRate: 2, sym: '₹' } :
                 { ai: 0.01, team: 10, crm: 0.01, prod: 0.05, offer: 0.10, tplFlat: 5, tplRate: 0.05, sym: '$' };
 
-            const aiCost = aiCount * rates.ai;
-            const teamCost = Math.max(0, teamCount - 2) * rates.team;
-            const crmCost = Math.max(0, crmCount - 100) * rates.crm;
-            const prodCost = Math.max(0, prodCount - 50) * rates.prod;
-            const offerCost = Math.max(0, offerCount - 5) * rates.offer;
+            // Core Tier Logic Billing Math
+            const aiCost = sessionCount * rates.ai;
+            const teamCost = Math.max(0, teamCount - 2) * rates.team; // First 2 agents free
+            const crmCost = Math.max(0, crmCount - 100) * rates.crm; // First 100 CRM contacts free
+            const prodCost = Math.max(0, prodCount - 50) * rates.prod; // First 50 products free
+            const offerCost = Math.max(0, offerCount - 5) * rates.offer; // First 5 offers free
             
             let tplCost = 0;
             if (tplCount > 5) {
@@ -385,6 +401,7 @@
 
             const total = aiCost + teamCost + crmCost + prodCost + offerCost + tplCost;
 
+            // Rendering accurate billing output updates
             document.getElementById('out-ai').innerText = `${rates.sym}${aiCost.toFixed(2)}`;
             document.getElementById('out-team').innerText = `${rates.sym}${teamCost.toFixed(2)}`;
             document.getElementById('out-crm').innerText = `${rates.sym}${crmCost.toFixed(2)}`;
@@ -400,20 +417,20 @@
                 const data = await response.json();
 
                 if (data.country_code !== 'IN') {
-                    isIndia = false; // Trigger USD math in calculator
+                    isIndia = false; // International pricing auto-switch
                     
-                    // Main Cards
+                    // Main Plan Layouts Text Injection
                     document.querySelectorAll('.price-spark, .price-blaze').forEach(el => el.innerText = '$12');
                     
-                    // Blaze Bullet Points
+                    // Specific Feature Tier Badges
                     document.querySelectorAll('.rate-ai').forEach(el => el.innerText = '$0.01');
                     document.querySelectorAll('.rate-team').forEach(el => el.innerText = '$10');
-                    document.querySelectorAll('.rate-crm').forEach(el => el.innerText = '$0.01');
+                    document.querySelectorAll('.rate-crm').forEach= (el => el.innerText = '$0.01');
                     document.querySelectorAll('.rate-prod').forEach(el => el.innerText = '$0.05');
                     document.querySelectorAll('.rate-offer').forEach(el => el.innerText = '$0.10');
-                    document.querySelectorAll('.rate-ai-label').forEach(el => el.innerText = '$0.01/msg');
+                    document.querySelectorAll('.rate-ai-label').forEach(el => el.innerText = '$0.01/session');
 
-                    // Reality Check Comparison
+                    // Competitor Reality Grid Cost Tracker
                     document.querySelectorAll('.price-comp-base').forEach(el => el.innerText = '$35');
                     document.querySelectorAll('.price-comp-extra').forEach(el => el.innerText = '$75');
                     document.querySelectorAll('.price-legacy-total').forEach(el => el.innerText = '$110+ /mo');
@@ -425,11 +442,13 @@
                         btn.href = "https://chat.omkun.com/app?currency=USD";
                     });
                 } else {
+                    document.querySelectorAll('.rate-ai-label').forEach(el => el.innerText = '₹0.30/session');
                     document.querySelectorAll('a[href*="login.html"]').forEach(btn => {
                         btn.href = "https://chat.omkun.com/app?currency=INR";
                     });
                 }
-                // Run calculator to format correctly on load
+                
+                // Initialize math calculation right away
                 calculateBill();
 
             } catch (error) {

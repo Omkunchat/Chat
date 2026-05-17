@@ -35,7 +35,7 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="md:col-span-1 bg-gradient-to-r from-indigo-600 to-indigo-800 p-6 rounded-[2rem] shadow-xl text-white relative overflow-hidden group">
+        <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 p-6 rounded-[2rem] shadow-xl text-white relative overflow-hidden group">
             <div class="relative z-10">
                 <p class="text-indigo-200 text-[10px] font-black uppercase tracking-[0.2em] mb-2 flex justify-between items-center">
                     <span>AI Automation Rate</span>
@@ -49,22 +49,22 @@
             <i class="fa-solid fa-microchip absolute -right-6 -bottom-6 text-[120px] text-white/10 rotate-12 transition-transform group-hover:scale-110"></i>
         </div>
 
-        <div class="md:col-span-1 bg-slate-900 p-6 rounded-[2rem] shadow-xl text-white relative overflow-hidden group">
+        <div class="bg-slate-900 p-6 rounded-[2rem] shadow-xl text-white relative overflow-hidden group">
             <div class="relative z-10">
                 <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Total Conversations</p>
                 <h3 id="stat-conversations" class="text-5xl font-black mb-4 tracking-tight text-teal-400">0</h3>
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-teal-500/10 backdrop-blur-md text-[10px] font-black uppercase tracking-widest text-teal-400 border border-teal-500/20">
-                    <i class="fas fa-comments"></i> Unique Customers
+                <div id="display-unique-customers" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-teal-500/10 backdrop-blur-md text-[10px] font-black uppercase tracking-widest text-teal-400 border border-teal-500/20">
+                    <i class="fas fa-comments"></i> 0 Unique Customers
                 </div>
             </div>
             <i class="fa-brands fa-whatsapp absolute -right-6 -bottom-6 text-[120px] text-white/5 -rotate-12 transition-transform group-hover:scale-110"></i>
         </div>
 
-        <div class="md:col-span-1 bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm relative overflow-hidden group flex flex-col justify-between">
+        <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm relative overflow-hidden group flex flex-col justify-between">
             <div>
                 <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Avg. Response Time</p>
-                <h3 class="text-4xl font-black text-slate-900 tracking-tight flex items-baseline gap-1">
-                    <span id="stat-response-time">1.5</span> <span class="text-lg text-slate-400">sec</span>
+                <h3 id="stat-ai-speed" class="text-4xl font-black text-slate-900 tracking-tight">
+                    1.5 sec
                 </h3>
             </div>
             <div class="mt-4 z-10">
@@ -81,8 +81,52 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        <div class="bg-gradient-to-r from-emerald-600 to-teal-800 p-6 rounded-[2rem] shadow-xl text-white relative overflow-hidden group">
+            <div class="relative z-10">
+                <p class="text-emerald-200 text-[10px] font-black uppercase tracking-[0.2em] mb-2 flex justify-between items-center">
+                    <span>Total ROI Revenue</span>
+                    <i class="fa-solid fa-hand-holding-dollar text-emerald-300"></i>
+                </p>
+                <h3 id="stat-total-revenue" class="text-4xl font-black mb-4 tracking-tight">₹0.00</h3>
+                <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md text-[9px] font-black uppercase tracking-widest text-emerald-100 border border-white/10">
+                    <i class="fa-solid fa-circle-check text-emerald-300"></i> Closed Won Via CRM Leads
+                </div>
+            </div>
+            <i class="fa-solid fa-money-bill-trend-up absolute -right-4 -bottom-6 text-[110px] text-white/10 rotate-12 transition-transform group-hover:scale-105"></i>
+        </div>
+
+        <div class="bg-gradient-to-r from-purple-600 to-indigo-900 p-6 rounded-[2rem] shadow-xl text-white relative overflow-hidden group">
+            <div class="relative z-10">
+                <p class="text-purple-200 text-[10px] font-black uppercase tracking-[0.2em] mb-2 flex justify-between items-center">
+                    <span>Business Hours Saved</span>
+                    <i class="fa-solid fa-hourglass-start text-purple-300"></i>
+                </p>
+                <h3 id="stat-hours-saved" class="text-4xl font-black mb-4 tracking-tight">0 Hours</h3>
+                <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md text-[9px] font-black uppercase tracking-widest text-purple-100 border border-white/10">
+                    <i class="fa-solid fa-mug-hot text-indigo-300"></i> Manual Labor Eliminated
+                </div>
+            </div>
+            <i class="fa-solid fa-business-time absolute -right-4 -bottom-4 text-[110px] text-white/5 -rotate-12 transition-transform group-hover:scale-105"></i>
+        </div>
+
+        <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm relative overflow-hidden group flex flex-col justify-between">
+            <div>
+                <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Busiest Peak Hour</p>
+                <h3 id="stat-peak-hour" class="text-4xl font-black text-slate-900 tracking-tight">
+                    No Data
+                </h3>
+            </div>
+            <div class="mt-4 z-10">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 text-[9px] font-black uppercase tracking-widest text-amber-600 border border-amber-500/20">
+                    <i class="fa-solid fa-fire-flame-curved text-amber-500"></i> Max Message Density Slot
+                </div>
+            </div>
+            <i class="fa-solid fa-chart-simple absolute -right-4 -top-4 text-[100px] text-slate-50 transition-transform group-hover:translate-y-1"></i>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
         <div class="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
             <div class="flex justify-between items-center mb-6">
                 <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
@@ -124,7 +168,7 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col mt-4">
         <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
             <h4 class="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-2">
                 <i class="fa-solid fa-fire text-orange-500"></i> Top Customer Interests
@@ -142,7 +186,7 @@
                     </tr>
                 </thead>
                 <tbody id="top-intents-table">
-                    </tbody>
+                </tbody>
             </table>
         </div>
     </div>

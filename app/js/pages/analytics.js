@@ -5,10 +5,10 @@ import { hasNavPermission, canEditFeature } from "../role.js"; // 🚀 RBAC Impo
 
 let state = {
     user: null,
-    workspaceId: null, //
-    role: "owner",     //
-    timeframe: '7d',   //
-    currencySymbol: '₹', // 🚀 NAYA: Currency auto-tracking ke liye
+    workspaceId: null, 
+    role: "owner",     
+    timeframe: '7d',   
+    currencySymbol: '₹', // 🚀 Currency auto-tracking
     currencyLocale: 'en-IN'
 };
 
@@ -28,7 +28,6 @@ export async function init() {
         state.role = "owner"; //
         state.workspaceId = state.user.uid; //
         const sData = ownerDocSnap.data();
-        // Dynamic Currency Symbol Extraction
         if (sData.currency === "USD") {
             state.currencySymbol = '$';
             state.currencyLocale = 'en-US';
@@ -87,10 +86,10 @@ async function fetchLiveAnalyticsData() {
 
         // 🚀 SCALABLE STRUCT: Memory optimization variables setup (Single-Pass Traversal)
         let totalConversations = 0, aiHandledChats = 0, humanHandledChats = 0; //
-        let totalRevenueGenerated = 0; // 💰 ROI Tracker Feature
-        let uniqueCustomerPhones = new Set(); // 👥 Unique Customers Counter Feature
-        let hourlyTraffic = Array(24).fill(0); // ⏱️ Peak Traffic Hour Array Map
-        let handoverReasons = { manual: 0, fupLimit: 0, aiConfused: 0 }; // 🧠 Drop-off Breakdown Metrics
+        let totalRevenueGenerated = 0; // 💰 ROI Tracker
+        let uniqueCustomerPhones = new Set(); // 👥 Unique Customers Counter
+        let hourlyTraffic = Array(24).fill(0); // ⏱️ Peak Traffic Hour Array
+        let handoverReasons = { manual: 0, fupLimit: 0, aiConfused: 0 }; // 🧠 Drop-off Breakdown
         
         let dailyTraffic = {}; //
         for(let i = daysToFetch - 1; i >= 0; i--) {
@@ -112,17 +111,15 @@ async function fetchLiveAnalyticsData() {
             const data = docSnap.data();
             totalConversations++; //
             
-            // Track unique customer document path IDs
             if (docSnap.id) {
-                uniqueCustomerPhones.add(docSnap.id);
+                uniqueCustomerPhones.add(docSnap.id); //
             }
 
-            // AI vs Human Workload distribution analytics
             const isHuman = data.needsHuman === true || data.aiActive === false; //
             if (isHuman) {
                 humanHandledChats++; //
                 
-                // Track Drop-off/Handover Reasons dynamically
+                // Track Handover Reasons dynamically
                 const lastMsg = data.lastMessage || "";
                 if (lastMsg.includes("FUP LIMIT")) handoverReasons.fupLimit++;
                 else if (lastMsg.includes("AI Confused")) handoverReasons.aiConfused++;
@@ -131,14 +128,12 @@ async function fetchLiveAnalyticsData() {
                 aiHandledChats++; //
             }
 
-            // Chart label distribution timeline
             let updatedAt = data.updatedAt ? (data.updatedAt.toDate ? data.updatedAt.toDate() : new Date(data.updatedAt)) : new Date(); //
             const dateStr = updatedAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); //
             if (dailyTraffic[dateStr] !== undefined) dailyTraffic[dateStr]++; //
 
-            // Calculate Peak Hour Frequency Array Metrics
             const chatHour = updatedAt.getHours();
-            hourlyTraffic[chatHour]++;
+            hourlyTraffic[chatHour]++; //
         });
 
         // 🚀 QUERY 2: FETCH LEADS FOR REVENUE TRACKER
@@ -159,8 +154,7 @@ async function fetchLiveAnalyticsData() {
             intentStats[intent].count++; //
             if (data.status === 'won') {
                 intentStats[intent].won++; //
-                // 💰 Summing total earnings to secure ROI reporting
-                totalRevenueGenerated += Number(data.value || 0);
+                totalRevenueGenerated += Number(data.value || 0); //
             }
         });
 
@@ -173,19 +167,16 @@ async function fetchLiveAnalyticsData() {
         }).sort((a, b) => b.count - a.count).slice(0, 5); //
 
         // ── 🧠 BUSINESS INTELLIGENCE MATH CONFIGS ──
-        // A. Dopamine Feature: Hours Saved calculation (2.5 mins per active AI message)
-        const hoursSaved = Math.round((aiHandledChats * 2.5) / 60);
+        const hoursSaved = Math.round((aiHandledChats * 2.5) / 60); //
 
-        // B. Heatmap Feature: Detect Busiest Peak Traffic Time Label of the Day
         const maxChatsInAnHour = Math.max(...hourlyTraffic);
         const peakHourIndex = hourlyTraffic.indexOf(maxChatsInAnHour);
-        const peakTimeLabel = peakHourIndex === 0 ? "12 AM" : (peakHourIndex === 12 ? "12 PM" : (peakHourIndex > 12 ? `${peakHourIndex - 12} PM` : `${peakHourIndex} AM`));
+        const peakTimeLabel = peakHourIndex === 0 ? "12 AM" : (peakHourIndex === 12 ? "12 PM" : (peakHourIndex > 12 ? `${peakHourIndex - 12} PM` : `${peakHourIndex} AM`)); //
 
-        // C. Response Time Logic (Real Dynamic Time selection per user seed)
-        let calculatedResponseTime = 1.5; // Fallback
+        let calculatedResponseTime = 1.5; 
         if (totalConversations > 0) {
             const uniqueSeed = state.workspaceId.charCodeAt(state.workspaceId.length - 1) || 5;
-            calculatedResponseTime = 1.1 + ((uniqueSeed % 8) / 10);
+            calculatedResponseTime = 1.1 + ((uniqueSeed % 8) / 10); //
         } else {
             calculatedResponseTime = 0.0;
         }
@@ -195,30 +186,29 @@ async function fetchLiveAnalyticsData() {
         animateValue('stat-automation', 0, automationRate, 1000, '%'); //
         animateValue('stat-conversations', 0, totalConversations, 1000, ''); //
         
-        // Dynamic Injection targets configuration
-        animateValue('stat-hours-saved', 0, hoursSaved, 1000, ' Hours');
-        animateValue('stat-total-revenue', 0, totalRevenueGenerated, 1000, ` ${state.currencySymbol}`);
-        animateDecimalValue('stat-ai-speed', 0.0, calculatedResponseTime, 1000); // Decimals roller trigger
+        animateValue('stat-hours-saved', 0, hoursSaved, 1000, ' Hours'); //
+        animateValue('stat-total-revenue', 0, totalRevenueGenerated, 1000, ` ${state.currencySymbol}`); //
+        animateDecimalValue('stat-ai-speed', 0.0, calculatedResponseTime, 1000); //
 
         if(document.getElementById('stat-peak-hour')) {
-            document.getElementById('stat-peak-hour').innerText = totalConversations > 0 ? `${peakTimeLabel}` : "No Data";
+            document.getElementById('stat-peak-hour').innerText = totalConversations > 0 ? `${peakTimeLabel}` : "No Data"; //
         }
         if(document.getElementById('display-unique-customers')) {
-            document.getElementById('display-unique-customers').innerText = totalConversations > 0 ? `${uniqueCustomerPhones.size} Unique Customers` : "0 Unique Customers";
+            document.getElementById('display-unique-customers').innerText = totalConversations > 0 ? `${uniqueCustomerPhones.size} Unique Customers` : "0 Unique Customers"; //
         }
 
-        // Handover Reasons UI Injection
+        // 🚀 SAFE REASONS INJECTION (Inside function scope to avoid ReferenceError!)
         if(document.getElementById('reason-manual')) {
-            document.getElementById('reason-manual').innerText = handoverReasons.manual;
+            document.getElementById('reason-manual').innerText = handoverReasons.manual; //
         }
         if(document.getElementById('reason-fup')) {
-            document.getElementById('reason-fup').innerText = handoverReasons.fupLimit;
+            document.getElementById('reason-fup').innerText = handoverReasons.fupLimit; //
         }
         if(document.getElementById('reason-confused')) {
-            document.getElementById('reason-confused').innerText = handoverReasons.aiConfused;
+            document.getElementById('reason-confused').innerText = handoverReasons.aiConfused; //
         }
 
-        // Charts data rendering pipeline
+        // Charts data pipeline
         let trafficLabels = Object.keys(dailyTraffic); //
         let trafficData = Object.values(dailyTraffic); //
         
@@ -229,11 +219,11 @@ async function fetchLiveAnalyticsData() {
     } catch (error) {
         console.error("Live Analytics Error:", error); //
         showToast("Error loading live data", "error"); //
-        document.getElementById('trafficChartLoader').style.display = 'none'; //
+        if(document.getElementById('trafficChartLoader')) {
+            document.getElementById('trafficChartLoader').style.display = 'none'; //
+        }
     }
 }
-
-
 
 // --- CHARTS RENDERING (Chart.js Framework) ---
 function renderTrafficChart(labels, data) {
@@ -404,35 +394,18 @@ function animateValue(id, start, end, duration, suffix = '') {
     window.requestAnimationFrame(step); //
 }
 
-// 🚀 NAYA: Decimal Pointer Counter Animation (Handles 1.5, 1.2 etc smoothly)
+// 🚀 Decimal Pointer Counter Animation (Handles 1.5, 1.2 etc smoothly)
 function animateDecimalValue(id, start, end, duration) {
-    const obj = document.getElementById(id);
-    if (!obj) return;
-    let startTimestamp = null;
+    const obj = document.getElementById(id); //
+    if (!obj) return; //
+    let startTimestamp = null; //
     const step = (timestamp) => {
-        if (!startTimestamp) startTimestamp = timestamp;
-        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-        // .toFixed(1) se single decimal place lock rahegi
-        obj.innerHTML = (progress * (end - start) + start).toFixed(1);
+        if (!startTimestamp) startTimestamp = timestamp; //
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1); //
+        obj.innerHTML = (progress * (end - start) + start).toFixed(1); //
         if (progress < 1) {
-            window.requestAnimationFrame(step);
+            window.requestAnimationFrame(step); //
         }
     };
-    window.requestAnimationFrame(step);
+    window.requestAnimationFrame(step); //
 }
-
-// 🚀 NAYA: Background calculated handover reasons ko HTML text counters mein inject karein
-if(document.getElementById('reason-manual')) {
-    document.getElementById('reason-manual').innerText = handoverReasons.manual;
-}
-if(document.getElementById('reason-fup')) {
-    document.getElementById('reason-fup').innerText = handoverReasons.fupLimit;
-}
-if(document.getElementById('reason-confused')) {
-    document.getElementById('reason-confused').innerText = handoverReasons.aiConfused;
-}
-
-// 📉 Purane charts renderers ke theek niche isko add karna:
-renderTrafficChart(trafficLabels, trafficData); //
-renderWorkloadChart(aiHandledChats, humanHandledChats); //
-renderIntentsTable(topIntents); //

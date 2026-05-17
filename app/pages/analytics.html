@@ -63,8 +63,8 @@
         <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm relative overflow-hidden group flex flex-col justify-between">
             <div>
                 <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Avg. Response Time</p>
-                <h3 id="stat-ai-speed" class="text-4xl font-black text-slate-900 tracking-tight">
-                    1.5 sec
+                <h3 class="text-4xl font-black text-slate-900 tracking-tight flex items-baseline gap-1">
+                    <span id="stat-ai-speed">0.0</span> <span class="text-lg text-slate-400">sec</span>
                 </h3>
             </div>
             <div class="mt-4 z-10">
@@ -153,7 +153,7 @@
                 <canvas id="workloadChart"></canvas>
             </div>
             
-            <div class="mt-4 flex justify-center gap-6">
+            <div class="mt-4 flex justify-center gap-6 border-b border-slate-100 pb-3">
                 <div class="text-center">
                     <div class="flex items-center gap-1 text-[10px] font-black text-slate-500 uppercase tracking-widest">
                         <span class="w-2 h-2 rounded-full bg-indigo-500"></span> AI Bot
@@ -163,6 +163,25 @@
                     <div class="flex items-center gap-1 text-[10px] font-black text-slate-500 uppercase tracking-widest">
                         <span class="w-2 h-2 rounded-full bg-slate-300"></span> Human Agent
                     </div>
+                </div>
+            </div>
+
+            <div class="mt-4 space-y-2">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1"><i class="fa-solid fa-circle-info"></i> Why Human Took Over?</p>
+                
+                <div class="flex justify-between items-center bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
+                    <span class="text-[10px] font-bold text-slate-600 uppercase tracking-tight">🙋‍♂️ Customer Requested Human</span>
+                    <span id="reason-manual" class="text-xs font-black text-slate-800 bg-white px-2 py-0.5 rounded-lg shadow-sm">0</span>
+                </div>
+                
+                <div class="flex justify-between items-center bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
+                    <span class="text-[10px] font-bold text-slate-600 uppercase tracking-tight">⚠️ 50-Msg Session Limit (FUP)</span>
+                    <span id="reason-fup" class="text-xs font-black text-amber-600 bg-white px-2 py-0.5 rounded-lg shadow-sm">0</span>
+                </div>
+                
+                <div class="flex justify-between items-center bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
+                    <span class="text-[10px] font-bold text-slate-600 uppercase tracking-tight">🧠 AI Confused / Unknown Query</span>
+                    <span id="reason-confused" class="text-xs font-black text-red-600 bg-white px-2 py-0.5 rounded-lg shadow-sm">0</span>
                 </div>
             </div>
         </div>

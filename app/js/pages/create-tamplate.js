@@ -361,17 +361,76 @@ async function syncMetaTemplates() {
 }
 
 
-// --- COMPLETE SUBMIT LOGIC (META UPLOAD + CORS BYPASS FIX) ---
+// --- COMPLETE SUBMIT LOGIC (META UPLOAD + CORS BYPASS FIX + BILLING LIMIT) ---
 async function submitToMeta(e) {
     e.preventDefault();
     if (!validateForm()) return;
 
     const btn = document.getElementById('submit-btn');
-    const { metaWabaId, metaToken, metaAppId } = state.sellerConfig || {}; 
+    const { metaWabaId, metaToken, metaAppId, planType, subscriptionEndsAt, createdAt, walletBalance } = state.sellerConfig || {};
     
     if(!metaWabaId || !metaToken || !metaAppId) {
         return Swal.fire("Config Missing", "App ID, WABA ID or Token is missing in Settings.", "error");
     }
+
+    // ==========================================
+    // 🚀 NAYA: BILLING & LIMIT CHECK LOGIC
+    // ==========================================
+    const nowMs = Date.now();
+    let isPlanActive = false;
+
+    // 1. Check if Subscription/Trial is Active
+    if (planType === 'blaze') {
+    const currentBalance = walletBalance || 0;
+    // Agar wallet khali hai ya minus me hai toh template block kar do
+    if (currentBalance <= 0) {
+        return Swal.fire({
+            title: "Low Wallet Balance!",
+            text: "Your Blaze wallet balance is ₹0 or negative. Please recharge your wallet to submit new templates.",
+            icon: "warning",
+            confirmButtonText: "Recharge Wallet",
+            confirmButtonColor: "#3b82f6"
+        }).then((result) => {
+            if (result.isConfirmed) window.location.hash = '#settings'; // Dashboard ka wallet settings section
+        });
+    }
+    isPlanActive = true; 
+}
+
+    if (!isPlanActive) {
+        return Swal.fire({
+            title: "Plan Expired!",
+            text: "Your trial or subscription has expired. Please upgrade your plan to create templates.",
+            icon: "warning",
+            confirmButtonText: "Upgrade Plan",
+            confirmButtonColor: "#3b82f6"
+        }).then((result) => {
+            if (result.isConfirmed) window.location.hash = '#price';
+        });
+    }
+
+    // 2. Check Template Limit for non-blaze plans
+    if (planType !== 'blaze' && !state.isEditMode) {
+        try {
+            const templatesRef = collection(db, "sellers", state.workspaceId, "templates");
+            const tplSnap = await getDocs(templatesRef);
+            
+            if (tplSnap.size >= 5) {
+                return Swal.fire({
+                    title: "Limit Reached!",
+                    text: "You have reached the limit of 5 broadcast templates on the Spark plan. Upgrade to Blaze to create unlimited templates.",
+                    icon: "warning",
+                    confirmButtonText: "Upgrade to Blaze",
+                    confirmButtonColor: "#3b82f6"
+                }).then((result) => {
+                    if (result.isConfirmed) window.location.hash = '#price';
+                });
+            }
+        } catch (error) {
+            console.error("Error checking template limit:", error);
+        }
+    }
+    // ==========================================
 
     btn.innerText = state.isEditMode ? "Updating Template..." : "Processing Media..."; 
     btn.disabled = true;

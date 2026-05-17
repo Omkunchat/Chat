@@ -7,7 +7,8 @@ let state = {
     user: null,     
     workspaceId: null,      
     role: "owner",     
-    canEdit: false     
+    canEdit: false,
+    sellerConfig: null // 🚀 NAYA: Pricing aur Plan store karne ke liye
 };
 
 const MEDIA_API = "https://media-engine.chatkunhq.workers.dev";
@@ -18,12 +19,13 @@ export async function init() {
     
     const userEmail = state.user.email.toLowerCase();     
     
-    // 🟢 BULLETPROOF WORKSPACE FINDER     
+    // 🟢 BULLETPROOF WORKSPACE FINDER & CONFIG LOADER
     const ownerDocSnap = await getDoc(doc(db, "sellers", state.user.uid));          
     
     if (ownerDocSnap.exists()) {         
         state.role = "owner";         
         state.workspaceId = state.user.uid;     
+        state.sellerConfig = ownerDocSnap.data(); // 🚀 NAYA: Config Save
     } else {         
         const teamQuery = query(collectionGroup(db, 'team'), where('email', '==', userEmail));         
         const teamSnapshot = await getDocs(teamQuery);         
@@ -32,6 +34,10 @@ export async function init() {
             const agentDoc = teamSnapshot.docs[0];              
             state.workspaceId = agentDoc.ref.parent.parent.id;              
             state.role = (agentDoc.data().role || 'chat').toLowerCase();          
+            
+            // Agent ke case me bhi owner ka config load karein
+            const parentDoc = await getDoc(doc(db, "sellers", state.workspaceId));
+            if(parentDoc.exists()) state.sellerConfig = parentDoc.data();
         } else {             
             state.role = "owner";             
             state.workspaceId = state.user.uid;         
@@ -75,7 +81,6 @@ async function loadProductData(id) {
         if (snap.exists()) {             
             const product = snap.data();                          
             
-            // 🔒 SECURITY: Check if product belongs to this workspace             
             if (product.sellerId !== state.workspaceId) {                 
                 showToast("Product not found or access denied", "error");                 
                 window.location.hash = '#catalog';                 
@@ -125,7 +130,6 @@ window.handleAWSUpload = async (e) => {
     const imgEl = document.getElementById('imagePreview');     
     const uploadText = document.getElementById('upload-text');          
     
-    // UI Feedback     
     if(imgEl) {         
         imgEl.src = URL.createObjectURL(originalFile);         
         imgEl.classList.remove('hidden');         
@@ -135,18 +139,13 @@ window.handleAWSUpload = async (e) => {
     showToast("Compressing image size...", "info");     
     
     try {         
-        // 🟢 NAYA: Image ko compress karein (Max 800px, 70% Quality)
         const compressedBlob = await compressImage(originalFile, 800, 800, 0.7);
-        
-        // Kyunki hum image ko 'image/jpeg' mein compress kar rahe hain, 
-        // toh extension aur type wahi set karenge.
         const fileName = originalFile.name.replace(/\.[^/.]+$/, "") + ".jpg"; 
         const fileType = 'image/jpeg';
 
         if(uploadText) uploadText.innerText = "Uploading..."; 
         showToast("Uploading to secure storage...", "info");
 
-        // Presigned URL mangwayein
         const fetchUrl = `${MEDIA_API}/get-presigned-url?filename=${encodeURIComponent(fileName)}&type=${encodeURIComponent(fileType)}&bucket=product`;                 
         const presignedRes = await fetch(fetchUrl);                 
         
@@ -154,7 +153,6 @@ window.handleAWSUpload = async (e) => {
         
         const { uploadUrl, publicUrl } = await presignedRes.json();         
         
-        // 🟢 NAYA: Original file ki jagah 'compressedBlob' ko upload karein
         const awsUpload = await fetch(uploadUrl, {             
             method: 'PUT',             
             body: compressedBlob,             
@@ -179,7 +177,7 @@ window.handleAWSUpload = async (e) => {
 };
 
 // ========================================== 
-// 3. UNIVERSAL SAVE / UPDATE ENGINE 
+// 3. UNIVERSAL SAVE / UPDATE ENGINE (WITH LIMITS)
 // ========================================== 
 window.handleSaveProduct = async (e) => {     
     if(e) e.preventDefault();          
@@ -189,26 +187,97 @@ window.handleSaveProduct = async (e) => {
         return;     
     }          
     
+    const idEl = document.getElementById('editProductId');     
+    const productId = idEl ? idEl.value : null; 
+
+    // ==========================================
+    // 🚀 NAYA: BILLING & LIMIT CHECK (Sirf naya product add karte waqt)
+    // ==========================================
+    if (!productId) {
+        const { planType, subscriptionEndsAt, createdAt, walletBalance } = state.sellerConfig || {};
+        const nowMs = Date.now();
+        let isPlanActive = false;
+
+        if (planType === 'blaze') {
+            const currentBalance = walletBalance || 0;
+            if (currentBalance <= 0) {
+                return Swal.fire({
+                    title: "Low Wallet Balance!",
+                    text: "Your Blaze wallet balance is ₹0 or negative. Please recharge your wallet to add new items.",
+                    icon: "warning",
+                    confirmButtonText: "Recharge Wallet",
+                    confirmButtonColor: "#3b82f6"
+                }).then((result) => {
+                    if (result.isConfirmed) window.location.hash = '#settings';
+                });
+            }
+            isPlanActive = true; 
+        } 
+        else if (subscriptionEndsAt) {
+            const endMs = subscriptionEndsAt.toMillis ? subscriptionEndsAt.toMillis() : new Date(subscriptionEndsAt).getTime();
+            if (nowMs < endMs) isPlanActive = true;
+        } 
+        else if (createdAt) {
+            const createdMs = createdAt.toMillis ? createdAt.toMillis() : new Date(createdAt).getTime();
+            if (nowMs < createdMs + (7 * 24 * 60 * 60 * 1000)) isPlanActive = true;
+        } 
+        else {
+            isPlanActive = true; 
+        }
+
+        if (!isPlanActive) {
+            return Swal.fire({
+                title: "Plan Expired!",
+                text: "Your trial or subscription has expired. Please upgrade your plan to add products.",
+                icon: "warning",
+                confirmButtonText: "Upgrade Plan",
+                confirmButtonColor: "#3b82f6"
+            }).then((result) => {
+                if (result.isConfirmed) window.location.hash = '#price';
+            });
+        }
+
+        // Spark Plan Limit Check (Max 50 Products)
+        if (planType !== 'blaze') {
+            try {
+                const prodRef = collection(db, "products");
+                const qProd = query(prodRef, where("sellerId", "==", state.workspaceId));
+                const snap = await getDocs(qProd);
+                
+                if (snap.size >= 50) {
+                    return Swal.fire({
+                        title: "Limit Reached!",
+                        text: "You have reached the limit of 50 products on the Spark plan. Upgrade to Blaze to add unlimited items.",
+                        icon: "warning",
+                        confirmButtonText: "Upgrade to Blaze",
+                        confirmButtonColor: "#3b82f6"
+                    }).then((result) => {
+                        if (result.isConfirmed) window.location.hash = '#price';
+                    });
+                }
+            } catch (error) {
+                console.error("Limit check error:", error);
+            }
+        }
+    }
+    // ==========================================
+
     const btn = document.getElementById('btn-save-product');     
     const ogHtml = btn ? btn.innerHTML : '';     
     if(btn) {         
         btn.innerHTML = `<i class="fas fa-circle-notch fa-spin text-sm"></i> Syncing to AI...`;         
         btn.disabled = true;     
     }     
-    
-    const idEl = document.getElementById('editProductId');     
-    const productId = idEl ? idEl.value : null;          
-    
-    // 🌍 NAYA: Universal Data Format (E-Commerce, Grocery, Services, Doctors)
+         
     const productData = {         
         sellerId: state.workspaceId, 
-        type: document.querySelector('input[name="itemType"]:checked')?.value || 'product', // 'product' or 'service'
+        type: document.querySelector('input[name="itemType"]:checked')?.value || 'product', 
         sku: document.getElementById('productSku')?.value.trim() || `SKU-${Date.now().toString().slice(-6)}`,
         name: document.getElementById('productName')?.value.trim() || '',         
         price: Number(document.getElementById('productPrice')?.value) || 0,         
-        comparePrice: Number(document.getElementById('productComparePrice')?.value) || 0, // Extra field for discounts
+        comparePrice: Number(document.getElementById('productComparePrice')?.value) || 0, 
         category: document.getElementById('productCategory')?.value.trim() || '',         
-        variants: document.getElementById('productVariants')?.value.trim() || '', // e.g. "S, M, L" or "500g, 1kg" or "30 mins"
+        variants: document.getElementById('productVariants')?.value.trim() || '', 
         description: document.getElementById('productDesc')?.value.trim() || '',         
         imageUrl: document.getElementById('productImage')?.value || '',         
         inStock: document.getElementById('productStock')?.checked ?? true,         
@@ -239,6 +308,7 @@ window.handleSaveProduct = async (e) => {
         }     
     } 
 }
+
 // ========================================== 
 // 4. IMAGE COMPRESSION ENGINE
 // ========================================== 
@@ -256,7 +326,6 @@ async function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.
                 let width = img.width;
                 let height = img.height;
 
-                // Aspect ratio maintain karte hue size chhota karein
                 if (width > height) {
                     if (width > maxWidth) {
                         height = Math.round((height * maxWidth) / width);
@@ -274,7 +343,6 @@ async function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
 
-                // JPEG format mein convert karke Blob return karein
                 canvas.toBlob((blob) => {
                     resolve(blob);
                 }, 'image/jpeg', quality); 

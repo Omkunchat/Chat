@@ -26,9 +26,10 @@
                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Active Seats</p>
                 <h3 id="stat-active-agents" class="text-xl md:text-2xl font-black text-emerald-500">0</h3>
             </div>
+            <!-- 🚀 NAYA: "Billing Limit" ki jagah "Plan Limit" kar diya aur default 'spinner' laga diya -->
             <div class="p-3 md:p-4 text-center">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Billing Limit</p>
-                <h3 id="stat-billing-limit" class="text-xl md:text-2xl font-black text-blue-500">10</h3>
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Plan Limit</p>
+                <h3 id="stat-billing-limit" class="text-xl md:text-2xl font-black text-blue-500"><i class="fa-solid fa-circle-notch fa-spin text-sm"></i></h3>
             </div>
         </div>
     </div>
@@ -49,7 +50,8 @@
             
             <button id="btn-send-invite" onclick="window.inviteNewAgent()" class="bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-700 transition shadow-sm whitespace-nowrap">Send Invite</button>
         </div>
-        <p class="text-[9px] text-indigo-400 font-bold mt-2"><i class="fa-solid fa-circle-info"></i> Agents exceeding the 10 free seats will be billed at ₹1000/month.</p>
+        <!-- 🚀 NAYA: Warning text ko ek ID di gayi hai taaki JS ise badal sake -->
+        <p id="invite-warning-text" class="text-[9px] text-indigo-400 font-bold mt-2"><i class="fa-solid fa-circle-info"></i> Checking plan limits...</p>
     </div>
 
     <div class="flex flex-col md:flex-row gap-2 w-full">
@@ -79,7 +81,7 @@
                     </tr>
                 </thead>
                 <tbody id="team-list-body" class="divide-y divide-slate-100">
-                    </tbody>
+                </tbody>
             </table>
         </div>
     </div>

@@ -11,13 +11,13 @@ let state = {
     role: "owner",     
     settingsData: {},
     pricing: {
-        isIndia: true,
-        symbol: '₹',
-        locale: 'en-IN',
-        baseFee: 2000,
-        perMessageRate: 0.5,
-        extraAgentFee: 1000
-    }
+    isIndia: true,
+    symbol: '₹',
+    locale: 'en-IN',
+    baseFee: 0, // Blaze Plan ki base fee free hai
+    perSessionRate: 0.30, // 🚀 NAYA: 30 paise per session rate
+    extraAgentFee: 500 // Landing page ke ₹500 matrix se match karne ke liye
+}
 };
 
 const WORKER_API = "https://engine.chatkunhq.workers.dev"; 
@@ -98,15 +98,15 @@ async function detectCurrency() {
         const data = await response.json();
         
         if (data.country_code !== 'IN') {
-            state.pricing = {
-                isIndia: false,
-                symbol: '$',
-                locale: 'en-US',
-                baseFee: 25,
-                perMessageRate: 0.007,
-                extraAgentFee: 12
-            };
-        }
+    state.pricing = {
+        isIndia: false,
+        symbol: '$',
+        locale: 'en-US',
+        baseFee: 0,
+        perSessionRate: 0.01, // 🚀 NAYA: $0.01 per session (Keval 1 cent)
+        extraAgentFee: 10 // Landing page ke $10 price se match karne ke liye
+    };
+}
     } catch (error) {
         // NAYA CODE: Error ko smartly handle karne ke liye
         if (error.name === 'AbortError') {
@@ -241,7 +241,11 @@ function disableInputsIn(id) {
 // 🚀 NAYA: Updated logic for Spark vs Blaze in Settings UI
 function calculateBillingUI(data) {
     const config = state.pricing || { symbol: '₹', locale: 'en-IN' };
-    
+    const rechargeInput = document.getElementById('recharge-amount');
+    if (rechargeInput) {
+        const minAmt = config.isIndia ? 500 : 10;
+        rechargeInput.placeholder = `Amount (Min ${config.symbol}${minAmt})`;
+    }
     const badgeEl = document.getElementById('plan-badge');
     const subtitleEl = document.getElementById('bill-subtitle');
     const amountEl = document.getElementById('bill-amount');
@@ -256,6 +260,9 @@ function calculateBillingUI(data) {
     if (msgCountEl) msgCountEl.innerText = aiUsed.toLocaleString(config.locale);
 
     if (currentPlan === 'blaze') {
+        // 🚀 NAYA: Show Wallet UI
+        const walletUI = document.getElementById('wallet-recharge-ui');
+        if (walletUI) walletUI.classList.remove('hidden');
         // --- BLAZE PLAN LOGIC (Shows Wallet Balance) ---
         if(badgeEl) {
             badgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse mr-1 inline-block"></span> BLAZE`;
@@ -276,6 +283,8 @@ function calculateBillingUI(data) {
 
     } else {
         // --- SPARK PLAN LOGIC (Shows Expiry / Trial) ---
+        const walletUI = document.getElementById('wallet-recharge-ui');
+        if (walletUI) walletUI.classList.add('hidden');
         if(badgeEl) {
             badgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-1 inline-block"></span> SPARK`;
             badgeEl.className = "px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
@@ -564,6 +573,57 @@ window.toggleTokenVisibility = () => {
     const isPass = input.type === 'password';
     input.type = isPass ? 'text' : 'password';
     icon.classList.replace(isPass ? 'fa-eye' : 'fa-eye-slash', isPass ? 'fa-eye-slash' : 'fa-eye');
+};
+
+// 🚀 NAYA: Wallet Recharge Logic
+window.rechargeWallet = async () => {
+    const amountInput = document.getElementById('recharge-amount');
+    const btn = document.getElementById('btn-recharge');
+    const amount = parseFloat(amountInput.value);
+    
+    // Check if India or Global from pricing state
+    const isIndia = state.pricing.isIndia;
+    const minAmount = isIndia ? 500 : 10;
+    const currency = isIndia ? "INR" : "USD";
+
+    if (!amount || amount < minAmount) {
+        return showToast(`Minimum recharge amount is ${state.pricing.symbol}${minAmount}`, "error");
+    }
+
+    const ogHtml = btn.innerHTML;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing...`;
+    btn.disabled = true;
+
+    try {
+        const payload = {
+            sellerUid: state.workspaceId, 
+            amount: amount,
+            currency: currency, 
+            paymentType: "wallet_recharge" 
+        };
+
+        const res = await fetch("https://billing.chatkunhq.workers.dev/create-checkout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (data.paymentUrl) {
+            // Redirect to Razorpay/Stripe page
+            window.location.href = data.paymentUrl;
+        } else {
+            showToast(data.error || "Payment Gateway Error", "error");
+            btn.innerHTML = ogHtml;
+            btn.disabled = false;
+        }
+    } catch (error) {
+        console.error("Recharge Error:", error);
+        showToast("Network Error. Check console.", "error");
+        btn.innerHTML = ogHtml;
+        btn.disabled = false;
+    }
 };
 
 function updateApiStatusUI() {

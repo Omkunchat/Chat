@@ -11,14 +11,15 @@ let state = {
     leads: [],
     availableAgents: [],
     selectedLeads: new Set(),
-    view: 'board', 
-    searchQuery: '',
-    selectedCategory: 'all',
-    selectedStatus: 'all', // 🚀 NAYA: Status filter store karne ke liye
-    sortBy: 'newest',
+    // 🚀 NAYA: Session Storage se purana view aur filters uthayega
+    view: sessionStorage.getItem('crm_view') || 'board', 
+    searchQuery: sessionStorage.getItem('crm_search') || '',
+    selectedCategory: sessionStorage.getItem('crm_category') || 'all',
+    selectedStatus: sessionStorage.getItem('crm_status') || 'all', 
+    sortBy: sessionStorage.getItem('crm_sort') || 'newest',
     canEdit: false ,
     pricing: { symbol: '₹', locale: 'en-IN' },
-    sellerConfig: null // 🚀 NAYA: Pricing aur Wallet limits check karne ke liye
+    sellerConfig: null 
 };
 
 async function detectCurrency() {
@@ -89,6 +90,7 @@ export async function init() {
     window.bulkAssignLeads = bulkAssignLeads; 
     window.bulkDeleteLeads = bulkDeleteLeads;
     
+    restoreUIFilters();
     await detectCurrency();
     loadPipelineData();
     loadAvailableAgents();
@@ -293,30 +295,28 @@ function updateDashStats() {
 
 window.switchView = (viewType) => {
     state.view = viewType;
+    sessionStorage.setItem('crm_view', viewType); // 🚀 NAYA: Save to session
     state.selectedLeads.clear(); 
-    
-    const btnBoard = document.getElementById('btn-view-board');
-    const btnList = document.getElementById('btn-view-list');
-    
-    if (viewType === 'board') {
-        if(btnBoard) btnBoard.className = "flex-1 md:flex-none px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white text-blue-600 shadow-sm transition-all";
-        if(btnList) btnList.className = "flex-1 md:flex-none px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-800 transition-all";
-    } else {
-        if(btnList) btnList.className = "flex-1 md:flex-none px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white text-blue-600 shadow-sm transition-all";
-        if(btnBoard) btnBoard.className = "flex-1 md:flex-none px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-800 transition-all";
-    }
+    restoreUIFilters(); // Apply classes
     renderCurrentView();
 };
 
 window.filterCrm = () => {
     state.searchQuery = document.getElementById('crm-search')?.value.toLowerCase().trim() || '';
     state.selectedCategory = document.getElementById('crm-category-filter')?.value || 'all'; 
-    state.selectedStatus = document.getElementById('crm-status-filter')?.value || 'all'; // 🚀 NAYA JODA
+    state.selectedStatus = document.getElementById('crm-status-filter')?.value || 'all'; 
+
+    // 🚀 NAYA: Save values to session storage
+    sessionStorage.setItem('crm_search', state.searchQuery);
+    sessionStorage.setItem('crm_category', state.selectedCategory);
+    sessionStorage.setItem('crm_status', state.selectedStatus);
+
     renderCurrentView();
 };
 
 window.sortCrm = () => {
     state.sortBy = document.getElementById('crm-sort-filter')?.value || 'newest';
+    sessionStorage.setItem('crm_sort', state.sortBy); // 🚀 NAYA: Save to session
     renderCurrentView();
 };
 
@@ -429,7 +429,7 @@ function generateListHTML(leads) {
                         <th class="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Intent & Agent</th>
                         <th class="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Follow Up</th>
                         <th class="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Value</th>
-                        <th class="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                        <th class="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Status & Updated</th>
                         <th class="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Action</th>
                     </tr>
                 </thead>
@@ -440,6 +440,9 @@ function generateListHTML(leads) {
         const isSelected = state.selectedLeads.has(lead.id);
         const intentBadge = `<span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[9px]">${lead.intent || '-'}</span>`;
         const agentBadge = lead.assignedTo ? `<span class="text-[8px] text-blue-500 font-bold block mt-1"><i class="fa-solid fa-user"></i> ${lead.assignedTo}</span>` : '';
+        
+        // 🚀 NAYA: Last Updated Time Calculation
+        const updateTime = lead.updatedAt ? new Date(lead.updatedAt.toDate ? lead.updatedAt.toDate() : lead.updatedAt).toLocaleDateString('en-IN', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) : 'Just now';
 
         html += `
         <tr class="hover:bg-slate-50/50 transition-colors ${isSelected ? 'bg-blue-50/30' : ''}">
@@ -460,9 +463,12 @@ function generateListHTML(leads) {
             <td class="p-4 text-[10px] font-black uppercase max-w-[150px]">${intentBadge}${agentBadge}</td>
             <td class="p-4 text-[10px] text-purple-600 font-bold">${lead.nextFollowUp || '-'}</td>
             <td class="p-4 text-xs font-black text-slate-900">${val}</td>
+            
             <td class="p-4 text-center">
                 <span class="px-3 py-1.5 text-[8px] font-black uppercase tracking-widest rounded-lg border bg-slate-50">${lead.status || 'new'}</span>
+                <span class="block mt-1.5 text-[8px] font-bold text-slate-400"><i class="fa-regular fa-clock"></i> ${updateTime}</span>
             </td>
+            
             <td class="p-4 text-right">
                 <button onclick="window.location.hash='#lead-form?id=${lead.id}'" class="text-blue-500 hover:text-blue-700 font-black text-[10px] uppercase">Edit</button>
             </td>
@@ -657,4 +663,23 @@ function setupDragAndDrop() {
             try { await updateDoc(doc(db, "leads", leadId), { status: newStatus }); } catch(err) {}
         });
     });
+}
+// 🚀 NAYA FUNCTION: Jo purane lagaye hue filters aur view ko wapas HTML par set karega
+function restoreUIFilters() {
+    if(document.getElementById('crm-search')) document.getElementById('crm-search').value = state.searchQuery;
+    if(document.getElementById('crm-category-filter')) document.getElementById('crm-category-filter').value = state.selectedCategory;
+    if(document.getElementById('crm-status-filter')) document.getElementById('crm-status-filter').value = state.selectedStatus;
+    if(document.getElementById('crm-sort-filter')) document.getElementById('crm-sort-filter').value = state.sortBy;
+
+    // View Buttons ko unki sahi state me laana (List ya Kanban)
+    const btnBoard = document.getElementById('btn-view-board');
+    const btnList = document.getElementById('btn-view-list');
+    
+    if (state.view === 'board') {
+        if(btnBoard) btnBoard.className = "flex-1 md:flex-none px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white text-blue-600 shadow-sm transition-all";
+        if(btnList) btnList.className = "flex-1 md:flex-none px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-800 transition-all";
+    } else {
+        if(btnList) btnList.className = "flex-1 md:flex-none px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white text-blue-600 shadow-sm transition-all";
+        if(btnBoard) btnBoard.className = "flex-1 md:flex-none px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-800 transition-all";
+    }
 }

@@ -4,18 +4,17 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { showToast } from "../services/sweet-alert.js";
 
-//  NAYA: Central Role System   
+//  NAYA: Central Role System   
 import { hasNavPermission, canEditFeature } from "../role.js";
 
 // --- STATE ---
 let state = {
     user: null,
-    workspaceId: null, //     ID
-    role: 'chat',      //    
-    unsubscribes: []   //    
+    workspaceId: null, //     ID
+    role: 'chat',      //    
+    unsubscribes: []   //    
 };
 
-// --- INITIALIZATION ---
 // --- INITIALIZATION ---
 export async function init() {
     console.log("[DASHBOARD] Initializing Secure Overview");
@@ -87,7 +86,7 @@ export async function init() {
 }
 
 export function destroy() {
-    // 
+    // 
     state.unsubscribes.forEach(unsub => unsub());
     state.unsubscribes = [];
 }
@@ -95,7 +94,7 @@ export function destroy() {
 // --- CORE LOGIC ---
 
 function setupDashboardListeners() {
-    const wsId = state.workspaceId; //    ID  
+    const wsId = state.workspaceId; //    ID  
 
     // 1. Live Chats
     const chatsRef = collection(db, "sellers", wsId, "chats");
@@ -132,21 +131,41 @@ function setupDashboardListeners() {
 
 async function fetchStaticStats(wsId) {
     try {
-        // Total Orders
-        const customersRef = collection(db, "sellers", wsId, "customers");
-        const snapshotOrders = await getAggregateFromServer(customersRef, { totalOrders: count() });
+        // 1. 🚀 NAYA: Closed Deals (CRM se 'won' leads count karega)
+        const leadsRef = collection(db, "leads");
+        const qWonLeads = query(leadsRef, where("sellerId", "==", wsId), where("status", "==", "won"));
+        const snapshotWonLeads = await getAggregateFromServer(qWonLeads, { totalWon: count() });
+        
         const dashOrders = document.getElementById('dash-orders');
-        if(dashOrders) dashOrders.innerText = snapshotOrders.data().totalOrders || 0;
+        if(dashOrders) dashOrders.innerText = snapshotWonLeads.data().totalWon || 0;
 
-        // Total Catalog Items
+        // 2. Total Catalog Items
         const productsRef = collection(db, "products");
         const qProducts = query(productsRef, where("sellerId", "==", wsId));
         const snapshotProducts = await getAggregateFromServer(qProducts, { totalItems: count() });
+        
         const dashCatalog = document.getElementById('dash-catalog-count');
         if(dashCatalog) dashCatalog.innerText = snapshotProducts.data().totalItems || 0;
 
+        // 3. 🚀 NAYA: Dynamic AI Load (Total chats aur Human chats ka math)
+        const chatsRef = collection(db, "sellers", wsId, "chats");
+        const snapshotTotalChats = await getAggregateFromServer(chatsRef, { total: count() });
+        const totalChats = snapshotTotalChats.data().total || 0;
+
+        let automationRate = 0;
+        if (totalChats > 0) {
+            // Count chats where human intervention was requested
+            const qHumanChats = query(chatsRef, where("needsHuman", "==", true));
+            const snapshotHumanChats = await getAggregateFromServer(qHumanChats, { humanCount: count() });
+            const humanCount = snapshotHumanChats.data().humanCount || 0;
+            
+            // Total mein se human chats hata kar AI ka percentage nikalenge
+            const aiCount = Math.max(0, totalChats - humanCount);
+            automationRate = Math.round((aiCount / totalChats) * 100);
+        }
+
         const dashAiRate = document.getElementById('dash-ai-rate');
-        if(dashAiRate) dashAiRate.innerText = "88%";
+        if(dashAiRate) dashAiRate.innerText = `${automationRate}%`;
 
     } catch (error) {
         console.error("Stats Fetch Error:", error);
@@ -210,7 +229,7 @@ function renderHotLeads(snapshot) {
     snapshot.forEach(docSnap => {
         const lead = docSnap.data();
         const initial = lead.name ? lead.name.charAt(0).toUpperCase() : '?';
-        const val = lead.value ? `${new Intl.NumberFormat('en-IN').format(lead.value)}` : 'TBD';
+        const val = lead.value ? `${new Intl.NumberFormat('en-IN').format(lead.value)}` : 'TBD';
 
         html += `
         <div onclick="window.location.hash='#leads'" class="flex justify-between items-center p-4 bg-white hover:bg-orange-50/30 border border-slate-100 rounded-2xl transition-all cursor-pointer shadow-sm">

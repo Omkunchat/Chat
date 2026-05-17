@@ -14,9 +14,11 @@ let state = {
     view: 'board', 
     searchQuery: '',
     selectedCategory: 'all',
-    sortBy: 'newest', // 🚀 NEW: Sorting state
+    selectedStatus: 'all', // 🚀 NAYA: Status filter store karne ke liye
+    sortBy: 'newest',
     canEdit: false ,
-    pricing: { symbol: '₹', locale: 'en-IN' }
+    pricing: { symbol: '₹', locale: 'en-IN' },
+    sellerConfig: null // 🚀 NAYA: Pricing aur Wallet limits check karne ke liye
 };
 
 async function detectCurrency() {
@@ -40,17 +42,21 @@ export async function init() {
     if (ownerDocSnap.exists()) {
         state.role = "owner";
         state.workspaceId = state.user.uid;
-        state.agentName = "Owner"; // 🚀 NAYA: Owner ka naam set kiya
+        state.agentName = "Owner"; 
+        state.sellerConfig = ownerDocSnap.data(); // 🚀 NAYA: Pricing config save ki
     } else {
         const teamQuery = query(collectionGroup(db, 'team'), where('email', '==', userEmail));
         const teamSnapshot = await getDocs(teamQuery);
         if (!teamSnapshot.empty) {
             const agentDoc = teamSnapshot.docs[0]; 
-            const agentData = agentDoc.data(); // 🚀 NAYA: Agent ka data nikala
+            const agentData = agentDoc.data(); 
             state.workspaceId = agentDoc.ref.parent.parent.id; 
             state.role = (agentData.role || 'chat').toLowerCase(); 
-            // 🚀 NAYA: Agent ka wahi naam set kiya jo dropdown mein dikhta hai
             state.agentName = agentData.name || agentData.email.split('@')[0]; 
+            
+            // 🚀 NAYA: Agent ke account mein bhi main owner ki config load karega
+            const parentDoc = await getDoc(doc(db, "sellers", state.workspaceId));
+            if(parentDoc.exists()) state.sellerConfig = parentDoc.data();
         } else {
             state.role = "owner";
             state.workspaceId = state.user.uid;
@@ -76,11 +82,11 @@ export async function init() {
     window.exportLeadsCSV = exportLeadsCSV;
     window.switchView = switchView;
     window.filterCrm = filterCrm;
-    window.sortCrm = sortCrm; // 🚀 NEW
+    window.sortCrm = sortCrm; 
     window.toggleLeadSelection = toggleLeadSelection;
     window.toggleAllLeads = toggleAllLeads;
     window.bulkUpdateStatus = bulkUpdateStatus;
-    window.bulkAssignLeads = bulkAssignLeads; // 🚀 NEW
+    window.bulkAssignLeads = bulkAssignLeads; 
     window.bulkDeleteLeads = bulkDeleteLeads;
     
     await detectCurrency();
@@ -146,6 +152,37 @@ async function handleCSVUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
 
+    // ==========================================
+    // 🚀 NAYA: BILLING & WALLET CHECK LOGIC
+    // ==========================================
+    const { planType, subscriptionEndsAt, createdAt, walletBalance } = state.sellerConfig || {};
+    const nowMs = Date.now();
+    let isPlanActive = false;
+
+    if (planType === 'blaze') {
+        const currentBalance = walletBalance || 0;
+        if (currentBalance <= 0) {
+            Swal.fire("Low Wallet Balance!", "Your Blaze wallet balance is ₹0 or negative. Please recharge your wallet to import CRM leads.", "warning").then(() => window.location.hash = '#settings');
+            event.target.value = ''; return; // File hata kar rok do
+        }
+        isPlanActive = true; 
+    } 
+    else if (subscriptionEndsAt) {
+        const endMs = subscriptionEndsAt.toMillis ? subscriptionEndsAt.toMillis() : new Date(subscriptionEndsAt).getTime();
+        if (nowMs < endMs) isPlanActive = true;
+    } 
+    else if (createdAt) {
+        const createdMs = createdAt.toMillis ? createdAt.toMillis() : new Date(createdAt).getTime();
+        if (nowMs < createdMs + (7 * 24 * 60 * 60 * 1000)) isPlanActive = true;
+    } 
+    else { isPlanActive = true; }
+
+    if (!isPlanActive) {
+        Swal.fire("Plan Expired!", "Your trial or subscription has expired. Please upgrade your plan to import CRM leads.", "warning").then(() => window.location.hash = '#price');
+        event.target.value = ''; return; // File hata kar rok do
+    }
+    // ==========================================
+
     const importBtn = document.getElementById('btn-import-csv');
     const originalBtnHTML = importBtn.innerHTML;
     importBtn.innerHTML = `<i class="fas fa-spinner fa-spin text-xs"></i> <span class="text-[10px] font-black uppercase tracking-widest hidden md:inline">Reading File...</span>`;
@@ -178,7 +215,7 @@ async function handleCSVUpload(event) {
                     const phone = row[1] ? String(row[1]).replace(/\D/g, '') : '';
                     
                     if (!name && !phone) continue; 
-                    if (existingPhones.has(phone)) continue; // 🚀 NEW: Skip duplicates
+                    if (existingPhones.has(phone)) continue; // Skip duplicates
 
                     const newLeadRef = doc(collection(db, "leads"));
                     currentBatch.set(newLeadRef, {
@@ -191,8 +228,8 @@ async function handleCSVUpload(event) {
                         status: 'new',
                         whatsappSent: false,
                         source: 'excel_import',
-                        assignedTo: '', // 🚀 NEW
-                        nextFollowUp: '', // 🚀 NEW
+                        assignedTo: '', 
+                        nextFollowUp: '', 
                         createdAt: new Date(),
                         updatedAt: new Date()
                     });
@@ -274,6 +311,7 @@ window.switchView = (viewType) => {
 window.filterCrm = () => {
     state.searchQuery = document.getElementById('crm-search')?.value.toLowerCase().trim() || '';
     state.selectedCategory = document.getElementById('crm-category-filter')?.value || 'all'; 
+    state.selectedStatus = document.getElementById('crm-status-filter')?.value || 'all'; // 🚀 NAYA JODA
     renderCurrentView();
 };
 
@@ -290,9 +328,15 @@ function renderCurrentView() {
     let filteredLeads = state.leads.filter(l => {
         const searchString = `${l.name} ${l.phone} ${l.intent} ${l.assignedTo || ''}`.toLowerCase();
         const matchesSearch = searchString.includes(state.searchQuery);
+        
         const leadCategory = l.category ? l.category.toLowerCase() : 'clinic'; 
         const matchesCategory = (state.selectedCategory === 'all' || !state.selectedCategory) ? true : (leadCategory === state.selectedCategory);
-        return matchesSearch && matchesCategory;
+        
+        // 🚀 NAYA RULE: Lead ka status (Hot, Won, Lost, New) match karega
+        const leadStatus = l.status ? l.status.toLowerCase() : 'new';
+        const matchesStatus = (state.selectedStatus === 'all' || !state.selectedStatus) ? true : (leadStatus === state.selectedStatus);
+        
+        return matchesSearch && matchesCategory && matchesStatus;
     });
 
     // 2. Sorting Logic

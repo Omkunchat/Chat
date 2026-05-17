@@ -1,6 +1,5 @@
 <div class="w-full max-w-7xl mx-auto space-y-6 animate-fade-in pb-24 relative">
 
-    <!-- Top Header Card -->
     <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10">
         <div>
             <h2 class="text-2xl font-black text-slate-900 mb-1 flex items-center gap-2">
@@ -13,10 +12,8 @@
         </button>
     </div>
 
-    <!-- Pricing Cards -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
-        <!-- Spark Plan Card -->
         <div id="card-spark" class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm relative overflow-hidden transition-all">
             <div id="badge-spark" class="hidden inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-black uppercase tracking-widest mb-4">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Active Plan
@@ -31,7 +28,7 @@
             </div>
 
             <ul class="space-y-3 mb-8 text-[12px] font-bold text-slate-600">
-                <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-3 text-lg"></i> 100 AI (Gemini) Replies / mo</li>
+                <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-3 text-lg"></i> 100 AI Sessions (24-hrs) / mo</li>
                 <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-3 text-lg"></i> Max 2 Team Agents</li>
                 <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-3 text-lg"></i> Max 100 CRM Contacts</li>
                 <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-3 text-lg"></i> Max 50 Products</li>
@@ -45,7 +42,6 @@
             </button>
         </div>
 
-        <!-- Blaze Plan Card -->
         <div id="card-blaze" class="bg-gradient-to-br from-slate-900 to-black p-8 rounded-[2rem] border border-slate-800 shadow-xl relative overflow-hidden transition-all">
             <div id="badge-blaze" class="hidden inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 text-[10px] font-black uppercase tracking-widest mb-4">
                 <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span> Active Plan
@@ -60,7 +56,7 @@
             </div>
 
             <ul class="space-y-3 mb-8 text-[12px] font-bold text-slate-300">
-                <li class="flex items-center"><i class="fa-solid fa-bolt text-amber-500 mr-3 text-lg"></i> <span class="text-white mr-1">Metered AI:</span> ₹0.30 per Gemini Reply</li>
+                <li class="flex items-center"><i class="fa-solid fa-bolt text-amber-500 mr-3 text-lg"></i> <span class="text-white mr-1">Metered AI:</span> ₹0.30 per 24-Hr Session</li>
                 <li class="flex items-center"><i class="fa-solid fa-bolt text-amber-500 mr-3 text-lg"></i> <span class="text-white mr-1">Team:</span> +₹500/mo per extra agent</li>
                 <li class="flex items-center"><i class="fa-solid fa-infinity text-blue-400 mr-3 text-lg"></i> <span class="text-white mr-1">Unlimited</span> CRM (₹0.5 / extra contact)</li>
                 <li class="flex items-center"><i class="fa-solid fa-infinity text-blue-400 mr-3 text-lg"></i> <span class="text-white mr-1">Unlimited</span> Products (₹1 / extra product)</li>
@@ -75,7 +71,6 @@
         </div>
     </div>
 
-    <!-- 🚀 NAYA: Interactive Cost Calculator -->
     <div class="bg-white p-6 md:p-8 rounded-[2rem] border border-blue-100 shadow-lg relative overflow-hidden">
         <div class="absolute top-0 right-0 p-6 opacity-5 pointer-events-none"><i class="fa-solid fa-calculator text-8xl text-blue-900"></i></div>
         
@@ -83,10 +78,9 @@
         <p class="text-[11px] font-bold text-slate-500 mb-6 relative z-10 max-w-2xl">Use the calculator below to estimate your monthly cost on the Blaze plan. You only pay extra when you cross the base limits.</p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
-            <!-- Inputs -->
             <div class="space-y-4">
                 <div>
-                    <label class="text-[10px] font-black text-slate-600 uppercase tracking-widest flex justify-between">AI Replies (Monthly) <span class="text-blue-500">₹0.30/msg</span></label>
+                    <label class="text-[10px] font-black text-slate-600 uppercase tracking-widest flex justify-between">AI Sessions (Monthly) <span class="text-blue-500">₹0.30/session</span></label>
                     <input type="number" id="calc-ai" value="100" class="w-full mt-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-blue-500 transition" oninput="window.calculateBill()">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
@@ -115,13 +109,11 @@
                 </div>
             </div>
 
-            <!-- Receipt Breakdown -->
             <div class="bg-slate-900 rounded-2xl p-6 text-white shadow-inner flex flex-col">
                 <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b border-slate-800 pb-2">Estimated Breakdown</h4>
                 
                 <div class="space-y-2.5 text-sm font-medium flex-1">
-                    <div class="flex justify-between"><span class="text-slate-400">Blaze Base Fee</span> <span>₹0.00</span></div> <!-- One time setup, monthly base is 0 as metered -->
-                    <div class="flex justify-between"><span class="text-slate-400">AI Cost</span> <span id="out-ai">₹30.00</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">Blaze Base Fee</span> <span>₹0.00</span></div> <div class="flex justify-between"><span class="text-slate-400">AI Cost</span> <span id="out-ai">₹30.00</span></div>
                     <div class="flex justify-between"><span class="text-slate-400">Extra Agents</span> <span id="out-team">₹0.00</span></div>
                     <div class="flex justify-between"><span class="text-slate-400">Extra CRM</span> <span id="out-crm">₹0.00</span></div>
                     <div class="flex justify-between"><span class="text-slate-400">Extra Products</span> <span id="out-prod">₹0.00</span></div>
@@ -138,4 +130,4 @@
             </div>
         </div>
     </div>
-                                                                                                          </div>
+</div>

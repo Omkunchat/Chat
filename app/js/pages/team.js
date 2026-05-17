@@ -7,21 +7,20 @@ let state = {
     user: null,
     workspaceId: null,
     role: "chat",
+    planType: "spark", // 🚀 NAYA: Check current plan
     teamData: [],
     searchQuery: '',
     roleFilter: 'all',
     canEdit: false,
-    // 🚀 NAYA: Pricing state added for dynamic currency alert
     pricing: {
         isIndia: true,
         symbol: '₹',
-        extraAgentFee: 1000
+        extraAgentFee: 500 // 🚀 NAYA: 1000 se 500 kar diya
     }
 };
 
 let teamUnsubscribe = null;
 
-// 🚀 NAYA: Currency detect function to show $12 or ₹1000 correctly
 async function detectCurrency() {
     try {
         const response = await fetch('https://ipapi.co/json/');
@@ -31,7 +30,7 @@ async function detectCurrency() {
             state.pricing = {
                 isIndia: false,
                 symbol: '$',
-                extraAgentFee: 12
+                extraAgentFee: 10 // 🚀 NAYA: USD equivalent
             };
         }
     } catch (error) {
@@ -49,8 +48,9 @@ export async function init() {
     if (ownerDocSnap.exists()) {
         state.role = "owner";
         state.workspaceId = state.user.uid;
+        state.planType = ownerDocSnap.data().planType || "spark"; // Get Plan
     } else {
-        // 2. Agar Owner nahi hai, toh agent ka email 'team' sub-collection me dhundo
+        // 2. Agent Finder
         const teamQuery = query(collectionGroup(db, 'team'), where('email', '==', userEmail));
         const teamSnapshot = await getDocs(teamQuery);
         
@@ -58,18 +58,19 @@ export async function init() {
             const agentDoc = teamSnapshot.docs[0];
             const agentData = agentDoc.data();
             
-            // Direct sellerId field use kar rahe hain
             state.workspaceId = agentData.sellerId; 
-            
-            // Role me Capital/Small ka issue na aaye, isliye toLowerCase()
             state.role = (agentData.role || 'chat').toLowerCase(); 
+            
+            // Get Plan for Agent view
+            const sDoc = await getDoc(doc(db, "sellers", state.workspaceId));
+            if(sDoc.exists()) state.planType = sDoc.data().planType || "spark";
+
         } else {
             document.getElementById('team-wrapper').innerHTML = `<div class="text-center py-20 text-red-500 font-black uppercase tracking-widest">Access Denied: Not in any team</div>`;
             return;
         }
     }
 
-    // 3. Strict RBAC Check
     const teamPerm = getSettingPermission(state.role, 'teamManagement');
     if (teamPerm === 'hide') {
         document.getElementById('team-wrapper').innerHTML = `<div class="text-center py-20 text-red-500 bg-red-50 rounded-3xl border border-red-100 font-black uppercase tracking-widest"><i class="fa-solid fa-lock text-2xl block mb-2"></i> Access Denied</div>`;
@@ -81,7 +82,6 @@ export async function init() {
         document.getElementById('team-action-btn-container').classList.add('hidden');
     }
 
-    // 🚀 NAYA: UI load hone se pehle currency check karein
     await detectCurrency();
 
     window.inviteNewAgent = inviteNewAgent;
@@ -97,7 +97,6 @@ export function destroy() {
 }
 
 function loadTeamData() {
-    // EXACT MATCH WITH YOUR DATABASE: sellers -> {workspaceId} -> team
     const teamRef = collection(db, "sellers", state.workspaceId, "team");
     
     teamUnsubscribe = onSnapshot(teamRef, (snapshot) => {
@@ -118,9 +117,23 @@ function loadTeamData() {
     });
 }
 
+// 🚀 NAYA: Dynamic HTML Update Logic for Spark vs Blaze
 function updateStats() {
     document.getElementById('stat-total-agents').innerText = state.teamData.length;
     document.getElementById('stat-active-agents').innerText = state.teamData.filter(t => t.status !== 'revoked').length;
+
+    const limitEl = document.getElementById('stat-billing-limit');
+    const warningEl = document.getElementById('invite-warning-text');
+    
+    if (state.planType === 'blaze') {
+        // Blaze Plan: Unlimited seats (Pay-as-you-go)
+        if (limitEl) limitEl.innerHTML = `<i class="fa-solid fa-infinity text-lg"></i>`;
+        if (warningEl) warningEl.innerHTML = `<i class="fa-solid fa-circle-info"></i> First 2 agents are free. Extra agents will be billed at ${state.pricing.symbol}${state.pricing.extraAgentFee}/month.`;
+    } else {
+        // Spark Plan: Fixed limit of 2
+        if (limitEl) limitEl.innerText = "2";
+        if (warningEl) warningEl.innerHTML = `<i class="fa-solid fa-circle-info text-amber-500"></i> Spark plan allows max 2 agents. Upgrade to Blaze for unlimited seats.`;
+    }
 }
 
 window.filterTeam = () => {
@@ -205,14 +218,11 @@ async function inviteNewAgent() {
     const email = document.getElementById('invite-email').value.trim().toLowerCase();
     const role = document.getElementById('invite-role').value; 
     
-    // Phone number extract karna aur validation
     const phoneInput = document.getElementById('invite-phone');
     const phone = phoneInput ? phoneInput.value.trim().replace(/\D/g, '') : ''; 
     
     if(!email) return showToast("Enter a valid email", "error");
-    
-    // 🚀 NAYA: International number validation (Length reduced to 8 to support shorter international numbers)
-    if(!phone || phone.length < 8) return showToast("Enter valid WhatsApp number with Country Code (e.g., 12025550123 or 919876543210)", "error");
+    if(!phone || phone.length < 8) return showToast("Enter valid WhatsApp number with Country Code", "error");
 
     const btn = document.getElementById('btn-send-invite');
     btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
@@ -222,19 +232,24 @@ async function inviteNewAgent() {
         const teamRef = collection(db, "sellers", state.workspaceId, "team");
         const currentCount = state.teamData.length;
 
-        if (currentCount >= 10) {
-            // 🚀 NAYA: Dynamic Pricing Alert (₹1000 or $12)
-            const config = state.pricing;
-            if (!confirm(`10 Free seats limit reached. Adding ${email} will cost extra ${config.symbol}${config.extraAgentFee}/mo. Proceed?`)) {
-                btn.innerHTML = "Send Invite"; btn.disabled = false; return;
+        // 🚀 NAYA: Strict Logic based on Spark (Max 2) vs Blaze (Pay extra)
+        if (currentCount >= 2) {
+            if (state.planType !== 'blaze') {
+                showToast("Spark Plan allows max 2 Agents. Upgrade to Blaze to add more.", "error");
+                btn.innerHTML = "Send Invite"; btn.disabled = false;
+                return;
+            } else {
+                const config = state.pricing;
+                if (!confirm(`Adding ${email} will cost an extra ${config.symbol}${config.extraAgentFee}/mo. Proceed?`)) {
+                    btn.innerHTML = "Send Invite"; btn.disabled = false; return;
+                }
             }
         }
 
-        // Database mein "phone" save karna
         await setDoc(doc(teamRef, email), {
             email: email, 
             role: role, 
-            phone: phone, // <-- Added here
+            phone: phone,
             status: "invited", 
             sellerId: state.workspaceId, 
             invitedAt: serverTimestamp()
@@ -244,7 +259,6 @@ async function inviteNewAgent() {
 
         showToast(`Invite sent to ${email}`, "success");
         
-        // Input box clear karna
         document.getElementById('invite-email').value = '';
         if(phoneInput) phoneInput.value = '';
         document.getElementById('invite-section').classList.add('hidden');

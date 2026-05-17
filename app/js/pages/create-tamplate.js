@@ -381,21 +381,34 @@ async function submitToMeta(e) {
 
     // 1. Check if Subscription/Trial is Active
     if (planType === 'blaze') {
-    const currentBalance = walletBalance || 0;
-    // Agar wallet khali hai ya minus me hai toh template block kar do
-    if (currentBalance <= 0) {
-        return Swal.fire({
-            title: "Low Wallet Balance!",
-            text: "Your Blaze wallet balance is ₹0 or negative. Please recharge your wallet to submit new templates.",
-            icon: "warning",
-            confirmButtonText: "Recharge Wallet",
-            confirmButtonColor: "#3b82f6"
-        }).then((result) => {
-            if (result.isConfirmed) window.location.hash = '#settings'; // Dashboard ka wallet settings section
-        });
+        const currentBalance = walletBalance || 0;
+        // Agar wallet khali hai ya minus me hai toh template block kar do
+        if (currentBalance <= 0) {
+            return Swal.fire({
+                title: "Low Wallet Balance!",
+                text: "Your Blaze wallet balance is ₹0 or negative. Please recharge your wallet to submit new templates.",
+                icon: "warning",
+                confirmButtonText: "Recharge Wallet",
+                confirmButtonColor: "#3b82f6"
+            }).then((result) => {
+                if (result.isConfirmed) window.location.hash = '#settings';
+            });
+        }
+        isPlanActive = true; 
+    } 
+    // 🚀 RESTORED: Spark Plan aur Free Trial check karne ka missing code
+    else if (subscriptionEndsAt) {
+        const endMs = subscriptionEndsAt.toMillis ? subscriptionEndsAt.toMillis() : new Date(subscriptionEndsAt).getTime();
+        if (nowMs < endMs) isPlanActive = true;
+    } 
+    else if (createdAt) {
+        // 7-Day Trial account calculation
+        const createdMs = createdAt.toMillis ? createdAt.toMillis() : new Date(createdAt).getTime();
+        if (nowMs < createdMs + (7 * 24 * 60 * 60 * 1000)) isPlanActive = true;
+    } 
+    else {
+        isPlanActive = true; // Fallback agar data missing ho
     }
-    isPlanActive = true; 
-}
 
     if (!isPlanActive) {
         return Swal.fire({

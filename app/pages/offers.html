@@ -29,29 +29,72 @@
     </div>
 </div>
 
-<div id="offerModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[200] hidden items-center justify-center flex p-4 transition-opacity">
-    <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden transform transition-transform scale-95 origin-bottom relative flex flex-col max-h-[90vh]">
+<div id="offerModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[200] hidden items-center justify-center p-4 transition-opacity">
+    <div class="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden transform transition-transform scale-95 origin-bottom relative flex flex-col max-h-[90vh]">
         
-        <div class="flex items-center justify-between p-5 border-b border-slate-100">
-            <h3 class="text-lg font-black text-slate-800 tracking-tight">Create Discount Offer</h3>
-            <button onclick="window.closeOfferModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition"><i class="fa-solid fa-xmark"></i></button>
+        <div class="flex items-center justify-between p-5 border-b border-slate-100 bg-slate-50/50">
+            <div>
+                <h3 class="text-lg font-black text-slate-800 tracking-tight">Create Smart Offer</h3>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Train AI with advanced sales rules</p>
+            </div>
+            <button onclick="window.closeOfferModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-200 text-slate-500 hover:bg-slate-300 transition shrink-0"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
-        <form id="offerForm" onsubmit="window.saveOffer(event)" class="p-5 overflow-y-auto space-y-5">
+        <form id="offerForm" onsubmit="window.saveOffer(event)" class="p-5 overflow-y-auto space-y-5 custom-scrollbar">
             <input type="hidden" id="editOfferId">
             
             <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Offer Name (e.g., Diwali Blast)</label>
-                <input type="text" id="offerName" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition">
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Campaign Name (e.g., Diwali Blast)</label>
+                <input type="text" id="offerName" required placeholder="Summer Flash Sale" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition">
             </div>
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Promo Code</label>
                     <div class="relative">
-                        <input type="text" id="offerCode" required placeholder="DIWALI20" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-blue-600 outline-none uppercase focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition">
-                        <button type="button" onclick="window.generateRandomCode()" class="absolute right-2 top-2 w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center"><i class="fa-solid fa-dice text-xs"></i></button>
+                        <input type="text" id="offerCode" required placeholder="SALE20" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-blue-600 outline-none uppercase focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition">
+                        <button type="button" onclick="window.generateRandomCode()" class="absolute right-2 top-2 w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition" title="Generate Random Code"><i class="fa-solid fa-dice text-xs"></i></button>
                     </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Target Audience</label>
+                    <select id="offerTargetAudience" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-100 transition">
+                        <option value="ALL">🌐 All Customers</option>
+                        <option value="NEW">🎟️ First-Time Buyers</option>
+                        <option value="REPEAT">👑 Repeat/Loyal Buyers</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 p-4 bg-blue-50/50 border border-blue-100 rounded-2xl">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Discount Type</label>
+                    <select id="offerDiscountType" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-100 transition">
+                        <option value="PERCENT">Percentage (%)</option>
+                        <option value="FLAT">Flat Amount Off</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Value Amount</label>
+                    <input type="number" id="offerDiscountValue" required placeholder="e.g., 20" min="1" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-100 transition">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Min. Spend (Upsell)</label>
+                    <input type="number" id="offerMinOrder" placeholder="0 for no limit" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-100 transition">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Max Uses (FOMO)</label>
+                    <input type="number" id="offerMaxLimit" placeholder="0 for unlimited" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-100 transition">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Start Date</label>
+                    <input type="date" id="offerStartDate" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-100 transition">
                 </div>
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Expiry Date</label>
@@ -60,13 +103,13 @@
             </div>
 
             <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Discount Description (AI will read this)</label>
-                <textarea id="offerDesc" rows="2" required placeholder="Flat 20% off on all dry cleaning orders above ₹500." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 outline-none focus:ring-2 focus:ring-blue-100 transition resize-none"></textarea>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">AI Pitch Description</label>
+                <textarea id="offerDesc" rows="2" required placeholder="Get 20% off on all orders above ₹1000! Valid for the first 50 customers only." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 outline-none focus:ring-2 focus:ring-blue-100 transition resize-none"></textarea>
             </div>
             
             <div class="pt-4 mt-2 border-t border-slate-100">
                 <button type="submit" id="btn-save-offer" class="w-full py-3.5 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
-                    Save Offer & Train AI
+                    <i class="fa-solid fa-microchip"></i> Save Offer & Train AI
                 </button>
             </div>
         </form>

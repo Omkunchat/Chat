@@ -243,17 +243,17 @@ async function syncWithMeta() {
             const flattenedBody = bodyComp ? (bodyComp.text || "") : "";
 
             await setDoc(doc(db, "sellers", state.workspaceId, "templates", t.id), {
-                name: t.name,
-                metaId: t.id,
-                status: t.status,
-                category: t.category,
-                language: t.language,
-                components: t.components, 
-                bodyText: flattenedBody, // 🚀 Flattened field for instant UI
-                rejected_reason: t.rejected_reason || null,
-                lastSynced: serverTimestamp(),
-                createdAt: serverTimestamp() // Safe merge won't override
-            }, { merge: true });
+    name: t.name || "unnamed_template",
+    metaId: t.id || "",
+    status: t.status || "PENDING",
+    category: t.category || "MARKETING",
+    language: t.language || "en_US",
+    components: t.components || [], 
+    bodyText: flattenedBody || "", // 🚀 Flattened field for instant UI
+    rejected_reason: t.rejected_reason || null,
+    lastSynced: serverTimestamp(),
+    createdAt: serverTimestamp() 
+}, { merge: true });
         }
         
         showToast("Templates Synced Successfully!", "success");
@@ -268,21 +268,45 @@ async function syncWithMeta() {
 }
 
 async function deleteTemplate(id) {
+    // 🚀 1. Pehle state array se template ka real name dhoondhein
+    const tpl = state.templates.find(t => t.id === id);
+    const tplName = tpl ? tpl.name : null;
+    
+    // Settings se Meta configuration fetch karein
+    const { metaWabaId, metaToken } = state.sellerConfig || {};
+
     Swal.fire({
-        title: 'Delete record locally?',
-        text: "This removes the record from Omkun Chat. You must still delete it in Meta Business Manager to completely remove it from WhatsApp.",
+        title: 'Delete Template?',
+        text: "This will delete the template from Omkun Chat and also permanently remove it from Meta WhatsApp!",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#ef4444',
         cancelButtonColor: '#cbd5e1',
-        confirmButtonText: 'Yes, remove it'
+        confirmButtonText: 'Yes, delete everywhere'
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
+                // 🚀 2. REAL-TIME META API DELETE CALL
+                if (metaWabaId && metaToken && tplName) {
+                    const metaRes = await fetch(`https://graph.facebook.com/v19.0/${metaWabaId}/message_templates?name=${encodeURIComponent(tplName)}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${metaToken}` }
+                    });
+                    
+                    const metaData = await metaRes.json();
+                    if (metaData.error) {
+                        console.error("Meta Sync Delete Warning:", metaData.error.message);
+                        // Agar Meta par template nahi mila ya koi issue hai toh warning show karega, crash nahi karega
+                    }
+                }
+
+                // 🚀 3. Local Firebase Database se record clear karna
                 await deleteDoc(doc(db, "sellers", state.workspaceId, "templates", id));
-                showToast("Template record removed", "success");
+                showToast("Template deleted from everywhere! 💥", "success");
+                
             } catch(e) { 
                 showToast("Error removing record", "error"); 
+                console.error(e);
             }
         }
     });

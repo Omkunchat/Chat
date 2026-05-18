@@ -1,6 +1,7 @@
 import { db, auth } from "../firebase.js";
 import { doc, getDoc, setDoc, serverTimestamp, collection, getDocs, collectionGroup, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-import { signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+// 🚀 NAYA: Update this import line at the top
+import { signOut, sendPasswordResetEmail, verifyBeforeUpdateEmail, EmailAuthProvider, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { showToast } from "../services/sweet-alert.js"; 
 
 import { getSettingPermission, canEditFeature } from "../role.js";
@@ -125,6 +126,11 @@ async function loadSettings() {
         if (docSnap.exists()) {
             state.settingsData = docSnap.data();
             
+            // 🚀 NAYA: Registered Email ko UI mein populate karna
+            if(document.getElementById('set_userEmail')) {
+                document.getElementById('set_userEmail').value = state.user.email || "";
+            }
+
             // UI Update Functions
             populateForm(state.settingsData);
             updateApiStatusUI();
@@ -633,3 +639,68 @@ function updateApiStatusUI() {
         `<span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-50 text-[10px] font-bold text-emerald-600 border border-emerald-200"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> API Live</span>` :
         `<span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-slate-100 text-[10px] font-bold text-slate-500 border border-slate-200"><span class="w-2 h-2 rounded-full bg-slate-400"></span> Disconnected</span>`;
 }
+// 🚀 NAYA: Send Password Reset Link
+window.handlePasswordReset = async () => {
+    if (!state.user || !state.user.email) return;
+    
+    try {
+        await sendPasswordResetEmail(auth, state.user.email);
+        Swal.fire("Email Sent!", "A password reset link has been sent to your registered email.", "success");
+    } catch (error) {
+        showToast("Error sending reset email", "error");
+        console.error(error);
+    }
+};
+
+// 🚀 NAYA: Smart Email Change (with Auto Re-Authentication)
+window.handleEmailChange = async () => {
+    const { value: newEmail } = await Swal.fire({
+        title: "Change Email Address",
+        input: "email",
+        inputLabel: "Enter your new email address",
+        inputPlaceholder: "new@example.com",
+        showCancelButton: true,
+        confirmButtonText: "Next",
+        confirmButtonColor: "#2563eb"
+    });
+
+    if (newEmail && newEmail !== state.user.email) {
+        try {
+            // Pehle direct try karega
+            await verifyBeforeUpdateEmail(state.user, newEmail);
+            Swal.fire("Verification Sent!", `Please check ${newEmail} to verify and complete the change.`, "success");
+        } catch (error) {
+            // Agar Firebase purana login hone ki wajah se rokta hai
+            if (error.code === 'auth/requires-recent-login') {
+                
+                // User se wahi par uska current password mangenge
+                const { value: password } = await Swal.fire({
+                    title: 'Security Verification',
+                    text: 'Please enter your current password to continue.',
+                    input: 'password',
+                    inputPlaceholder: 'Enter your password',
+                    showCancelButton: true,
+                    confirmButtonText: 'Verify & Change Email',
+                    confirmButtonColor: "#2563eb"
+                });
+
+                if (password) {
+                    try {
+                        // Backend me chupchap re-authenticate karega
+                        const credential = EmailAuthProvider.credential(state.user.email, password);
+                        await reauthenticateWithCredential(state.user, credential);
+                        
+                        // Aur wapas email change request bhej dega
+                        await verifyBeforeUpdateEmail(state.user, newEmail);
+                        Swal.fire("Verification Sent!", `Please check ${newEmail} to verify and complete the change.`, "success");
+                    } catch (reauthError) {
+                        showToast("Incorrect password. Please try again.", "error");
+                    }
+                }
+            } else {
+                showToast("Error changing email", "error");
+                console.error(error);
+            }
+        }
+    }
+};

@@ -47,42 +47,50 @@
     </div>
 
     <div id="billing-section" class="bg-gradient-to-br from-slate-900 to-black p-5 rounded-3xl border border-slate-800 shadow-xl space-y-3 relative overflow-hidden">
-    <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-wallet text-6xl text-white"></i></div>
-    
-    <!-- Header & Dynamic Badge -->
-    <div class="flex justify-between items-center relative z-10 mb-1">
-        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Billing & Subscription</h3>
-        <span id="plan-badge" class="px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-slate-800 text-slate-400 border border-slate-700 hidden">
-            <i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Checking
-        </span>
-    </div>
+        <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-wallet text-6xl text-white"></i></div>
+        
+        <div class="flex justify-between items-center relative z-10 mb-1">
+            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Billing & Subscription</h3>
+            <span id="plan-badge" class="px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-slate-800 text-slate-400 border border-slate-700 hidden">
+                <i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Checking
+            </span>
+        </div>
 
-    <!-- Main Amount & Action -->
-    <div class="flex justify-between items-center text-white relative z-10">
-        <div>
-            <p id="bill-subtitle" class="text-xs text-slate-400 font-medium mb-0.5">Current Plan Status</p>
-            <h2 class="text-3xl font-black" id="bill-amount">
-                <i class="fa-solid fa-circle-notch fa-spin text-xl text-slate-500"></i>
-            </h2>
+        <div class="flex justify-between items-center text-white relative z-10">
+            <div>
+                <p id="bill-subtitle" class="text-xs text-slate-400 font-medium mb-0.5">Current Plan Status</p>
+                <h2 class="text-3xl font-black" id="bill-amount">
+                    <i class="fa-solid fa-circle-notch fa-spin text-xl text-slate-500"></i>
+                </h2>
+            </div>
+            <button onclick="window.location.hash='#price'" class="px-5 py-2.5 bg-white text-black rounded-full text-xs font-black uppercase tracking-wide hover:bg-slate-200 transition active:scale-95 flex items-center gap-2 shadow-lg">
+                Manage <i class="fa-solid fa-arrow-right"></i>
+            </button>
         </div>
-        <!-- 🚀 NAYA: Redirects to your new Pricing Page -->
-        <button onclick="window.location.hash='#price'" class="px-5 py-2.5 bg-white text-black rounded-full text-xs font-black uppercase tracking-wide hover:bg-slate-200 transition active:scale-95 flex items-center gap-2 shadow-lg">
-            Manage <i class="fa-solid fa-arrow-right"></i>
-        </button>
+        
+        <div class="pt-3 space-y-1.5 border-t border-slate-800 relative z-10">
+            <div class="flex justify-between text-[10px] font-bold">
+                <span class="text-slate-400">AI Replies this month:</span>
+                <span id="bill-msg-count" class="text-white">0</span>
+            </div>
+            <div class="flex justify-between text-[10px] font-bold">
+                <span id="bill-date-label" class="text-slate-400">Next Bill / Expiry:</span>
+                <span id="bill-date-value" class="text-emerald-400"><i class="fa-solid fa-ellipsis"></i></span>
+            </div>
+        </div>
+
+        <div id="wallet-recharge-ui" class="hidden mt-3 pt-3 border-t border-slate-800 relative z-10">
+            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Recharge Wallet</label>
+            <div class="flex flex-col sm:flex-row gap-2">
+                <input type="number" id="recharge-amount" placeholder="Loading..." 
+                    class="w-full sm:flex-1 px-3 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl text-xs font-bold text-white outline-none focus:border-blue-500 placeholder-slate-500 transition shadow-inner">
+                <button onclick="window.rechargeWallet()" id="btn-recharge" 
+                    class="w-full sm:w-auto flex justify-center items-center gap-1.5 bg-blue-600 text-white px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition active:scale-95 shadow-md">
+                    <i class="fa-solid fa-bolt"></i> Add Money
+                </button>
+            </div>
+        </div>
     </div>
-    
-    <!-- Dynamic Stats (Usage & Expiry/Wallet) -->
-    <div class="pt-3 space-y-1.5 border-t border-slate-800 relative z-10">
-        <div class="flex justify-between text-[10px] font-bold">
-            <span class="text-slate-400">AI Replies this month:</span>
-            <span id="bill-msg-count" class="text-white">0</span>
-        </div>
-        <div class="flex justify-between text-[10px] font-bold">
-            <span id="bill-date-label" class="text-slate-400">Next Bill / Expiry:</span>
-            <span id="bill-date-value" class="text-emerald-400"><i class="fa-solid fa-ellipsis"></i></span>
-        </div>
-    </div>
-</div>
 
     <div id="ai-studio-banner" class="bg-white p-5 rounded-3xl border border-indigo-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden">
         <div class="absolute top-0 right-0 p-4 opacity-[0.03] pointer-events-none"><i class="fa-solid fa-microchip text-6xl text-indigo-900"></i></div>
@@ -130,172 +138,217 @@
         </div>
     </div>
 
-    <div id="meta-api-section" class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
-        <h3 class="text-[11px] font-black text-slate-800 uppercase tracking-widest border-b border-slate-100 pb-2 mb-2">APIs & Integrations</h3>
-        
-        <div>
-            <div class="flex justify-between items-center mb-2">
-                <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Step 1: Meta Webhook (Required)</h4>
-                <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[9px] font-black border border-slate-200">Copy This</span>
-            </div>
-            <div class="flex gap-2">
-                <input type="text" id="set_webhookUrl" readonly class="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-500 outline-none">
-                <button onclick="window.copyWebhook()" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-bold hover:bg-black transition active:scale-95 flex items-center gap-1">
-                    <i class="fa-regular fa-copy"></i> Copy
-                </button>
-            </div>
-            <p class="text-[9px] text-slate-400 font-bold mt-1.5">Paste this in Meta Dashboard > Webhooks. Token is: <strong class="text-slate-700">chatkun123</strong></p>
-        </div>
+    <div class="space-y-3 mt-4">
 
-        <hr class="border-slate-100">
-
-        <div>
-            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Step 2: Meta API Keys</h4>
-            <div class="grid grid-cols-2 gap-3 mb-3">
-                <div>
-                    <label class="text-[9px] font-bold text-slate-500 uppercase">Phone Number ID</label>
-                    <input type="text" id="set_metaPhoneId" placeholder="10456..." class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
+        <details class="group bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden" id="meta-api-section">
+            <summary class="flex justify-between items-center p-5 font-black text-slate-800 cursor-pointer list-none hover:bg-slate-50 transition">
+                <div class="flex items-center gap-3 text-[11px] uppercase tracking-widest">
+                    <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center"><i class="fa-brands fa-whatsapp"></i></div>
+                    Meta WhatsApp API
                 </div>
+                <span class="transition group-open:rotate-180 text-slate-400"><i class="fa-solid fa-chevron-down"></i></span>
+            </summary>
+            <div class="p-5 border-t border-slate-100 bg-slate-50/50 space-y-4">
                 <div>
-                   <label class="text-[9px] font-bold text-slate-500 uppercase">WhatsApp Business Account ID (WABA ID)</label>
-                   <input type="text" id="set_metaWabaId" placeholder="15 digit ID..." class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
-                </div>
-                <div>
-    <label class="text-[9px] font-bold text-slate-500 uppercase">Meta App ID</label>
-    <input type="text" id="set_metaAppId" placeholder="15 digit App ID..." class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
-</div>
-                <div>
-                    <label class="text-[9px] font-bold text-slate-500 uppercase">Meta Catalog ID</label>
-                    <input type="text" id="set_metaCatalogId" placeholder="Catalog ID" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
-                </div>
-            </div>
-            <div>
-                <label class="text-[9px] font-bold text-slate-500 uppercase">Permanent Access Token</label>
-                <div class="relative mt-1">
-                    <input type="password" id="set_metaToken" placeholder="EAAWd..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition pr-10">
-                    <button onclick="window.toggleTokenVisibility()" type="button" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600">
-                        <i id="tokenEyeIcon" class="fa-solid fa-eye text-sm"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <hr class="border-slate-100">
-
-    <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-4">
-            <h4 class="text-[10px] font-black text-slate-700 uppercase tracking-widest flex items-center gap-1.5">
-                <i class="fa-solid fa-credit-card text-blue-500"></i> Smart Payment Gateways
-            </h4>
-
-            <div class="bg-white p-3 rounded-xl border border-blue-100 shadow-sm">
-                <h5 class="text-[9px] font-black text-blue-800 uppercase mb-2">Razorpay (For INR / India)</h5>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                    <div>
-                        <input type="password" id="set_razorpayKeyId" placeholder="Key ID (rzp_live_...)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-700 outline-none focus:border-blue-500 transition">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Step 1: Meta Webhook (Required)</h4>
+                        <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[9px] font-black border border-slate-200">Copy This</span>
                     </div>
-                    <div>
-                        <input type="password" id="set_razorpayKeySecret" placeholder="Key Secret" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-700 outline-none focus:border-blue-500 transition">
+                    <div class="flex gap-2">
+                        <input type="text" id="set_webhookUrl" readonly class="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-500 outline-none">
+                        <button onclick="window.copyWebhook()" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-bold hover:bg-black transition active:scale-95 flex items-center gap-1">
+                            <i class="fa-regular fa-copy"></i> Copy
+                        </button>
                     </div>
                 </div>
-                <div class="border-t border-slate-100 pt-2">
-                    <label class="text-[9px] font-bold text-slate-500 uppercase flex justify-between items-center mb-1">
-                        Webhook URL <button onclick="window.copyRzpWebhook()" class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded border border-blue-100 hover:bg-blue-100 transition active:scale-95">Copy</button>
-                    </label>
-                    <input type="text" id="set_razorpayWebhookUrl" readonly class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-500 outline-none">
+
+                <hr class="border-slate-200">
+
+                <div>
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Step 2: Meta API Keys</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label class="text-[9px] font-bold text-slate-500 uppercase">Phone Number ID</label>
+                            <input type="text" id="set_metaPhoneId" placeholder="10456..." class="w-full mt-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
+                        </div>
+                        <div>
+                           <label class="text-[9px] font-bold text-slate-500 uppercase">WABA ID</label>
+                           <input type="text" id="set_metaWabaId" placeholder="15 digit ID..." class="w-full mt-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-bold text-slate-500 uppercase">Meta App ID</label>
+                            <input type="text" id="set_metaAppId" placeholder="15 digit App ID..." class="w-full mt-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-bold text-slate-500 uppercase">Meta Catalog ID</label>
+                            <input type="text" id="set_metaCatalogId" placeholder="Catalog ID" class="w-full mt-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-bold text-slate-500 uppercase">Permanent Access Token</label>
+                        <div class="relative mt-1">
+                            <input type="password" id="set_metaToken" placeholder="EAAWd..." class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition pr-10">
+                            <button onclick="window.toggleTokenVisibility()" type="button" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600">
+                                <i id="tokenEyeIcon" class="fa-solid fa-eye text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </details>
 
-            <div class="bg-white p-3 rounded-xl border border-indigo-100 shadow-sm">
-                <h5 class="text-[9px] font-black text-indigo-800 uppercase mb-2">Stripe (For USD / Global)</h5>
-                <div class="mb-3">
-                    <input type="password" id="set_stripeSecretKey" placeholder="Stripe Secret Key (sk_live_...)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-700 outline-none focus:border-indigo-500 transition">
+        <details class="group bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden" id="payment-gateways-section">
+            <summary class="flex justify-between items-center p-5 font-black text-slate-800 cursor-pointer list-none hover:bg-slate-50 transition">
+                <div class="flex items-center gap-3 text-[11px] uppercase tracking-widest">
+                    <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center"><i class="fa-solid fa-credit-card"></i></div>
+                    Payment Gateways
                 </div>
-                <div class="border-t border-slate-100 pt-2">
-                    <label class="text-[9px] font-bold text-slate-500 uppercase flex justify-between items-center mb-1">
-                        Webhook URL <button onclick="window.copyStripeWebhook()" class="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded border border-indigo-100 hover:bg-indigo-100 transition active:scale-95">Copy</button>
-                    </label>
-                    <input type="text" id="set_stripeWebhookUrl" readonly class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-500 outline-none">
+                <span class="transition group-open:rotate-180 text-slate-400"><i class="fa-solid fa-chevron-down"></i></span>
+            </summary>
+            <div class="p-5 border-t border-slate-100 bg-slate-50/50 space-y-4">
+                
+                <div class="bg-white p-4 rounded-xl border border-blue-100 shadow-sm">
+                    <h5 class="text-[9px] font-black text-blue-800 uppercase mb-2">Razorpay (For INR / India)</h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <input type="password" id="set_razorpayKeyId" placeholder="Key ID (rzp_live_...)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-700 outline-none focus:border-blue-500 transition">
+                        </div>
+                        <div>
+                            <input type="password" id="set_razorpayKeySecret" placeholder="Key Secret" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-700 outline-none focus:border-blue-500 transition">
+                        </div>
+                    </div>
+                    <div class="border-t border-slate-100 pt-2">
+                        <label class="text-[9px] font-bold text-slate-500 uppercase flex justify-between items-center mb-1">
+                            Webhook URL <button onclick="window.copyRzpWebhook()" class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded border border-blue-100 hover:bg-blue-100 transition active:scale-95">Copy</button>
+                        </label>
+                        <input type="text" id="set_razorpayWebhookUrl" readonly class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-500 outline-none">
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm">
+                    <h5 class="text-[9px] font-black text-indigo-800 uppercase mb-2">Stripe (For USD / Global)</h5>
+                    <div class="mb-3">
+                        <input type="password" id="set_stripeSecretKey" placeholder="Stripe Secret Key (sk_live_...)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-700 outline-none focus:border-indigo-500 transition">
+                    </div>
+                    <div class="border-t border-slate-100 pt-2">
+                        <label class="text-[9px] font-bold text-slate-500 uppercase flex justify-between items-center mb-1">
+                            Webhook URL <button onclick="window.copyStripeWebhook()" class="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded border border-indigo-100 hover:bg-indigo-100 transition active:scale-95">Copy</button>
+                        </label>
+                        <input type="text" id="set_stripeWebhookUrl" readonly class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-500 outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[9px] font-bold text-slate-500 uppercase">Fallback Payment Link / UPI (If API is off)</label>
+                    <input type="text" id="set_paymentGatewayUrl" placeholder="UPI ID or Payment Link" class="w-full mt-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
                 </div>
             </div>
-            
-            <p class="text-[9px] text-slate-500 font-bold leading-relaxed px-1">AI will automatically generate payment links. Please copy and paste the Webhook URLs in your respective payment dashboards to receive real-time confirmations.</p>
-        </div>
+        </details>
 
-        <div>
-            <label class="text-[9px] font-bold text-slate-500 uppercase">Fallback Payment Link / UPI (If API is off)</label>
-            <input type="text" id="set_paymentGatewayUrl" placeholder="UPI ID or Payment Link" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
-        </div>
-
-        <div class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
-            <h4 class="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                <i class="fa-solid fa-plug"></i> 3rd Party Integrations
-            </h4>
-            <div class="space-y-3">
+        <details class="group bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden" id="integrations-section">
+            <summary class="flex justify-between items-center p-5 font-black text-slate-800 cursor-pointer list-none hover:bg-slate-50 transition">
+                <div class="flex items-center gap-3 text-[11px] uppercase tracking-widest">
+                    <div class="w-8 h-8 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center"><i class="fa-solid fa-plug"></i></div>
+                    3rd Party Integrations
+                </div>
+                <span class="transition group-open:rotate-180 text-slate-400"><i class="fa-solid fa-chevron-down"></i></span>
+            </summary>
+            <div class="p-5 border-t border-slate-100 bg-slate-50/50 space-y-4">
                 <div>
                     <label class="text-[9px] font-bold text-slate-500 uppercase flex items-center gap-1">
                         <i class="fa-brands fa-shopify text-[#95bf47]"></i> Shopify Access Token
                     </label>
-                    <input type="password" id="set_shopifyAccessToken" placeholder="shpat_xxxxx..." class="w-full mt-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-indigo-500 transition">
+                    <input type="password" id="set_shopifyAccessToken" placeholder="shpat_xxxxx..." class="w-full mt-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-purple-500 transition">
+                </div>
+                <div>
+                    <label class="text-[9px] font-bold text-slate-500 uppercase">WooCommerce API Key (Coming Soon)</label>
+                    <input type="text" disabled placeholder="Under Development..." class="w-full mt-1 px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-400 outline-none cursor-not-allowed">
                 </div>
                 <div>
                     <label class="text-[9px] font-bold text-slate-500 uppercase">Outbound Webhook URL (Zapier / CRM)</label>
-                    <input type="url" id="set_outboundWebhookUrl" placeholder="https://hooks.zapier.com/..." class="w-full mt-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-indigo-500 transition">
+                    <input type="url" id="set_outboundWebhookUrl" placeholder="https://hooks.zapier.com/..." class="w-full mt-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-purple-500 transition">
                 </div>
-                <p class="text-[9px] text-slate-500 font-bold leading-relaxed">If filled, Chatkun will automatically sync orders from Shopify and send new leads to your Zapier/CRM Webhook.</p>
             </div>
-        </div>
+        </details>
+
+        <details class="group bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden" id="shop-details-section">
+            <summary class="flex justify-between items-center p-5 font-black text-slate-800 cursor-pointer list-none hover:bg-slate-50 transition">
+                <div class="flex items-center gap-3 text-[11px] uppercase tracking-widest">
+                    <div class="w-8 h-8 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center"><i class="fa-solid fa-store"></i></div>
+                    Shop Profile & Logistics
+                </div>
+                <span class="transition group-open:rotate-180 text-slate-400"><i class="fa-solid fa-chevron-down"></i></span>
+            </summary>
+            <div class="p-5 border-t border-slate-100 bg-slate-50/50 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div>
+                        <label class="text-[9px] font-bold text-slate-500 uppercase">Business Name</label>
+                        <input type="text" id="set_bizName" placeholder="Business Name" class="w-full mt-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-orange-500 transition">
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-bold text-slate-500 uppercase">Industry</label>
+                        <input type="text" id="set_bizIndustry" placeholder="Industry" class="w-full mt-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-orange-500 transition">
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-bold text-slate-500 uppercase">Full Address</label>
+                        <input type="text" id="set_bizAddress" placeholder="Full Address" class="w-full mt-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-orange-500 transition">
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-2 border-t border-slate-200">
+                    <span class="text-[10px] font-bold text-slate-600 uppercase">Cash On Delivery (COD)</span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[9px] font-bold text-slate-400">ENABLED</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="set_codEnabled" class="sr-only peer" checked>
+                            <div class="w-7 h-3.5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-2.5 after:w-2.5 after:transition-all peer-checked:bg-orange-500"></div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="pt-2 border-t border-slate-200">
+                    <label class="text-[9px] font-bold text-slate-500 uppercase flex items-center gap-1 mb-1.5">
+                        <i class="fa-solid fa-map-location-dot text-orange-500"></i> Service Coverage Area
+                    </label>
+                    <select id="set_serviceAreaType" onchange="window.toggleServiceArea()" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-orange-500 transition mb-2 appearance-none">
+                        <option value="pan_india">🌍 Everywhere / National (Deliver Anywhere)</option>
+                        <option value="state_level">🗺️ State Level (Specific States Only)</option>
+                        <option value="pincode_level">📍 Local Level (Specific Pincodes/Zipcodes Only)</option>
+                    </select>
+
+                    <div id="wrap_states" class="hidden">
+                        <input type="text" id="set_serviceableStates" placeholder="e.g. Delhi, Haryana, NY, CA" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-orange-500 transition">
+                    </div>
+
+                    <div id="wrap_pincodes" class="hidden">
+                        <input type="text" id="set_serviceablePincodes" placeholder="e.g. 110001, 122006, 90210" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-orange-500 transition">
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <details class="group bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden" id="account-settings-section">
+            <summary class="flex justify-between items-center p-5 font-black text-slate-800 cursor-pointer list-none hover:bg-slate-50 transition">
+                <div class="flex items-center gap-3 text-[11px] uppercase tracking-widest">
+                    <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center"><i class="fa-solid fa-user"></i></div>
+                    Account Settings
+                </div>
+                <span class="transition group-open:rotate-180 text-slate-400"><i class="fa-solid fa-chevron-down"></i></span>
+            </summary>
+            <div class="p-5 border-t border-slate-100 bg-slate-50/50 space-y-4">
+                <div>
+                    <label class="text-[9px] font-bold text-slate-500 uppercase">Registered Email ID</label>
+                    <div class="flex gap-2 mt-1">
+                        <input type="email" id="set_userEmail" readonly class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-500 outline-none">
+                        <button onclick="window.handleEmailChange()" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-bold hover:bg-black transition active:scale-95 whitespace-nowrap">Change Email</button>
+                    </div>
+                </div>
+            </div>
+        </details>
+
     </div>
 
-    <div id="shop-details-section" class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm space-y-4">
-        <h3 class="text-[11px] font-black text-slate-800 uppercase tracking-widest border-b border-slate-100 pb-2 mb-2">Shop Profile & Logistics</h3>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div>
-                <label class="text-[9px] font-bold text-slate-500 uppercase">Business Name</label>
-                <input type="text" id="set_bizName" placeholder="Business Name" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
-            </div>
-            <div>
-                <label class="text-[9px] font-bold text-slate-500 uppercase">Industry</label>
-                <input type="text" id="set_bizIndustry" placeholder="Industry" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
-            </div>
-            <div>
-                <label class="text-[9px] font-bold text-slate-500 uppercase">Full Address</label>
-                <input type="text" id="set_bizAddress" placeholder="Full Address" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
-            </div>
-        </div>
-
-        <div class="flex justify-between items-center pt-2 border-t border-slate-100">
-            <span class="text-[10px] font-bold text-slate-600 uppercase">Cash On Delivery (COD)</span>
-            <div class="flex items-center gap-2">
-                <span class="text-[9px] font-bold text-slate-400">ENABLED</span>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="set_codEnabled" class="sr-only peer" checked>
-                    <div class="w-7 h-3.5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-2.5 after:w-2.5 after:transition-all peer-checked:bg-indigo-600"></div>
-                </label>
-            </div>
-        </div>
-        
-        <div class="pt-2 border-t border-slate-100">
-            <label class="text-[9px] font-bold text-slate-500 uppercase flex items-center gap-1 mb-1.5">
-                <i class="fa-solid fa-map-location-dot text-blue-500"></i> Service Coverage Area
-            </label>
-            <select id="set_serviceAreaType" onchange="window.toggleServiceArea()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition mb-2 appearance-none">
-                <option value="pan_india">🌍 Everywhere / National (Deliver Anywhere)</option>
-                <option value="state_level">🗺️ State Level (Specific States Only)</option>
-                <option value="pincode_level">📍 Local Level (Specific Pincodes/Zipcodes Only)</option>
-            </select>
-
-            <div id="wrap_states" class="hidden">
-                <input type="text" id="set_serviceableStates" placeholder="e.g. Delhi, Haryana, NY, CA" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
-            </div>
-
-            <div id="wrap_pincodes" class="hidden">
-                <input type="text" id="set_serviceablePincodes" placeholder="e.g. 110001, 122006, 90210" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-blue-500 transition">
-            </div>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 gap-3 pt-2">
+    <div class="grid grid-cols-1 gap-3 pt-2 mt-4">
         <button id="btn-save-settings" onclick="window.saveAllSettings()" class="w-full py-3.5 bg-blue-600 text-white rounded-3xl text-[11px] font-bold hover:bg-blue-700 transition shadow-sm active:scale-[0.98] flex justify-center items-center gap-2">
             <i class="fa-solid fa-cloud-arrow-up"></i> Save Updates
             <i id="settings-loader" class="fa-solid fa-circle-notch fa-spin hidden"></i>
@@ -310,4 +363,5 @@
             <i class="fa-solid fa-power-off"></i> Log Out
         </button>
     </div>
+
 </div>

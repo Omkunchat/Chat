@@ -90,8 +90,8 @@ async function populateTemplatesDropdown() {
             optionsHtml = '<option value="">⚠️ No templates found. Sync first!</option>';
         }
 
-        // Apply options to all three select boxes safely
-        ['tpl_agentAssign', 'tpl_abandonedCart', 'tpl_weeklyReport'].forEach(id => {
+        // 🚀 FIX: Apply options to ALL select boxes safely, including the new reactivation dropdown
+        ['tpl_agentAssign', 'tpl_abandonedCart', 'tpl_weeklyReport', 'tpl_reactivation'].forEach(id => {
             const el = document.getElementById(id);
             if(el) el.innerHTML = optionsHtml;
         });
@@ -143,7 +143,8 @@ async function loadBotSetup() {
             safeSetVal('tpl_agentAssign', data.tplAgentAssign || "");
             safeSetVal('tpl_abandonedCart', data.tplAbandonedCart || "");
             safeSetVal('tpl_weeklyReport', data.tplWeeklyReport || "");
-            safeSetVal('tpl_language', data.tplLanguage || "en");
+            safeSetVal('tpl_reactivation', data.tplReactivation || ""); // 🚀 NAYA: Smart Reactivation Load
+            safeSetVal('tpl_language', data.tplLanguage || "en_US");
 
             // ── 7. Smart FAQs ──
             const faqCont = document.getElementById('faq-container');
@@ -270,7 +271,8 @@ async function saveBotSetup() {
         const tplAgentAssign = safeGetVal('tpl_agentAssign');
         const tplAbandonedCart = safeGetVal('tpl_abandonedCart');
         const tplWeeklyReport = safeGetVal('tpl_weeklyReport');
-        const tplLanguage = safeGetVal('tpl_language') || "en";
+        const tplReactivation = safeGetVal('tpl_reactivation'); // 🚀 NAYA: Reactivation Save
+        const tplLanguage = safeGetVal('tpl_language') || "en_US";
 
         await setDoc(doc(db, "sellers", state.workspaceId), {
             botTraining: botData,
@@ -280,6 +282,7 @@ async function saveBotSetup() {
             tplAgentAssign: tplAgentAssign,
             tplAbandonedCart: tplAbandonedCart,
             tplWeeklyReport: tplWeeklyReport,
+            tplReactivation: tplReactivation, // 🚀 NAYA
             tplLanguage: tplLanguage
         }, { merge: true });
 
@@ -293,51 +296,73 @@ async function saveBotSetup() {
     }
 }
 
+// 📄 Real PDF Parser Trigger
 async function handleKnowledgeUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
     
     const statusLabel = document.getElementById('pdf-status');
-    if(statusLabel) statusLabel.innerText = "Analyzing file...";
+    if(statusLabel) statusLabel.innerText = "Uploading file to Cloud Storage...";
     
     try {
+        // 1. Storage me upload karein
         const res = await fetch(`${MEDIA_API}/get-presigned-url?filename=${encodeURIComponent(file.name)}&type=${encodeURIComponent(file.type)}`);
         const { uploadUrl, publicUrl } = await res.json();
-        
         await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type }});
         
-        await setDoc(doc(db, "sellers", state.workspaceId), {
-            botTraining: { knowledgeUrl: publicUrl }
-        }, { merge: true });
+        if(statusLabel) statusLabel.innerText = "📑 Extracting PDF structural text...";
 
-        if(statusLabel) statusLabel.innerText = "✅ Knowledge Synced: " + file.name;
-        showToast("Knowledge added to AI", "success");
+        // 2. Naye Knowledge Worker ko call karein text extract karne ke liye
+        const processRes = await fetch("https://knowledge-engine.chatkunhq.workers.dev/process-pdf", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sellerUid: state.workspaceId, targetUrl: publicUrl })
+        });
+        
+        const processResult = await processRes.json();
+
+        if(processResult.success) {
+            if(statusLabel) statusLabel.innerText = "✅ PDF Knowledge Synced: " + file.name;
+            showToast("PDF document read & fed into AI Brain! 🧠", "success");
+        } else {
+            throw new Error(processResult.error);
+        }
     } catch (error) {
-        if(statusLabel) statusLabel.innerText = "❌ Sync Failed";
-        showToast("Upload failed", "error");
+        console.error(error);
+        if(statusLabel) statusLabel.innerText = "❌ PDF Extraction Failed";
+        showToast("Upload or extraction failed", "error");
     }
 }
 
+// 🌐 Real Website Scraper Trigger
 async function scrapeWebsite() {
     const url = safeGetVal('ai_webUrl');
     if(!url) return showToast("Enter a valid URL", "warning");
     
     const statusLabel = document.getElementById('pdf-status');
-    if(statusLabel) statusLabel.innerText = "Saving Website Data...";
-    showToast("Website scraping started... AI will learn from it.", "info");
+    if(statusLabel) statusLabel.innerText = "🕵️‍♂️ AI is crawling website content...";
+    showToast("Website scraping started... AI is learning from it.", "info");
 
     try {
-        await setDoc(doc(db, "sellers", state.workspaceId), {
-            botTraining: { knowledgeWebsiteUrl: url, websiteScrapeTime: serverTimestamp() }
-        }, { merge: true });
-
-        if(statusLabel) statusLabel.innerText = "✅ Website Synced: " + url;
-        showToast("Website added to AI Knowledge!", "success");
-        safeSetVal('ai_webUrl', ''); 
+        // Call your new Knowledge Engine Worker directly
+        const res = await fetch("https://knowledge-engine.chatkunhq.workers.dev/scrape", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sellerUid: state.workspaceId, targetUrl: url })
+        });
         
+        const result = await res.json();
+
+        if (result.success) {
+            if(statusLabel) statusLabel.innerText = `✅ Website Knowledge Synced (${result.bytesProcessed} bytes)`;
+            showToast("Website content successfully added to AI Knowledge Base! 🧠", "success");
+            safeSetVal('ai_webUrl', '');
+        } else {
+            throw new Error(result.error);
+        }
     } catch (e) {
         console.error("Scraping error:", e);
         if(statusLabel) statusLabel.innerText = "❌ Sync Failed";
-        showToast("Failed to save website data.", "error");
+        showToast("Failed to scrape website. Ensure URL is public.", "error");
     }
 }

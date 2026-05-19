@@ -91,6 +91,22 @@
                 <div class="grid grid-cols-8 md:grid-cols-10 gap-2 text-2xl" id="emoji-grid"></div>
             </div>
         </div>
+        
+        <div id="template-wrapper" class="hidden flex-col gap-2 p-3 bg-white border-t border-slate-200 z-40 w-full shrink-0 shadow-sm">
+    <div class="flex items-center justify-between px-1">
+        <span class="bg-yellow-50 text-yellow-700 text-[10px] font-bold px-2 py-1 rounded-md border border-yellow-200 flex items-center gap-1.5">
+            <i class="fa-solid fa-clock"></i> 24-Hour Window Closed. Send a Template to open.
+        </span>
+    </div>
+    <div class="flex gap-2 items-center">
+        <select id="template-selector" class="flex-1 p-2.5 rounded-xl text-sm border border-slate-200 bg-[#F0F2F5] outline-none transition-all text-slate-700 font-medium">
+            <option value="">Loading templates...</option>
+        </select>
+        <button onclick="window.sendTemplateMessage()" class="bg-[#00A884] text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-md hover:bg-[#008f6f] active:scale-95 transition-all flex items-center gap-2 shrink-0">
+            <i class="fa-solid fa-paper-plane"></i> Send
+        </button>
+    </div>
+</div>
 
         <div id="input-wrapper" class="flex flex-col bg-[#F0F2F5] shrink-0 pb-safe w-full box-border z-40 border-t border-slate-200">
             

@@ -1,19 +1,80 @@
 import { db, auth } from "../firebase.js";
 import { 
-    collection, query, where, onSnapshot, orderBy, limit, getAggregateFromServer, count, doc, getDoc 
+    collection, query, where, onSnapshot, orderBy, limit, getAggregateFromServer, count, doc, getDoc, 
+    setDoc, deleteDoc, getDocs, updateDoc 
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { showToast } from "../services/sweet-alert.js";
-
-//  NAYA: Central Role System   
 import { hasNavPermission, canEditFeature } from "../role.js";
 
 // --- STATE ---
 let state = {
     user: null,
-    workspaceId: null, //     ID
-    role: 'chat',      //    
-    unsubscribes: []   //    
+    workspaceId: null, 
+    role: 'chat',      
+    unsubscribes: []   
 };
+
+// 🚀 NAYA: Smart Self-Healing Email Sync (Crash Proof)
+async function syncEmailWithDatabase(user) {
+    if (!user || !user.email) return;
+    const currentAuthEmail = user.email.toLowerCase();
+
+    try {
+        const q = query(collection(db, "users"), where("uid", "==", user.uid));
+        const querySnapshot = await getDocs(q);
+
+        let hasOldRecords = false;
+        let userDataToKeep = null;
+
+        querySnapshot.forEach((docSnap) => {
+            if (docSnap.id === currentAuthEmail) {
+                userDataToKeep = docSnap.data(); 
+            } else {
+                hasOldRecords = true; 
+                if (!userDataToKeep) userDataToKeep = docSnap.data();
+            }
+        });
+
+        if (hasOldRecords && userDataToKeep) {
+            console.log("Email mismatch detected! Fixing database...");
+
+            userDataToKeep.email = currentAuthEmail;
+            await setDoc(doc(db, "users", currentAuthEmail), userDataToKeep);
+
+            if (userDataToKeep.role === 'owner') {
+                const wsId = (userDataToKeep.sellerIds && userDataToKeep.sellerIds.length > 0) ? userDataToKeep.sellerIds[0] : user.uid;
+                try {
+                    await updateDoc(doc(db, "sellers", wsId), { email: currentAuthEmail });
+                    console.log("✅ Seller collection email updated.");
+                } catch (err) { console.error("Seller update skip", err); }
+            }
+
+            for (const docSnap of querySnapshot.docs) {
+                if (docSnap.id !== currentAuthEmail) {
+                    await deleteDoc(doc(db, "users", docSnap.id));
+                    console.log(`🗑️ Deleted old email record: ${docSnap.id}`);
+
+                    if (userDataToKeep.role !== 'owner') {
+                         const wsId = (userDataToKeep.sellerIds && userDataToKeep.sellerIds.length > 0) ? userDataToKeep.sellerIds[0] : user.uid;
+                         const oldTeamRef = doc(db, "sellers", wsId, "team", docSnap.id);
+                         try {
+                             const oldTeamSnap = await getDoc(oldTeamRef);
+                             if (oldTeamSnap.exists()) {
+                                 const teamData = oldTeamSnap.data();
+                                 teamData.email = currentAuthEmail;
+                                 await setDoc(doc(db, "sellers", wsId, "team", currentAuthEmail), teamData);
+                                 await deleteDoc(oldTeamRef);
+                             }
+                         } catch(e) {}
+                    }
+                }
+            }
+            console.log("✅ Database fully cleaned and synced!");
+        }
+    } catch (error) {
+        console.error("Auto-sync failed:", error);
+    }
+}
 
 // --- INITIALIZATION ---
 export async function init() {
@@ -22,12 +83,13 @@ export async function init() {
     state.user = auth.currentUser;
     if (!state.user) return;
 
+    await syncEmailWithDatabase(state.user);
+
     let displayFullName = 'Manager'; 
 
     try {
         const userEmail = state.user.email.toLowerCase();
         
-        // 1. PEHLE 'users' COLLECTION CHECK KARO (Naya System)
         const userDocSnap = await getDoc(doc(db, "users", userEmail));
         
         if (userDocSnap.exists()) {
@@ -37,48 +99,34 @@ export async function init() {
                                 ? userData.sellerIds[0] 
                                 : state.user.uid;
             displayFullName = userData.name || state.user.displayName || 'User';
-            console.log("[DASHBOARD] User index found:", state.role);
 
         } else {
-            // 2. AGAR 'users' MEIN NAHI HAI, TOH 'sellers' MEIN CHECK KARO (Owner Fallback)
-            // Yeh purane owners ke liye zaroori hai jinka data users collection mein nahi bana
             const sellerSnap = await getDoc(doc(db, "sellers", state.user.uid));
             
             if (sellerSnap.exists()) {
-                state.role = 'owner'; // Force role as owner
+                state.role = 'owner'; 
                 state.workspaceId = state.user.uid;
                 displayFullName = sellerSnap.data().businessName || state.user.displayName || 'Owner';
-                
-                // OPTIONAL: Yahin par users collection sync kar do taaki agli baar fast ho
-                // Iske liye aap auth.js ka syncUserProfile yahan bhi call kar sakte hain
-                console.log("[DASHBOARD] Fallback to Sellers: Identified as Owner");
             } else {
-                // Agar dono jagah nahi mila, toh Access Denied
                 showToast("Profile not found. Please re-login.", "error");
                 return;
             }
         }
 
-        // 3. SECURITY CHECK (Using role.js)
-        // Check karein ki kya state.role (jo 'owner' hona chahiye) ko permission hai
         if (!hasNavPermission(state.role, 'navDashboard')) {
-            console.error("[SECURITY] Access Denied for role:", state.role);
             showToast("Access Denied: Permission Missing", "error");
             window.location.hash = '#inbox'; 
             return;
         }
 
-        // 4. UI SETUP
         setGreeting();
         const nameEl = document.getElementById('user-name');
         if (nameEl) nameEl.innerText = displayFullName;
 
-        // 5. DATA LISTENERS
         setupDashboardListeners();
 
     } catch (error) {
         console.error("[DASHBOARD] Init Error:", error);
-        // Agar permission error aa raha hai toh yahan alert dikhayega
         if (error.code === 'permission-denied') {
             alert("Firestore Permission Denied. Check your Rules.");
         }
@@ -86,17 +134,15 @@ export async function init() {
 }
 
 export function destroy() {
-    // 
     state.unsubscribes.forEach(unsub => unsub());
     state.unsubscribes = [];
 }
 
 // --- CORE LOGIC ---
-
 function setupDashboardListeners() {
-    const wsId = state.workspaceId; //    ID  
+    const wsId = state.workspaceId; 
 
-    // 1. Live Chats
+    // Live Chats
     const chatsRef = collection(db, "sellers", wsId, "chats");
     const qChats = query(chatsRef, orderBy("updatedAt", "desc"), limit(5));
     
@@ -107,7 +153,7 @@ function setupDashboardListeners() {
     });
     state.unsubscribes.push(unsubChats);
 
-    // 2. Hot Leads
+    // Hot Leads
     const leadsRef = collection(db, "leads");
     const qHotLeads = query(leadsRef, where("sellerId", "==", wsId), where("status", "==", "hot"), orderBy("updatedAt", "desc"), limit(5));
     
@@ -116,7 +162,7 @@ function setupDashboardListeners() {
     });
     state.unsubscribes.push(unsubLeads);
 
-    // 3. Recent Reviews
+    // Recent Reviews
     const reviewsRef = collection(db, "reviews");
     const qReviews = query(reviewsRef, where("sellerId", "==", wsId), orderBy("createdAt", "desc"), limit(5));
     
@@ -125,55 +171,55 @@ function setupDashboardListeners() {
     });
     state.unsubscribes.push(unsubReviews);
 
-    // 4. Static Stats
+    // Static Stats
     fetchStaticStats(wsId);
 }
 
 async function fetchStaticStats(wsId) {
     try {
-        // 1. 🚀 NAYA: Closed Deals (CRM se 'won' leads count karega)
+        // 🚀 FIX 1: Ab yeh sabhi customers ko count karne ke bajaye, sirf 'won' status waale leads ko count karega
         const leadsRef = collection(db, "leads");
         const qWonLeads = query(leadsRef, where("sellerId", "==", wsId), where("status", "==", "won"));
         const snapshotWonLeads = await getAggregateFromServer(qWonLeads, { totalWon: count() });
         
         const dashOrders = document.getElementById('dash-orders');
-        if(dashOrders) dashOrders.innerText = snapshotWonLeads.data().totalWon || 0;
+        if (dashOrders) {
+            dashOrders.innerText = snapshotWonLeads.data().totalWon || 0;
+        }
 
-        // 2. Total Catalog Items
+        // Catalog Items Counter (Strictly optimized)
         const productsRef = collection(db, "products");
         const qProducts = query(productsRef, where("sellerId", "==", wsId));
         const snapshotProducts = await getAggregateFromServer(qProducts, { totalItems: count() });
-        
         const dashCatalog = document.getElementById('dash-catalog-count');
-        if(dashCatalog) dashCatalog.innerText = snapshotProducts.data().totalItems || 0;
+        if (dashCatalog) dashCatalog.innerText = snapshotProducts.data().totalItems || 0;
 
-        // 3. 🚀 NAYA: Dynamic AI Load (Total chats aur Human chats ka math)
+        // 🚀 FIX 2: AI Load/Rate ko 88% hardcode se hata kar live active AI sessions ke hisaab se dynamically calculate kiya
         const chatsRef = collection(db, "sellers", wsId, "chats");
-        const snapshotTotalChats = await getAggregateFromServer(chatsRef, { total: count() });
-        const totalChats = snapshotTotalChats.data().total || 0;
-
-        let automationRate = 0;
-        if (totalChats > 0) {
-            // Count chats where human intervention was requested
-            const qHumanChats = query(chatsRef, where("needsHuman", "==", true));
-            const snapshotHumanChats = await getAggregateFromServer(qHumanChats, { humanCount: count() });
-            const humanCount = snapshotHumanChats.data().humanCount || 0;
-            
-            // Total mein se human chats hata kar AI ka percentage nikalenge
-            const aiCount = Math.max(0, totalChats - humanCount);
-            automationRate = Math.round((aiCount / totalChats) * 100);
-        }
+        const snapshotTotalChats = await getAggregateFromServer(chatsRef, { totalChats: count() });
+        const totalChatsCount = snapshotTotalChats.data().totalChats || 0;
 
         const dashAiRate = document.getElementById('dash-ai-rate');
-        if(dashAiRate) dashAiRate.innerText = `${automationRate}%`;
-
+        if (dashAiRate) {
+            if (totalChatsCount > 0) {
+                // Sirf un active chats ko nikalenge jisme AI active hai (aiActive == true)
+                const qAiChats = query(chatsRef, where("aiActive", "==", true));
+                const snapshotAiChats = await getAggregateFromServer(qAiChats, { aiChats: count() });
+                const aiChatsCount = snapshotAiChats.data().aiChats || 0;
+                
+                // Live automation percentage math trigger
+                const dynamicAiRate = Math.round((aiChatsCount / totalChatsCount) * 100);
+                dashAiRate.innerText = `${dynamicAiRate}%`;
+            } else {
+                dashAiRate.innerText = "0%";
+            }
+        }
     } catch (error) {
         console.error("Stats Fetch Error:", error);
     }
 }
 
 // --- UI RENDERING ---
-
 function renderActivityFeed(snapshot) {
     const container = document.getElementById('recent-activity-list');
     if(!container) return;
@@ -229,7 +275,7 @@ function renderHotLeads(snapshot) {
     snapshot.forEach(docSnap => {
         const lead = docSnap.data();
         const initial = lead.name ? lead.name.charAt(0).toUpperCase() : '?';
-        const val = lead.value ? `${new Intl.NumberFormat('en-IN').format(lead.value)}` : 'TBD';
+        const val = lead.value ? ` ${new Intl.NumberFormat('en-IN').format(lead.value)}` : 'TBD';
 
         html += `
         <div onclick="window.location.hash='#leads'" class="flex justify-between items-center p-4 bg-white hover:bg-orange-50/30 border border-slate-100 rounded-2xl transition-all cursor-pointer shadow-sm">

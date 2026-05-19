@@ -290,7 +290,13 @@ function updateDashStats() {
     if(document.getElementById('display-total-leads')) document.getElementById('display-total-leads').innerText = total;
     if(document.getElementById('display-won-leads')) document.getElementById('display-won-leads').innerText = won;
     if(document.getElementById('display-pipeline-value')) document.getElementById('display-pipeline-value').innerText = `${state.pricing.symbol}${new Intl.NumberFormat(state.pricing.locale).format(pipelineValue)}`;
+    
     if(document.getElementById('conversion-bar')) document.getElementById('conversion-bar').style.width = `${conversionRate}%`;
+
+    // 🚀 THE FIX: Yahan ID ko 'conversion-rate-text' kar diya hai taaki HTML se match ho jaye
+    if(document.getElementById('conversion-rate-text')) {
+        document.getElementById('conversion-rate-text').innerText = `${conversionRate}% CONVERSION RATE`;
+    }
 }
 
 window.switchView = (viewType) => {
@@ -361,7 +367,8 @@ function generateBoardHTML(leads) {
         'new': { title: 'New Leads', color: 'blue', items: [] },
         'hot': { title: 'Hot Deals', color: 'orange', items: [] },
         'won': { title: 'Won (Closed)', color: 'emerald', items: [] },
-        'lost': { title: 'Lost', color: 'slate', items: [] }
+        'lost': { title: 'Lost', color: 'slate', items: [] },
+        'dnd': { title: '🛑 DND / Opted Out', color: 'red', items: [] } // 🚀 NAYI CATEGORY ADDED
     };
 
     leads.forEach(lead => {
@@ -369,11 +376,10 @@ function generateBoardHTML(leads) {
         if(columns[status]) columns[status].items.push(lead);
     });
 
-    // 🚀 NEW: Mobile par flex + horizontal scroll (snap), Desktop par Grid
-    let html = `<div class="flex flex-nowrap md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 items-start w-max md:w-full pb-4">`;
+    // 🚀 DESKTOP GRID COLUMNS UPGRADED TO lg:grid-cols-5 (Taaki paanchon columns perfectly fit ho jayein)
+    let html = `<div class="flex flex-nowrap md:grid md:grid-cols-2 lg:grid-cols-5 gap-4 items-start w-max md:w-full pb-4">`;
     
     for (const [key, col] of Object.entries(columns)) {
-        // 🚀 NEW: w-[85vw] for mobile card width, shrink-0 for scroll
         html += `
         <div class="bg-white/50 rounded-3xl border border-slate-200 p-3 min-h-[400px] w-[85vw] md:w-auto shrink-0 snap-center md:snap-align-none" data-status="${key}">
             <div class="flex justify-between items-center px-2 mb-3">

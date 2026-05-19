@@ -40,8 +40,8 @@
                             class="w-full px-4 py-2.5 md:px-5 md:py-4 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl font-black text-xs md:text-sm text-slate-800 outline-none focus:ring-2 focus:ring-blue-500 transition-all uppercase placeholder:text-slate-300">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1 tracking-widest">Customer Phone (Mobile No.)</label>
-                        <input type="tel" id="lf-phone" required placeholder="E.g. +91 9876543210" 
+                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1 tracking-widest">Customer Phone (With Country Code)</label>
+                        <input type="tel" id="lf-phone" required placeholder="E.g. 918800020711" 
                             class="w-full px-4 py-2.5 md:px-5 md:py-4 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl font-black text-xs md:text-sm text-slate-800 outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-300">
                     </div>
                 </div>
@@ -84,11 +84,12 @@
         </div>
 
         <div class="space-y-3 md:space-y-6">
-            <div class="bg-white rounded-3xl md:rounded-[2rem] border border-slate-200 shadow-sm p-3 md:p-6">
+            
+            <div class="bg-white p-4 md:p-6 rounded-3xl md:rounded-[2rem] border border-slate-200 shadow-sm">
                 <h3 class="text-xs md:text-sm font-black text-slate-800 uppercase tracking-widest mb-3 md:mb-4">Pipeline Status</h3>
                 
                 <div class="space-y-2.5 md:space-y-3">
-                    <label class="flex items-center p-2.5 border border-slate-200 rounded-xl md:rounded-2xl cursor-pointer hover:bg-slate-50 transition peer-checked:border-blue-500">
+                    <label class="flex items-center p-2.5 border border-slate-200 rounded-xl md:rounded-2xl cursor-pointer hover:bg-slate-50 transition">
                         <input type="radio" name="lf-status" value="new" class="w-3.5 h-3.5 text-blue-600 focus:ring-blue-500" checked>
                         <span class="ml-2.5 md:ml-3 text-[10px] md:text-xs font-black text-slate-700 uppercase tracking-widest">New Lead</span>
                     </label>
@@ -98,12 +99,37 @@
                     </label>
                     <label class="flex items-center p-2.5 border border-slate-200 rounded-xl md:rounded-2xl cursor-pointer hover:bg-emerald-50 transition">
                         <input type="radio" name="lf-status" value="won" class="w-3.5 h-3.5 text-emerald-500 focus:ring-emerald-500">
-                        <span class="ml-2.5 md:ml-3 text-[10px] md:text-xs font-black text-slate-700 uppercase tracking-widest whitespace-nowrap">Won (Order Placed)</span>
+                        <span class="ml-2.5 md:ml-3 text-[10px] md:text-xs font-black text-slate-700 uppercase tracking-widest whitespace-nowrap">Won (Closed)</span>
                     </label>
                     <label class="flex items-center p-2.5 border border-slate-200 rounded-xl md:rounded-2xl cursor-pointer hover:bg-slate-50 transition">
                         <input type="radio" name="lf-status" value="lost" class="w-3.5 h-3.5 text-slate-500 focus:ring-slate-500">
                         <span class="ml-2.5 md:ml-3 text-[10px] md:text-xs font-black text-slate-700 uppercase tracking-widest">Lost / Cancelled</span>
                     </label>
+                    
+                    <label class="flex items-center p-2.5 border border-red-100 rounded-xl md:rounded-2xl cursor-pointer bg-red-50/30 hover:bg-red-50 transition shadow-inner">
+                        <input type="radio" name="lf-status" value="dnd" class="w-3.5 h-3.5 text-red-500 focus:ring-red-500">
+                        <span class="ml-2.5 md:ml-3 text-[10px] md:text-xs font-black text-red-600 uppercase tracking-widest">🛑 DND / Opted Out</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 md:p-6 rounded-3xl md:rounded-[2rem] border border-slate-200 shadow-sm space-y-4">
+                <h3 class="text-xs md:text-sm font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+                    <i class="fa-solid fa-user-gear text-blue-500"></i> Team Routing & Alerts
+                </h3>
+                
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-1.5 ml-1 tracking-widest">Assigned Support Agent</label>
+                    <select id="lf-assignedTo" class="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl font-black text-[10px] text-slate-700 outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer uppercase">
+                        <option value="">Owner (Unassigned)</option>
+                        </select>
+                </div>
+                
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase mb-1.5 ml-1 tracking-widest">Next Follow-Up Date & Time</label>
+                    <input type="datetime-local" id="lf-nextFollowUp" 
+                        class="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-xs text-slate-700 outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                    <span class="block text-[8px] font-bold text-slate-400 uppercase tracking-wider mt-1.5"><i class="fa-solid fa-bell text-blue-500 animate-bounce"></i> Auto WhatsApp notice will alert the executive</span>
                 </div>
             </div>
 

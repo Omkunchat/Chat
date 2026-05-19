@@ -287,13 +287,21 @@ function updateDashStats() {
 
     const conversionRate = total > 0 ? Math.round((won / total) * 100) : 0;
 
-    if(document.getElementById('display-total-leads')) document.getElementById('display-total-leads').innerText = total;
-    if(document.getElementById('display-won-leads')) document.getElementById('display-won-leads').innerText = won;
-    if(document.getElementById('display-pipeline-value')) document.getElementById('display-pipeline-value').innerText = `${state.pricing.symbol}${new Intl.NumberFormat(state.pricing.locale).format(pipelineValue)}`;
-    
-    if(document.getElementById('conversion-bar')) document.getElementById('conversion-bar').style.width = `${conversionRate}%`;
+    // Basic Stats Update
+    if(document.getElementById('display-total-leads')) 
+        document.getElementById('display-total-leads').innerText = total;
+    if(document.getElementById('display-won-leads')) 
+        document.getElementById('display-won-leads').innerText = won;
 
-    // 🚀 THE FIX: Yahan ID ko 'conversion-rate-text' kar diya hai taaki HTML se match ho jaye
+    // 🚀 FIX: Pipeline Value ko Compact format mein show karein (e.g., ₹12.5K)
+    if(document.getElementById('display-pipeline-value')) {
+        document.getElementById('display-pipeline-value').innerText = formatCompactCurrency(pipelineValue);
+    }
+    
+    // UI Elements
+    if(document.getElementById('conversion-bar')) 
+        document.getElementById('conversion-bar').style.width = `${conversionRate}%`;
+
     if(document.getElementById('conversion-rate-text')) {
         document.getElementById('conversion-rate-text').innerText = `${conversionRate}% CONVERSION RATE`;
     }
@@ -396,7 +404,8 @@ function generateBoardHTML(leads) {
 }
 
 function createCardHTML(lead, colorClass) {
-    const val = lead.value ? `${state.pricing.symbol}${new Intl.NumberFormat(state.pricing.locale).format(lead.value)}` : '-';
+    // generateListHTML function ke loop ke andar:
+const val = lead.value ? formatCompactCurrency(lead.value) : '-';
     const dragAttr = state.canEdit ? 'draggable="true"' : 'draggable="false"';
     // 🚀 NEW: Follow-up Badge
     const followUpBadge = lead.nextFollowUp ? `<span class="text-[8px] bg-purple-100 text-purple-600 px-1 rounded font-bold"><i class="fa-regular fa-calendar"></i> ${lead.nextFollowUp}</span>` : '';
@@ -442,7 +451,8 @@ function generateListHTML(leads) {
                 <tbody class="divide-y divide-slate-100">`;
 
     leads.forEach(lead => {
-        const val = lead.value ? `${state.pricing.symbol}${new Intl.NumberFormat(state.pricing.locale).format(lead.value)}` : '-';
+        // generateListHTML function ke loop ke andar:
+const val = lead.value ? formatCompactCurrency(lead.value) : '-';
         const isSelected = state.selectedLeads.has(lead.id);
         const intentBadge = `<span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[9px]">${lead.intent || '-'}</span>`;
         const agentBadge = lead.assignedTo ? `<span class="text-[8px] text-blue-500 font-bold block mt-1"><i class="fa-solid fa-user"></i> ${lead.assignedTo}</span>` : '';

@@ -66,13 +66,18 @@
     <aside id="sidebar" class="fixed inset-y-0 left-0 w-[260px] bg-white border-r border-slate-200 z-[200] transform -translate-x-full md:translate-x-0 flex flex-col h-screen shadow-2xl md:shadow-none overflow-hidden">
         
         <div class="h-16 flex items-center px-4 border-b border-slate-100 justify-between shrink-0">
-            <a href="#dashboard" class="block flex-1 overflow-hidden" id="sidebar-logo-container">
-                <img src="/images/chat.png" alt="Logo" class="h-8 w-auto object-contain">
-            </a>
-            <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-slate-900 ml-2">
-                <i class="fa-solid fa-xmark text-xl"></i>
-            </button>
-        </div>
+    <a href="#dashboard" class="flex items-center justify-start flex-1 overflow-hidden" id="sidebar-logo-container">
+    
+        <img id="full-logo" src="../images/chat.png" alt="Logo" class="h-8 w-auto object-contain transition-all duration-300">
+        
+        <img id="icon-logo" src="../images/chat-icon.png" alt="Icon" class="h-8 w-auto object-contain hidden transition-all duration-300 mx-auto">
+        
+    </a>
+    
+    <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-slate-900 ml-2 shrink-0">
+        <i class="fa-solid fa-xmark text-xl"></i>
+    </button>
+</div>
 
         <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto no-scrollbar overflow-x-hidden" id="sidebar-menu">
             
@@ -177,7 +182,7 @@
                 </div>
                 
                 <div class="md:hidden flex items-center gap-2">
-                    <img src="/images/chat.png" alt="Logo" class="h-7 w-auto object-contain">
+                    <img src="../images/chat.png" alt="Logo" class="h-7 w-auto object-contain">
                 </div>
             </div>
 
@@ -285,57 +290,66 @@
         let isDesktopCollapsed = false;
 
         window.toggleDesktopSidebar = function(forceState = null) {
-            if (window.innerWidth < 768) return; 
-            
-            if (forceState !== null) {
-                isDesktopCollapsed = forceState;
-            } else {
-                isDesktopCollapsed = !isDesktopCollapsed;
-            }
-
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('main-content');
-            const toggleIcon = document.getElementById('desktop-toggle-icon');
-            const navTexts = document.querySelectorAll('.nav-text');
-            const sectionTitles = document.querySelectorAll('.section-title');
-            const navBadges = document.querySelectorAll('.nav-badge');
-            const logoContainer = document.getElementById('sidebar-logo-container');
-
-            if (isDesktopCollapsed) {
-                sidebar.classList.add('desktop-collapsed');
-                sidebar.classList.remove('w-[260px]');
-                sidebar.classList.add('w-[80px]');
-                
-                mainContent.classList.remove('md:ml-[260px]');
-                mainContent.classList.add('md:ml-[80px]');
-                
-                toggleIcon.classList.remove('fa-chevron-left');
-                toggleIcon.classList.add('fa-chevron-right');
-                
-                navTexts.forEach(el => el.style.opacity = '0');
-                sectionTitles.forEach(el => el.style.opacity = '0');
-                navBadges.forEach(el => el.style.opacity = '0');
-                logoContainer.style.opacity = '0';
-                
-            } else {
-                sidebar.classList.remove('desktop-collapsed');
-                sidebar.classList.remove('w-[80px]');
-                sidebar.classList.add('w-[260px]');
-                
-                mainContent.classList.remove('md:ml-[80px]');
-                mainContent.classList.add('md:ml-[260px]');
-                
-                toggleIcon.classList.remove('fa-chevron-right');
-                toggleIcon.classList.add('fa-chevron-left');
-                
-                setTimeout(() => {
-                    navTexts.forEach(el => el.style.opacity = '1');
-                    sectionTitles.forEach(el => el.style.opacity = '1');
-                    navBadges.forEach(el => el.style.opacity = '1');
-                    logoContainer.style.opacity = '1';
-                }, 150); 
-            }
-        }
+    if (window.innerWidth < 768) return;
+    
+    if (forceState !== null) {
+        isDesktopCollapsed = forceState;
+    } else {
+        isDesktopCollapsed = !isDesktopCollapsed;
+    }
+    
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+    const toggleIcon = document.getElementById('desktop-toggle-icon');
+    const navTexts = document.querySelectorAll('.nav-text');
+    const sectionTitles = document.querySelectorAll('.section-title');
+    const navBadges = document.querySelectorAll('.nav-badge');
+    
+    // Naye Logos get karein
+    const fullLogo = document.getElementById('full-logo');
+    const iconLogo = document.getElementById('icon-logo');
+    
+    if (isDesktopCollapsed) {
+        sidebar.classList.add('desktop-collapsed');
+        sidebar.classList.remove('w-[260px]');
+        sidebar.classList.add('w-[80px]');
+        
+        mainContent.classList.remove('md:ml-[260px]');
+        mainContent.classList.add('md:ml-[80px]');
+        
+        toggleIcon.classList.remove('fa-chevron-left');
+        toggleIcon.classList.add('fa-chevron-right');
+        
+        navTexts.forEach(el => el.style.opacity = '0');
+        sectionTitles.forEach(el => el.style.opacity = '0');
+        navBadges.forEach(el => el.style.opacity = '0');
+        
+        // Bada logo chupayein, Chhota icon dikhayein
+        if (fullLogo) fullLogo.classList.add('hidden');
+        if (iconLogo) iconLogo.classList.remove('hidden');
+        
+    } else {
+        sidebar.classList.remove('desktop-collapsed');
+        sidebar.classList.remove('w-[80px]');
+        sidebar.classList.add('w-[260px]');
+        
+        mainContent.classList.remove('md:ml-[80px]');
+        mainContent.classList.add('md:ml-[260px]');
+        
+        toggleIcon.classList.remove('fa-chevron-right');
+        toggleIcon.classList.add('fa-chevron-left');
+        
+        // Chhota icon chupayein, Bada logo dikhayein
+        if (iconLogo) iconLogo.classList.add('hidden');
+        if (fullLogo) fullLogo.classList.remove('hidden');
+        
+        setTimeout(() => {
+            navTexts.forEach(el => el.style.opacity = '1');
+            sectionTitles.forEach(el => el.style.opacity = '1');
+            navBadges.forEach(el => el.style.opacity = '1');
+        }, 150);
+    }
+}
 
         window.addEventListener('hashchange', updateActiveState);
         

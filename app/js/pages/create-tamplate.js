@@ -310,7 +310,7 @@ async function loadTemplateForEdit(docId) {
     }
 }
 
-// --- COMPLETE TEMPLATE SYNC LOGIC (FETCH ALL FROM META) ---
+// --- COMPLETE TEMPLATE SYNC LOGIC (FIXED FOR DUPLICATION) ---
 async function syncMetaTemplates() {
     const { metaWabaId, metaToken } = state.sellerConfig || {}; 
     if(!metaWabaId || !metaToken) {
@@ -334,10 +334,10 @@ async function syncMetaTemplates() {
         
         if(data.error) throw new Error(data.error.message);
 
-        // Loop through all templates and update to Firestore
         const batchTemplates = data.data;
         for (const tpl of batchTemplates) {
-            await setDoc(doc(db, "sellers", state.workspaceId, "templates", tpl.id), {
+            // 🚀 FIX: Document ID ko tpl.id ki jagah tpl.name kiya taaki local creation se match kare aur duplicate na bane!
+            await setDoc(doc(db, "sellers", state.workspaceId, "templates", tpl.name), {
                 name: tpl.name,
                 metaId: tpl.id,
                 status: tpl.status,
@@ -359,7 +359,6 @@ async function syncMetaTemplates() {
         }
     }
 }
-
 
 // --- COMPLETE SUBMIT LOGIC (META UPLOAD + CORS BYPASS FIX + BILLING LIMIT) ---
 async function submitToMeta(e) {
@@ -511,15 +510,30 @@ async function submitToMeta(e) {
             components.push({ type: "BUTTONS", buttons: state.buttons.map(b => ({ type: b.type, text: b.text.trim(), ...(b.type === 'URL' && { url: b.value.trim() }) })) });
         }
 
-        // --- STEP 3: API CALL TO META ---
+        // --- STEP 3: API CALL TO META (FIXED FOR EDIT MODE RULES) ---
         let tplName = document.getElementById('tpl-name').value.toLowerCase().trim();
         let apiUrl = "";
+        let payloadBody = {};
         
         if (state.isEditMode && state.editTemplateMetaId) {
             apiUrl = `https://graph.facebook.com/v19.0/${state.editTemplateMetaId}`;
+            
+            // 🚀 THE ULTIMATE META EDIT FIX: Edit mode me 'name' aur 'language' body se hata diya hai
+            payloadBody = {
+                category: document.getElementById('tpl-category')?.value || 'MARKETING', 
+                components 
+            };
         } else {
             apiUrl = `https://graph.facebook.com/v19.0/${metaWabaId}/message_templates`;
             tplName = tplName + "_" + Date.now().toString().slice(-4); 
+            
+            // Creation mode me saare fields jayenge
+            payloadBody = {
+                name: tplName, 
+                language: "en_US", 
+                category: document.getElementById('tpl-category')?.value || 'MARKETING', 
+                components 
+            };
         }
 
         const res = await fetch(apiUrl, {
@@ -528,19 +542,14 @@ async function submitToMeta(e) {
                 'Authorization': `Bearer ${metaToken}`, 
                 'Content-Type': 'application/json' 
             },
-            body: JSON.stringify({ 
-                name: tplName, 
-                language: "en_US", 
-                category: document.getElementById('tpl-category')?.value || 'MARKETING', 
-                components 
-            })
+            body: JSON.stringify(payloadBody)
         });
 
         const data = await res.json();
         if(data.error) throw new Error(data.error.error_user_title || data.error.message || "Rejected by Meta");
 
-        // Save to Database
-        const tplDocId = state.isEditMode ? state.editTemplateId : tplName;
+        // 🚀 FIX: Save to Database me hamesha template name ko hi Document ID rakhein
+        const tplDocId = tplName; 
         await setDoc(doc(db, "sellers", state.workspaceId, "templates", tplDocId), {
             name: tplName,
             metaId: data.id || state.editTemplateMetaId,

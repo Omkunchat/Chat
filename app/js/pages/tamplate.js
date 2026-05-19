@@ -236,25 +236,64 @@ async function syncWithMeta() {
         
         if (data.error) throw new Error(data.error.message);
 
+        // 🚀 Helper Function: Firebase ke 'Nested Array' error ko theek karne ke liye
+        function makeFirestoreSafe(data) {
+            if (data === undefined) return null;
+            if (Array.isArray(data)) {
+                return data.map(item => {
+                    if (Array.isArray(item)) return Object.assign({}, makeFirestoreSafe(item));
+                    if (item !== null && typeof item === 'object') return makeFirestoreSafe(item);
+                    return item;
+                });
+            }
+            if (data !== null && typeof data === 'object') {
+                const result = {};
+                for (let key in data) result[key] = makeFirestoreSafe(data[key]);
+                return result;
+            }
+            return data;
+        }
+
         // Fetch all templates and save them to Firebase
         for (const t of data.data) {
-            // Find Body text to flatten it for faster local UI rendering
-            const bodyComp = t.components.find(c => c.type === 'BODY');
-            const flattenedBody = bodyComp ? (bodyComp.text || "") : "";
+            try {
+                const componentsArray = Array.isArray(t.components) ? t.components : [];
+                const bodyComp = componentsArray.find(c => c.type === 'BODY');
+                const flattenedBody = (bodyComp && bodyComp.text) ? bodyComp.text : "";
 
-            await setDoc(doc(db, "sellers", state.workspaceId, "templates", t.id), {
-    name: t.name || "unnamed_template",
-    metaId: t.id || "",
-    status: t.status || "PENDING",
-    category: t.category || "MARKETING",
-    language: t.language || "en_US",
-    components: t.components || [], 
-    bodyText: flattenedBody || "", // 🚀 Flattened field for instant UI
-    rejected_reason: t.rejected_reason || null,
-    lastSynced: serverTimestamp(),
-    createdAt: serverTimestamp() 
-}, { merge: true });
+                // Naye function se data ko pass karein
+                const safeComponents = makeFirestoreSafe(componentsArray);
+
+                // Meta Status Normalization
+                let metaStatus = t.status ? String(t.status).toUpperCase() : "PENDING";
+                if (metaStatus === "ACTIVE") metaStatus = "APPROVED";
+
+                // Build data
+                let templateData = {
+                    name: t.name ? String(t.name) : "unnamed_template",
+                    metaId: t.id ? String(t.id) : "",
+                    status: metaStatus, 
+                    category: t.category ? String(t.category) : "MARKETING",
+                    language: t.language ? String(t.language) : "en_US",
+                    components: safeComponents, 
+                    bodyText: String(flattenedBody),
+                    lastSynced: serverTimestamp(),
+                    createdAt: serverTimestamp() // 👈 YAHI MISSING THA! Iske bina naye template screen par nahi aate
+                };
+
+                if (t.rejected_reason) {
+                    templateData.rejected_reason = String(t.rejected_reason);
+                }
+
+                // Safely save to Firestore
+                if (templateData.name) {
+                    await setDoc(doc(db, "sellers", state.workspaceId, "templates", templateData.name), templateData, { merge: true });
+                }
+            } catch (err) {
+                console.error("Template save failed for:", t.name, err);
+            }
         }
+        
         
         showToast("Templates Synced Successfully!", "success");
     } catch (e) {

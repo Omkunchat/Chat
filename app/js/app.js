@@ -28,6 +28,7 @@ const routes = {
     '#tamplate':  { file: 'pages/tamplate.html', title: 'Tamplate Mangement', module: './pages/tamplate.js' },
     '#create-tamplate':  { file: 'pages/create-tamplate.html', title: 'Tamplate Mangement', module: './pages/create-tamplate.js' },
     '#team':      { file: 'pages/team.html', title: 'Omkun Chat | Team Management', module: './pages/team.js' },
+    '#quick-replies':      { file: 'pages/quick-replies.html', title: 'Omkun Chat | quick-replies', module: './pages/quick-replies.js' },
     '#offers':    { file: 'pages/offers.html', title: 'Omkun Chat | Offers & Coupons', module: './pages/offers.js' },
     '#bookings':  { file: 'pages/bookings.html', title: 'Omkun Chat | Bookings & Pickups', module: './pages/bookings.js' },
     '#support':   { file: 'pages/support.html', title: 'Omkun Chat | Support Tickets', module: './pages/support.js' },

@@ -1,0 +1,51 @@
+<div id="leads-wrapper" class="w-full max-w-[95rem] mx-auto space-y-4 animate-fade-in pb-24 relative md:px-4">
+    
+    <div class="bg-white p-4 rounded-[1.5rem] border border-slate-100 shadow-sm flex flex-row justify-between items-center gap-2">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-bolt text-lg"></i>
+            </div>
+            <div class="flex flex-col">
+                <h2 class="text-[14px] font-black text-slate-800">Quick Replies</h2>
+                <p class="text-[8px] text-slate-400 font-bold tracking-widest uppercase mt-0.5">Manage Canned Responses</p>
+            </div>
+        </div>
+        <button onclick="window.openQuickReplyModal()" class="bg-[#111b21] hover:bg-black text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center gap-1.5 shrink-0">
+            <i class="fa-solid fa-plus"></i> Add
+        </button>
+    </div>
+
+    <div id="quick-replies-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        <div class="col-span-full text-center py-16"><i class="fas fa-circle-notch fa-spin text-blue-500 text-2xl"></i></div>
+    </div>
+</div>
+
+<div id="qr-modal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[999] flex items-center justify-center p-3">
+    <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden transform transition-all border border-slate-100">
+        <div class="p-4 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-blue-500">
+                    <i class="fa-solid fa-bolt text-[10px]"></i>
+                </div>
+                <h3 class="text-[11px] font-black text-slate-800 uppercase tracking-widest" id="qr-modal-title">Add Reply</h3>
+            </div>
+            <button onclick="window.closeQuickReplyModal()" class="w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-100 flex items-center justify-center transition"><i class="fa-solid fa-xmark text-[12px]"></i></button>
+        </div>
+        
+        <div class="p-5 space-y-4">
+            <input type="hidden" id="qr-edit-id">
+            <div>
+                <label class="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1">Shortcut Word</label>
+                <div class="relative group">
+                    <span class="absolute left-4 top-3 text-slate-400 font-bold">/</span>
+                    <input type="text" id="qr-shortcut" placeholder="hello" class="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-[12px] font-bold outline-none focus:border-blue-500 focus:bg-white transition-colors lowercase placeholder:font-medium placeholder:text-slate-300">
+                </div>
+            </div>
+            <div>
+                <label class="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1">Full Message</label>
+                <textarea id="qr-message" rows="4" placeholder="Type your full message here..." class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[12px] font-medium outline-none focus:border-blue-500 focus:bg-white transition-colors resize-none placeholder:text-slate-300 custom-scrollbar"></textarea>
+            </div>
+            <button onclick="window.saveQuickReply()" id="qr-save-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm transition active:scale-95">Save Quick Reply</button>
+        </div>
+    </div>
+</div>

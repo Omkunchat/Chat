@@ -28,6 +28,12 @@ let state = {
 
 let unsubChats = null;
 let unsubMessages = null;
+let approvedTemplates = [];
+let lastMessageDoc = null;       // Chat history load more ke liye
+let isLoadingOldMessages = false; // Loading status track karne ke liye
+let searchTimeout = null;        // Search debounce ke liye (DB hit bachane ke liye)
+let quickRepliesArray = []; // Database se replies store karne ke liye
+let quickReplySelectedIndex = -1; // Keyboard se select karne ke liye
 
 const EMOJI_LIST = [
     // चेहरे और स्माइली (Faces)
@@ -128,6 +134,9 @@ export async function init() {
     initEmojiPicker();
     setupToggleListener();
     setupPushNotifications();
+    await loadApprovedTemplates();
+    await loadQuickRepliesFromDB();
+setupQuickReplyListener();
 
     const msgInput = document.getElementById('msg-input');
     if(msgInput) {
@@ -151,6 +160,30 @@ async function loadSellerMetaToken() {
     if (snap.exists()) state.sellerConfig = snap.data();
 }
 
+async function loadApprovedTemplates() {
+    const tplRef = collection(db, "sellers", state.workspaceId, "templates");
+    const q = query(tplRef, where("status", "==", "APPROVED")); 
+    
+    try {
+        const snapshot = await getDocs(q);
+        approvedTemplates = [];
+        
+        snapshot.forEach(doc => {
+            approvedTemplates.push(doc.data());
+        });
+        
+        const selector = document.getElementById('template-selector');
+        if(selector) {
+            selector.innerHTML = `<option value="">Select a template...</option>`;
+            approvedTemplates.forEach(tpl => {
+                selector.innerHTML += `<option value="${tpl.name}" data-lang="${tpl.language || 'en_US'}">${tpl.name}</option>`;
+            });
+        }
+    } catch (err) {
+        console.error("Error loading approved templates:", err);
+    }
+}
+
 // ==========================================
 // 1. CHAT LIST & TABS (OPTIMIZED FOR 1 LAKH USERS)
 // ==========================================
@@ -169,8 +202,63 @@ window.setTab = (tabName) => {
 }
 
 window.searchChats = () => {
-    state.searchQuery = document.getElementById('inboxSearch').value.toLowerCase().trim();
-    renderChatList();
+    // Pichla timer clear karein (Debounce logic)
+    clearTimeout(searchTimeout);
+    
+    // Typing rukne ke 500ms baad ye chalega
+    searchTimeout = setTimeout(async () => {
+        const text = document.getElementById('inboxSearch').value.trim();
+        const container = document.getElementById('chat-list-container');
+        
+        // Agar box khali ho gaya, toh regular chats (loadChatsList) wapas le aao
+        if (text === '') {
+            state.searchQuery = '';
+            loadChatsList(); 
+            return;
+        }
+
+        // Search shuru hui, loading dikhao
+        container.innerHTML = `<div class="flex flex-col items-center justify-center h-24 text-slate-500"><i class="fas fa-circle-notch fa-spin text-xl mb-2 text-blue-500"></i><p class="text-[10px] font-bold uppercase tracking-widest">Searching Database...</p></div>`;
+
+        // 🟢 NAYA: Firestore DB Query for Search (Case Sensitive Prefix Search)
+        // Note: Firestore search Case-Sensitive hoti hai. Isliye agar customer ka naam capital se hai toh capital dalna padega, ya backend mein ek 'searchName' (lowercase) field save karna padega.
+        
+        // Check if searching by phone (starts with number/+)
+        const isPhoneSearch = text.startsWith('+') || !isNaN(text.charAt(0));
+        let q;
+
+        if (isPhoneSearch) {
+            // Document ID (Phone number) se search
+            const cleanPhone = text.replace('+', '');
+            q = query(collection(db, "sellers", state.workspaceId, "chats"), 
+                where('__name__', '>=', cleanPhone),
+                where('__name__', '<=', cleanPhone + '\uf8ff'),
+                limit(30)
+            );
+        } else {
+            // Name se search
+            q = query(collection(db, "sellers", state.workspaceId, "chats"), 
+                where('customerName', '>=', text),
+                where('customerName', '<=', text + '\uf8ff'),
+                limit(30)
+            );
+        }
+
+        try {
+            const snapshot = await getDocs(q);
+            state.chats = []; // State clear karo
+            snapshot.forEach(doc => state.chats.push({ id: doc.id, ...doc.data() }));
+            
+            // Ab results ko UI mein render karo
+            state.searchQuery = ''; // UI filter ko batane ke liye ki in-memory search bypass karni hai
+            renderChatList();
+
+        } catch (error) {
+            console.error("Search failed: ", error);
+            container.innerHTML = `<div class="p-8 text-center text-xs font-bold text-red-400">Search Error occurred</div>`;
+        }
+
+    }, 500); // 500ms tak ruko user ke typing finish karne ka
 };
 
 function loadChatsList() {
@@ -305,12 +393,37 @@ window.openChat = (phone, name, isAiActive) => {
         if(chatData.isUnread) {
             updateDoc(doc(db, "sellers", state.workspaceId, "chats", phone), { isUnread: false }); 
         }
+        window.check24HourRule(chatData);
     }
 
     if(state.isEmojiOpen) window.toggleEmojiPicker();
     listenToChatMessages(phone, chatData);
     renderChatList(); 
 };
+
+window.check24HourRule = (chatData) => {
+    const inputWrapper = document.getElementById('input-wrapper');
+    const templateWrapper = document.getElementById('template-wrapper');
+    
+    // Ideal Case Check: Agar customer ke message ka alag timestamp hai toh wo lo, nahi toh updatedAt lo
+    const targetTimestamp = chatData.customerLastMessageAt || chatData.updatedAt;
+    
+    if (!targetTimestamp) return; 
+    
+    const lastUpdateDate = targetTimestamp.toDate ? targetTimestamp.toDate() : new Date(targetTimestamp);
+    const now = new Date();
+    
+    const diffHours = (now - lastUpdateDate) / (1000 * 60 * 60);
+    
+    if (diffHours >= 24) {
+        if(inputWrapper) inputWrapper.classList.add('hidden');
+        if(templateWrapper) templateWrapper.classList.remove('hidden');
+        showToast("24-hour window closed. Template required.", "info");
+    } else {
+        if(inputWrapper) inputWrapper.classList.remove('hidden');
+        if(templateWrapper) templateWrapper.classList.add('hidden');
+    }
+}
 
 window.closeChatMobile = () => {
     // लिस्ट वापस दिखाओ
@@ -336,15 +449,22 @@ function listenToChatMessages(customerPhone, currentChatData) {
     const container = document.getElementById('messages-container');
     container.innerHTML = '';
     
-    // 🟢 LIMIT(50) ADDED FOR 1 LAKH SCALE: Sirf latest 50 message load honge
+    // Scroll listener attach karna infinite scroll ke liye
+    container.onscroll = () => {
+        if (container.scrollTop === 0 && !isLoadingOldMessages && lastMessageDoc) {
+            loadOlderMessages(customerPhone);
+        }
+    };
+
     const q = query(
         collection(db, "sellers", state.workspaceId, "chats", customerPhone, "messages"), 
-        orderBy("timestamp", "desc"), // Pehle sabse naye messages lo
+        orderBy("timestamp", "desc"), 
         limit(50)
     );
 
     unsubMessages = onSnapshot(q, (snapshot) => {
-        container.innerHTML = ''; 
+        // UI reset karna
+        container.innerHTML = `<div id="load-more-spinner" class="hidden w-full flex justify-center py-2"><i class="fas fa-circle-notch fa-spin text-blue-500"></i></div>`; 
         appendSecurityBubble(container);
 
         if (currentChatData && currentChatData.needsHuman) {
@@ -353,8 +473,11 @@ function listenToChatMessages(customerPhone, currentChatData) {
 
         if (snapshot.empty) {
              container.innerHTML += `<div class="text-center text-xs font-bold text-slate-400 mt-10">Say hi to start the conversation!</div>`;
+             lastMessageDoc = null;
         } else {
-            // 🟢 NAYA: Messages ko reverse karna zaroori hai taaki purane upar aur naye neeche dikhein
+            // Pagination track karne ke liye last document save karna (descending order mein last matlab sabse purana message)
+            lastMessageDoc = snapshot.docs[snapshot.docs.length - 1];
+
             const messagesArray = [];
             snapshot.forEach(doc => messagesArray.push(doc.data()));
             messagesArray.reverse(); 
@@ -365,22 +488,14 @@ function listenToChatMessages(customerPhone, currentChatData) {
                 
                 let parsedTime = new Date();
                 if (msg.timestamp) {
-                    if (typeof msg.timestamp === 'number') {
-                        parsedTime = new Date(msg.timestamp > 9999999999 ? msg.timestamp : msg.timestamp * 1000);
-                    } else if (msg.timestamp.toDate) {
-                        parsedTime = msg.timestamp.toDate();
-                    }
+                    parsedTime = typeof msg.timestamp === 'number' ? new Date(msg.timestamp > 9999999999 ? msg.timestamp : msg.timestamp * 1000) : msg.timestamp.toDate();
                 }
                 const formattedTime = parsedTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
-                if(msg.type === 'note') {
-                    appendBubble(contentText, "center", "note", formattedTime);
-                } else {
-                    appendBubble(contentText, msg.sender === 'User' ? 'left' : 'right', (msg.sender || '').toLowerCase(), formattedTime);
-                }
+                appendBubble(contentText, msg.type === 'note' ? 'note' : (msg.sender === 'User' ? 'left' : 'right'), msg.type === 'note' ? 'note' : (msg.sender || '').toLowerCase(), formattedTime, false);
             });
         }
-        // Scroll to bottom
+        // First load par ekdum niche scroll karna
         setTimeout(() => { container.scrollTop = container.scrollHeight; }, 100);
     });
 }
@@ -629,6 +744,79 @@ window.handleMainAction = async (e) => {
         }
     }
 };
+
+window.sendTemplateMessage = async () => {
+    const selector = document.getElementById('template-selector');
+    if(!selector) return;
+    
+    const selectedOption = selector.options[selector.selectedIndex];
+    const templateName = selectedOption.value;
+    const templateLang = selectedOption.getAttribute('data-lang');
+    
+    if(!templateName) {
+        showToast("Please select a template first", "error");
+        return;
+    }
+    
+    if (!state.activeChatPhone || !state.sellerConfig?.metaToken) return;
+
+    const tempId = "uploading-" + Date.now();
+    appendLoadingBubble(tempId);
+    
+    try {
+        const agentName = state.user.displayName || "Agent";
+
+        const payload = {
+            messaging_product: "whatsapp",
+            to: state.activeChatPhone,
+            type: "template",
+            template: {
+                name: templateName,
+                language: { code: templateLang || "en_US" }
+            }
+        };
+
+        const response = await fetch(`https://graph.facebook.com/v19.0/${state.sellerConfig.metaPhoneId}/messages`, {
+            method: 'POST',
+            headers: { 
+                'Authorization': `Bearer ${state.sellerConfig.metaToken}`, 
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        if (result.error) throw new Error(result.error.message);
+
+        const chatRef = doc(db, "sellers", state.workspaceId, "chats", state.activeChatPhone);
+        await updateDoc(chatRef, {
+            lastMessage: `Template: ${templateName}`,
+            aiActive: false,
+            needsHuman: false,
+            updatedAt: serverTimestamp() // Agent ke template bhejte hi updatedAt update hoga
+        });
+
+        const messagesSubRef = collection(db, "sellers", state.workspaceId, "chats", state.activeChatPhone, "messages");
+        await addDoc(messagesSubRef, { 
+            sender: agentName, 
+            agentUid: state.user.uid,
+            message: `Template Sent: ${templateName}`, 
+            timestamp: Math.floor(Date.now() / 1000),
+            type: "template" 
+        });
+
+        document.getElementById(tempId)?.remove();
+        showToast("Template sent successfully!", "success");
+        
+        // Template jane ke baad window update karne ke liye fake object se re-check
+        const updatedChatMock = { ...state.chats.find(c => c.id === state.activeChatPhone), updatedAt: new Date() };
+        window.check24HourRule(updatedChatMock);
+
+    } catch (error) {
+        document.getElementById(tempId)?.remove();
+        showToast("Failed to send template: " + error.message, "error");
+    }
+}
 
 // ==========================================
 //  ATTACHMENTS (DOCS / IMAGES)
@@ -909,3 +1097,171 @@ window.sendQuickReply = (text) => {
     // Simulate Enter key/Send button click
     window.handleMainAction();
 };
+// 🚀 NAYA: Fetch older messages on scroll up
+import { startAfter } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"; // Top import list mein startAfter add karna zaroori hai
+
+async function loadOlderMessages(customerPhone) {
+    if (!lastMessageDoc || isLoadingOldMessages) return;
+
+    isLoadingOldMessages = true;
+    const container = document.getElementById('messages-container');
+    const spinner = document.getElementById('load-more-spinner');
+    
+    if(spinner) spinner.classList.remove('hidden'); // Spinner dikhao
+
+    // Previous scroll height note karo taaki naye message load hone par jump na ho
+    const previousScrollHeight = container.scrollHeight;
+
+    const q = query(
+        collection(db, "sellers", state.workspaceId, "chats", customerPhone, "messages"),
+        orderBy("timestamp", "desc"),
+        startAfter(lastMessageDoc), // Jahan aakhri message tha, wahan se shuru karo
+        limit(50)
+    );
+
+    const snapshot = await getDocs(q);
+    
+    if (snapshot.empty) {
+        lastMessageDoc = null; // Aur messages nahi hain
+        if(spinner) spinner.innerHTML = `<span class="text-[10px] font-bold text-slate-400">No older messages</span>`;
+    } else {
+        lastMessageDoc = snapshot.docs[snapshot.docs.length - 1]; // Update last doc
+        
+        // Reverse array for display
+        const oldMessages = [];
+        snapshot.forEach(doc => oldMessages.push(doc.data()));
+        oldMessages.reverse();
+
+        // Temporary div banakar usme purane messages format karenge
+        let tempDiv = document.createElement('div');
+        
+        oldMessages.forEach(msg => {
+            const contentText = msg.message || msg.text || '';
+            if (!contentText) return; 
+            
+            let parsedTime = new Date();
+            if (msg.timestamp) {
+                parsedTime = typeof msg.timestamp === 'number' ? new Date(msg.timestamp > 9999999999 ? msg.timestamp : msg.timestamp * 1000) : msg.timestamp.toDate();
+            }
+            const formattedTime = parsedTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            // Direct innerHTML me add karenge temporarily
+            createBubbleHTML(tempDiv, contentText, msg.type === 'note' ? 'note' : (msg.sender === 'User' ? 'left' : 'right'), msg.type === 'note' ? 'note' : (msg.sender || '').toLowerCase(), formattedTime);
+        });
+
+        // Naye messages ko container ke shuru mein (spinner ke baad) insert karein
+        spinner.insertAdjacentHTML('afterend', tempDiv.innerHTML);
+
+        // UI Jump theek karne ke liye scroll adjust karein
+        const newScrollHeight = container.scrollHeight;
+        container.scrollTop = newScrollHeight - previousScrollHeight;
+        
+        if(spinner) spinner.classList.add('hidden');
+    }
+
+    isLoadingOldMessages = false;
+}
+async function loadQuickRepliesFromDB() {
+    try {
+        const qRef = collection(db, "sellers", state.workspaceId, "quickReplies");
+        // Snapshot use karenge taaki background me update hote rahe
+        onSnapshot(qRef, (snapshot) => {
+            quickRepliesArray = [];
+            snapshot.forEach(doc => quickRepliesArray.push({ id: doc.id, ...doc.data() }));
+        });
+    } catch (e) { console.error("Error loading quick replies", e); }
+}
+
+function setupQuickReplyListener() {
+    const input = document.getElementById('msg-input');
+    if(!input) return;
+
+    input.addEventListener('input', (e) => {
+        const text = e.target.value;
+        const popup = document.getElementById('quick-reply-popup');
+        
+        // Agar input '/' se shuru hota hai
+        if (text.startsWith('/')) {
+            const searchTerm = text.substring(1).toLowerCase(); // '/' ke baad ka text
+            renderQuickReplyPopup(searchTerm);
+            popup.classList.remove('hidden');
+        } else {
+            popup.classList.add('hidden');
+            quickReplySelectedIndex = -1;
+        }
+    });
+
+    // Keyboard Arrow Keys support for Quick Replies
+    input.addEventListener('keydown', (e) => {
+        const popup = document.getElementById('quick-reply-popup');
+        if (popup.classList.contains('hidden')) return;
+
+        const items = document.querySelectorAll('.qr-item');
+        if (items.length === 0) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            quickReplySelectedIndex = (quickReplySelectedIndex + 1) % items.length;
+            updateQuickReplyHighlight(items);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            quickReplySelectedIndex = (quickReplySelectedIndex - 1 + items.length) % items.length;
+            updateQuickReplyHighlight(items);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (quickReplySelectedIndex >= 0) {
+                items[quickReplySelectedIndex].click();
+            } else {
+                items[0].click(); // Default select first
+            }
+        }
+    });
+}
+
+function renderQuickReplyPopup(searchTerm) {
+    const list = document.getElementById('quick-reply-list');
+    let filtered = quickRepliesArray.filter(qr => 
+        (qr.shortcut && qr.shortcut.toLowerCase().includes(searchTerm)) || 
+        (qr.message && qr.message.toLowerCase().includes(searchTerm))
+    );
+
+    if (filtered.length === 0) {
+        list.innerHTML = `<div class="p-3 text-center text-xs text-slate-400 font-medium">No replies found</div>`;
+        return;
+    }
+
+    list.innerHTML = filtered.map((qr, index) => `
+        <button type="button" onclick="window.selectQuickReply('${btoa(unescape(encodeURIComponent(qr.message)))}')" 
+                class="qr-item w-full text-left p-2 hover:bg-blue-50 rounded-lg transition-colors flex flex-col gap-0.5 border border-transparent hover:border-blue-100 ${index === 0 ? 'bg-blue-50/50' : ''}">
+            <span class="text-[11px] font-bold text-blue-600">/${qr.shortcut}</span>
+            <span class="text-[13px] text-slate-700 truncate w-full">${qr.message}</span>
+        </button>
+    `).join('');
+    
+    quickReplySelectedIndex = -1; // reset index
+}
+
+function updateQuickReplyHighlight(items) {
+    items.forEach((item, index) => {
+        if (index === quickReplySelectedIndex) {
+            item.classList.add('bg-blue-50', 'border-blue-100');
+        } else {
+            item.classList.remove('bg-blue-50', 'border-blue-100');
+            item.classList.remove('bg-blue-50/50'); // remove default first item highlight
+        }
+    });
+}
+
+window.selectQuickReply = (base64Message) => {
+    const message = decodeURIComponent(escape(atob(base64Message)));
+    const input = document.getElementById('msg-input');
+    
+    input.value = message;
+    document.getElementById('quick-reply-popup').classList.add('hidden');
+    
+    // Auto adjust height and status
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+    window.checkTypingStatus();
+    input.focus(); // Cursor wapas le aao
+}

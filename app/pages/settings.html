@@ -92,18 +92,35 @@
         </div>
     </div>
 
-    <div id="ai-studio-banner" class="bg-white p-5 rounded-3xl border border-indigo-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden">
-        <div class="absolute top-0 right-0 p-4 opacity-[0.03] pointer-events-none"><i class="fa-solid fa-microchip text-6xl text-indigo-900"></i></div>
-        <div class="relative z-10">
-            <h3 class="text-[12px] font-black text-indigo-700 uppercase tracking-widest flex items-center gap-2 mb-1">
-                <i class="fa-solid fa-brain text-indigo-500"></i> AI Studio & Knowledge Base
-            </h3>
-            <p class="text-[10px] font-bold text-slate-500 max-w-md leading-relaxed">Setup your AI personality, global business hours, universal FAQs, and marketing drips.</p>
+    <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm mt-6">
+    <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-800">
+            <i class="fa-solid fa-sliders"></i>
         </div>
-        <button onclick="window.location.hash='#bot-setup'" class="shrink-0 relative z-10 px-5 py-2.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-100 transition active:scale-95 shadow-sm flex items-center gap-2">
-            Open AI Studio <i class="fa-solid fa-arrow-right"></i>
-        </button>
+        <div>
+            <h2 class="text-[13px] font-black text-slate-800 uppercase tracking-widest">Workspace Tools</h2>
+            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">AI & Workflow Management</p>
+        </div>
     </div>
+
+    <div class="grid grid-cols-2 gap-4">
+        
+        <button onclick="window.location.hash='#bot-setup'" class="group flex flex-col items-center justify-center p-5 bg-slate-50 hover:bg-blue-50 border border-slate-100 hover:border-blue-200 rounded-[1.5rem] transition-all active:scale-[0.98]">
+            <div class="w-12 h-12 rounded-full bg-white border border-slate-100 flex items-center justify-center text-blue-500 mb-3 shadow-sm group-hover:shadow-blue-100 transition">
+                <i class="fa-solid fa-robot text-[18px]"></i>
+            </div>
+            <span class="text-[10px] font-black text-slate-700 uppercase tracking-widest group-hover:text-blue-700">AI Studio</span>
+        </button>
+
+        <button onclick="window.location.hash='#quick-replies'" class="group flex flex-col items-center justify-center p-5 bg-slate-50 hover:bg-yellow-50 border border-slate-100 hover:border-yellow-200 rounded-[1.5rem] transition-all active:scale-[0.98]">
+            <div class="w-12 h-12 rounded-full bg-white border border-slate-100 flex items-center justify-center text-yellow-500 mb-3 shadow-sm group-hover:shadow-yellow-100 transition">
+                <i class="fa-solid fa-bolt text-[18px]"></i>
+            </div>
+            <span class="text-[10px] font-black text-slate-700 uppercase tracking-widest group-hover:text-yellow-700">Quick Replies</span>
+        </button>
+        
+    </div>
+</div>
 
     <div id="owner-exclusive-section" class="bg-white p-4 rounded-3xl border border-amber-200 shadow-sm space-y-4 relative overflow-hidden">
         <div class="absolute top-0 right-0 p-4 opacity-5"><i class="fa-solid fa-crown text-6xl text-amber-500"></i></div>

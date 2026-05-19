@@ -689,3 +689,11 @@ function restoreUIFilters() {
         if(btnBoard) btnBoard.className = "flex-1 md:flex-none px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-800 transition-all";
     }
 }
+function formatCompactCurrency(value) {
+    return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        notation: 'compact',
+        maximumFractionDigits: 1 // 1.2L ya 120.5K tak dikhayega
+    }).format(value);
+}

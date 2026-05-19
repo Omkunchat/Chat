@@ -92,11 +92,6 @@
             </div>
         </div>
 
-        <div id="quick-replies-bar" class="w-full bg-[#F0F2F5] px-3 py-2 flex gap-2 overflow-x-auto hide-scrollbar flex-nowrap border-t border-slate-200 z-40 shrink-0">
-            <button onclick="window.sendQuickReply('Hello! How can I help you today?')" class="whitespace-nowrap px-3 py-1 bg-white border border-slate-300 rounded-full text-xs font-medium text-slate-700 hover:bg-slate-50 shadow-sm shrink-0">Hello! 👋</button>
-            <button onclick="window.sendQuickReply('Please give me a moment to check that for you.')" class="whitespace-nowrap px-3 py-1 bg-white border border-slate-300 rounded-full text-xs font-medium text-slate-700 hover:bg-slate-50 shadow-sm shrink-0">One moment ⏳</button>
-        </div>
-
         <div id="input-wrapper" class="flex flex-col bg-[#F0F2F5] shrink-0 pb-safe w-full box-border z-40 border-t border-slate-200">
             
             <div class="flex px-3 pt-2 gap-1 -mb-px w-full shrink-0">
@@ -124,7 +119,14 @@
                         <button type="button" onclick="window.toggleEmojiPicker()" id="emoji-btn" class="p-3 text-slate-500 hover:text-slate-700 transition active:scale-95 shrink-0">
                             <i class="fa-regular fa-face-smile text-[19px]"></i>
                         </button>
-                        
+                        <div id="quick-reply-popup" class="hidden absolute bottom-[55px] left-0 w-[250px] md:w-[350px] bg-white rounded-xl shadow-2xl border border-slate-200 z-[100] overflow-hidden flex flex-col transition-all">
+                            <div class="px-3 py-2 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest"><i class="fa-solid fa-bolt text-yellow-500"></i> Quick Replies</span>
+                                <span class="text-[9px] text-slate-400 font-medium">Use Up/Down</span>
+                            </div>
+                            <div id="quick-reply-list" class="max-h-48 overflow-y-auto custom-scrollbar p-1">
+                                </div>
+                        </div>
                         <textarea id="msg-input" rows="1" class="flex-1 resize-none bg-transparent pt-3.5 pb-3 px-0 text-[15px] font-medium text-slate-800 outline-none max-h-32 placeholder:text-slate-500 custom-scrollbar w-full" placeholder="Type a message..." oninput="this.style.height = ''; this.style.height = Math.min(this.scrollHeight, 120) + 'px'; window.checkTypingStatus()"></textarea>
 
                         <div class="flex items-center pr-1 pb-1.5 gap-0 shrink-0">

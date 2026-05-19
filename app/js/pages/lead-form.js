@@ -8,7 +8,8 @@ let state = {
     workspaceId: null, 
     role: "owner",     
     leadId: null,      
-    canEdit: false     
+    canEdit: false,
+    sellerConfig: null
 };
 
 export async function init() {
@@ -20,6 +21,7 @@ export async function init() {
     if (ownerDocSnap.exists()) {
         state.role = "owner";
         state.workspaceId = state.user.uid;
+        state.sellerConfig = ownerDocSnap.data();
     } else {
         const teamQuery = query(collectionGroup(db, 'team'), where('email', '==', userEmail));
         const teamSnapshot = await getDocs(teamQuery);
@@ -27,6 +29,8 @@ export async function init() {
             const agentDoc = teamSnapshot.docs[0]; 
             state.workspaceId = agentDoc.ref.parent.parent.id; 
             state.role = (agentDoc.data().role || 'chat').toLowerCase(); 
+            const parentDoc = await getDoc(doc(db, "sellers", state.workspaceId));
+            if(parentDoc.exists()) state.sellerConfig = parentDoc.data();
         } else {
             state.role = "owner";
             state.workspaceId = state.user.uid;
@@ -49,9 +53,15 @@ export async function init() {
         setupDeleteButton();
     }
 
+    // 🚀 1. THE BIG FIX: Sabse pehle active team members ko dropdown me fill karein
+    // Isse options DOM me pehle hi ready ho jayenge
+    await loadAvailableAgentsToDropdown();
+
     if (state.leadId) {
         const titleEl = document.getElementById('lf-page-title');
         if (titleEl) titleEl.innerText = state.canEdit ? "Edit Lead Record" : "View Lead Record";
+        
+        // 🚀 2. Options ready hone ke baad jab lead data load hoga, toh saved value easily select ho jayegi
         await loadLeadData(state.leadId);
     } else {
         if (!state.canEdit) {
@@ -62,6 +72,37 @@ export async function init() {
     }
 
     applyFormPermissions(); 
+}
+
+// 🚀 NAYA CORNERSTONE FUNCTION: Fetch agents directly from workspace subcollection
+async function loadAvailableAgentsToDropdown() {
+    const selectEl = document.getElementById('lf-assignedTo');
+    if (!selectEl) return;
+
+    try {
+        const teamRef = collection(db, "sellers", state.workspaceId, "team");
+        const snap = await getDocs(teamRef);
+        
+        // Reset and inject standard fallback default item
+        selectEl.innerHTML = `<option value="">Owner (Unassigned)</option>`;
+        
+        snap.forEach(docSnap => {
+            const data = docSnap.data();
+            // Sirf un agents ko lein jinka access revoke nahi kiya gaya hai
+            if (data.status !== 'revoked') {
+                // Agar dynamic display name save nahi hai, toh email parse baseline use karein
+                const agentName = data.name || data.email.split('@')[0];
+                
+                const optionNode = document.createElement('option');
+                optionNode.value = agentName;
+                optionNode.innerText = agentName.toUpperCase(); // High visibility design accent
+                selectEl.appendChild(optionNode);
+            }
+        });
+        console.log(`🎯 CRM Form Dropdown updated with ${selectEl.options.length - 1} team agents.`);
+    } catch (error) {
+        console.error("Critical error building form team elements:", error);
+    }
 }
 
 function setupDeleteButton() {
@@ -79,7 +120,6 @@ function setupDeleteButton() {
 
 function applyFormPermissions() {
     if (!state.canEdit) {
-        // 🚀 NEW: Added new fields to disabled list
         const inputs = document.querySelectorAll('#lf-name, #lf-phone, #lf-address, #lf-intent, #lf-value, #lf-notes, #lf-assignedTo, #lf-nextFollowUp, input[name="lf-status"]');
         inputs.forEach(el => el.disabled = true);
         const saveBtn = document.getElementById('btn-save-full-lead');
@@ -103,11 +143,9 @@ async function loadLeadData(id) {
             document.getElementById('lf-name').value = data.name || '';
             document.getElementById('lf-phone').value = data.phone || '';
             
-            // 🚀 FIX 1: Category Blank Issue (Force lowercase and match)
             if(document.getElementById('lf-category')) {
                 const savedCat = (data.category || 'clinic').toLowerCase().trim();
                 const catSelect = document.getElementById('lf-category');
-                // Check agar saved category options me exist karti hai, warna 'clinic' default kardo
                 const optionExists = Array.from(catSelect.options).some(opt => opt.value === savedCat);
                 catSelect.value = optionExists ? savedCat : 'clinic';
             }
@@ -117,6 +155,7 @@ async function loadLeadData(id) {
             document.getElementById('lf-value').value = data.value || '';
             document.getElementById('lf-notes').value = data.notes || '';
             
+            // Saved variables assignment mapped against freshly generated DOM options array
             if(document.getElementById('lf-assignedTo')) document.getElementById('lf-assignedTo').value = data.assignedTo || '';
             if(document.getElementById('lf-nextFollowUp')) document.getElementById('lf-nextFollowUp').value = data.nextFollowUp || '';
             
@@ -133,11 +172,12 @@ async function handleSaveFullLead(e) {
     if(e) e.preventDefault();
     if (!state.canEdit) return showToast("Permission denied", "error");
 
-    // 🚀 NAYA: Phone number se sirf digits extract karein taaki international format sahi se save ho
     const rawPhone = document.getElementById('lf-phone').value.trim();
     const phoneInput = rawPhone.replace(/\D/g, '');
+    const assignedAgent = document.getElementById('lf-assignedTo')?.value || '';
+    const followUpTime = document.getElementById('lf-nextFollowUp')?.value || '';
+    const leadName = document.getElementById('lf-name').value;
 
-    // 🚀 NAYA: International phone length validation (min 8 digits)
     if (phoneInput && phoneInput.length < 8) {
         return showToast("Enter valid WhatsApp number with Country Code", "error");
     }
@@ -148,7 +188,6 @@ async function handleSaveFullLead(e) {
     btn.disabled = true;
 
     try {
-        // Duplicate check ab clean numbers par hoga
         if (!state.leadId && phoneInput) {
             const duplicateQuery = query(
                 collection(db, "leads"), 
@@ -166,16 +205,21 @@ async function handleSaveFullLead(e) {
 
         const leadData = {
             sellerId: state.workspaceId,
-            name: document.getElementById('lf-name').value,
-            phone: phoneInput, // 🚀 NAYA: Cleaned number hi database me save hoga
+            name: leadName,
+            phone: phoneInput, 
             category: document.getElementById('lf-category')?.value || 'clinic',
             address: document.getElementById('lf-address').value,
             intent: document.getElementById('lf-intent').value,
             value: Number(document.getElementById('lf-value').value) || 0,
             status: document.querySelector('input[name="lf-status"]:checked')?.value || 'new',
             notes: document.getElementById('lf-notes').value,
-            assignedTo: document.getElementById('lf-assignedTo')?.value || '',
-            nextFollowUp: document.getElementById('lf-nextFollowUp')?.value || '',
+            assignedTo: assignedAgent,
+            nextFollowUp: followUpTime,
+            
+            // 🚀 TIME REMINDER ALIGNMENT CAP: Setup targets for our cron scheduler micro-worker
+            reminderSent: false,
+            reminderScheduledAt: followUpTime ? new Date(followUpTime).toISOString() : null,
+            
             updatedAt: serverTimestamp()
         };
 

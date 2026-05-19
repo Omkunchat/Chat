@@ -22,7 +22,8 @@ export const PERMISSIONS = {
         navSupportTickets: true,
         navBooking: true,       // 🚀 Booking Desk Access
         navSettings: true,
-        navTeam: true,          
+        navTeam: true,
+        navQuickReplies: true,  
         navBotSetup: true,      // 🚀 AI Studio Access
 
         settings: {
@@ -44,6 +45,7 @@ export const PERMISSIONS = {
         navSupportTickets: true,
         navBooking: true,       // 🚀 Booking Desk Access
         navSettings: true,
+        navQuickReplies: true,
         navTeam: true,          
         navBotSetup: true,      // 🚀 AI Studio Access
 
@@ -66,6 +68,7 @@ export const PERMISSIONS = {
         navSupportTickets: false, 
         navBooking: false,      // 🚫 No Access
         navSettings: false,
+        navQuickReplies: true,
         navTeam: false,         
         navBotSetup: false,     // 🚫 No Access
 
@@ -85,6 +88,7 @@ export const PERMISSIONS = {
         navOffers: true,        
         navBroadcast: false,
         navAnalytics: false,
+        navQuickReplies: true,
         navSupportTickets: true,
         navBooking: true,       // 🚀 Support needs booking to manage Walk-ins
         navSettings: true,      
@@ -107,6 +111,7 @@ export const PERMISSIONS = {
         navOffers: false,
         navBroadcast: false,
         navAnalytics: false,
+        navQuickReplies: true,
         navSupportTickets: false,
         navBooking: false,      // 🚫 No Access
         navSettings: true,      
@@ -153,7 +158,9 @@ export function canEditFeature(role, featureName) {
         'settings':  ['owner', 'manager'],
         'team':      ['owner', 'manager'],
         'booking':   ['owner', 'manager', 'support'],   // 🚀 Booking Desk Access
-        'bot-setup': ['owner', 'manager']               // 🚀 NAYA: Sirf Owner aur Manager bot setup access kar sakte hain
+        'bot-setup': ['owner', 'manager'] ,   
+        'quick-replies': ['owner', 'manager', 'support'] 
+               
     };
 
     const allowedRoles = featurePermissions[featureName] || ['owner']; 

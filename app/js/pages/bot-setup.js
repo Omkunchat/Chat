@@ -219,13 +219,13 @@ function addDripStep(hours = 24, msg = "") {
 }
 function removeDripStep(id) { document.getElementById(id)?.remove(); }
 
-// 💾 Save All AI Settings
+// 💾 Save All AI Settings (UPDATED WITH GEMINI VECTOR SYNC)
 async function saveBotSetup() {
     const btn = document.getElementById('btn-save-bot');
     const loader = document.getElementById('bot-loader');
-    if(btn) btn.disabled = true; 
-    if(loader) loader.classList.remove('hidden');
-
+    if (btn) btn.disabled = true;
+    if (loader) loader.classList.remove('hidden');
+    
     try {
         const faqs = [];
         document.querySelectorAll('.faq-step').forEach(el => {
@@ -234,17 +234,17 @@ async function saveBotSetup() {
             const a = el.querySelector('.faq-a').value.trim();
             if (k && a) faqs.push({ question: q, keyword: k, answer: a });
         });
-
+        
         const dripSteps = [];
         document.querySelectorAll('.drip-step').forEach(el => {
             const h = el.querySelector('.drip-hours').value;
             const m = el.querySelector('.drip-msg').value.trim();
             if (m) dripSteps.push({ hours: parseInt(h), message: m });
         });
-
+        
         const currencyVal = safeGetVal('ai_currency');
         const timezoneVal = safeGetVal('ai_timezone');
-
+        
         const botData = {
             industry: safeGetVal('ai_industry'),
             currency: currencyVal,
@@ -262,18 +262,19 @@ async function saveBotSetup() {
             awayMsg: safeGetVal('ai_awayMsg'),
             welcomeMsg: safeGetVal('ai_welcomeMsg'),
             welcomeBtns: [safeGetVal('ai_btn1'), safeGetVal('ai_btn2')].filter(Boolean),
-            faqs: faqs, 
+            faqs: faqs,
             dripSteps: dripSteps,
             lastTrainedAt: serverTimestamp()
         };
-
+        
         // 🚀 SAVE META TEMPLATES DATA
         const tplAgentAssign = safeGetVal('tpl_agentAssign');
         const tplAbandonedCart = safeGetVal('tpl_abandonedCart');
         const tplWeeklyReport = safeGetVal('tpl_weeklyReport');
-        const tplReactivation = safeGetVal('tpl_reactivation'); // 🚀 NAYA: Reactivation Save
+        const tplReactivation = safeGetVal('tpl_reactivation');
         const tplLanguage = safeGetVal('tpl_language') || "en_US";
-
+        
+        // 1. Firebase mein save karein (Existing Logic)
         await setDoc(doc(db, "sellers", state.workspaceId), {
             botTraining: botData,
             aiName: botData.name,
@@ -282,17 +283,42 @@ async function saveBotSetup() {
             tplAgentAssign: tplAgentAssign,
             tplAbandonedCart: tplAbandonedCart,
             tplWeeklyReport: tplWeeklyReport,
-            tplReactivation: tplReactivation, // 🚀 NAYA
+            tplReactivation: tplReactivation,
             tplLanguage: tplLanguage
         }, { merge: true });
-
-        showToast("Intelligence Deployed Successfully! 🚀", "success");
+        
+        // =========================================================
+        // 🚀 2. AUTO-SYNC WITH CLOUDFLARE GEMINI VECTOR DB
+        // =========================================================
+        // Yahan 'engine.chatkunhq.workers.dev' ko apne worker URL se verify kar lein
+        const ENGINE_API_URL = "https://engine.chatkunhq.workers.dev/api/admin/add-faq";
+        
+        for (let i = 0; i < faqs.length; i++) {
+            const faq = faqs[i];
+            try {
+                // Vector DB ko bhej rahe hain
+                await fetch(ENGINE_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: `faq-${state.workspaceId}-${i}`, // Unique ID for each FAQ
+                        text: `${faq.question} ${faq.keyword}`, // Gemini dono padh kar matlab samjhega
+                        answer: faq.answer
+                    })
+                });
+            } catch (err) {
+                console.error("Vector DB Sync Failed for FAQ:", err);
+            }
+        }
+        // =========================================================
+        
+        showToast("Intelligence Deployed & Gemini Brain Updated! 🚀", "success");
     } catch (e) {
         showToast("Deployment Failed", "error");
         console.error(e);
     } finally {
-        if(btn) btn.disabled = false; 
-        if(loader) loader.classList.add('hidden');
+        if (btn) btn.disabled = false;
+        if (loader) loader.classList.add('hidden');
     }
 }
 

@@ -67,74 +67,7 @@
     </style>
 </head>
 <body class="bg-white text-slate-800 antialiased overflow-x-hidden">
-
-    <a href="https://wa.me/918447815135?text=Hi%20Omkun Chat,%20I%20want%20to%20see%20a%20demo!" aria-label="Contact Omkun Chat API Support on WhatsApp" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 z-50 flex items-center group wa-float">
-        <div class="mr-3 bg-white px-4 py-2 rounded-xl shadow-lg border border-slate-100 text-sm font-bold text-slate-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:block">
-            Try our Live API Bot! 
-        </div>
-        <div class="w-14 h-14 bg-whatsapp rounded-full flex items-center justify-center text-white text-3xl shadow-xl shadow-green-500/30 hover:scale-110 transition-transform">
-            <i class="fa-brands fa-whatsapp"></i>
-        </div>
-    </a>
-
-    <nav class="fixed w-full z-40 bg-white/90 backdrop-blur-md border-b border-slate-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-14">
-                <a href="/index.html" aria-label="Go to Homepage" class="flex items-center gap-2 cursor-pointer group">
-                    <img src="../images/omkun-chat.png" alt="Omkun Chat Developer API Logo" width="120" height="32" class="h-8 w-auto object-contain group-hover:scale-105 transition">
-                </a>
-                
-                <div class="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-600">
-                    <a href="/index.html#features" class="hover:text-primary transition">Features</a>
-                    <a href="/index.html#use-cases" class="hover:text-primary transition">Solutions</a>
-                    <a href="/index.html#comparison" class="hover:text-primary transition">Compare</a>
-                    <a href="/index.html#pricing" class="hover:text-primary transition">Pricing</a>
-                </div>
-
-                <div class="flex items-center gap-3">
-                    <a href="/app/login.html" class="hidden md:inline-block bg-primary hover:bg-blue-800 text-white px-5 py-1.5 rounded-lg text-sm font-bold transition shadow-sm">
-                        Start Free Trial
-                    </a>
-                    <button onclick="toggleMenu()" aria-label="Open Navigation Menu" class="text-slate-700 hover:text-primary text-xl focus:outline-none p-1 md:hidden">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <div id="menu-overlay" onclick="toggleMenu()" class="fixed inset-0 bg-slate-900/60 z-40 hidden backdrop-blur-sm transition-opacity"></div>
-    
-    <div id="mobile-menu" class="fixed top-0 left-0 w-[80%] max-w-sm h-full bg-white z-50 shadow-2xl flex flex-col">
-        <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-            <div class="flex items-center gap-2">
-                <img src="../images/omkun-chat.png" alt="Omkun Chat Logo Mobile" width="100" height="24" class="h-6 w-auto">
-            </div>
-            <button onclick="toggleMenu()" aria-label="Close Navigation Menu" class="w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-500 flex items-center justify-center">
-                <i class="fas fa-times text-sm"></i>
-            </button>
-        </div>
-
-        <div class="flex-grow overflow-y-auto p-4 text-sm font-semibold text-slate-700 space-y-1">
-            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-2 mb-2 px-2">Core Product</div>
-            <a href="../features/inbox.html" class="block py-2 px-3 rounded-lg hover:bg-blue-50 hover:text-primary transition"><i class="fa-solid fa-inbox w-5 text-slate-400"></i> Smart Inbox</a>
-            <a href="../features/broadcast.html" class="block py-2 px-3 rounded-lg hover:bg-blue-50 hover:text-primary transition"><i class="fa-solid fa-bullhorn w-5 text-slate-400"></i> Broadcasts</a>
-            <a href="../features/flow-builder.html" class="block py-2 px-3 rounded-lg hover:bg-blue-50 hover:text-primary transition"><i class="fa-solid fa-diagram-project w-5 text-slate-400"></i> Flow Builder</a>
-            <a href="../features/crm.html" class="block py-2 px-3 rounded-lg hover:bg-blue-50 hover:text-primary transition"><i class="fa-solid fa-columns w-5 text-slate-400"></i> Kanban CRM</a>
-            <a href="../features/orders.html" class="block py-2 px-3 rounded-lg hover:bg-blue-50 hover:text-primary transition"><i class="fa-solid fa-box-open w-5 text-slate-400"></i> Orders & Tickets</a>
-            
-            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-6 mb-2 px-2">Platform</div>
-            <a href="../platform/integrations.html" class="block py-2 px-3 rounded-lg bg-blue-50 text-primary transition"><i class="fa-solid fa-plug w-5"></i> Integrations</a>
-            <a href="../platform/api.html" class="block py-2 px-3 rounded-lg hover:bg-slate-50 transition"><i class="fa-solid fa-code w-5 text-slate-400"></i> Developer API</a>
-            <a href="/index.html#pricing" onclick="toggleMenu()" class="block py-2 px-3 rounded-lg hover:bg-slate-50 transition"><i class="fa-solid fa-tag w-5 text-slate-400"></i> Pricing</a>
-        </div>
-
-        <div class="p-4 border-t border-slate-100 bg-white">
-            <a href="/app/login.html" class="block w-full text-center bg-primary text-white py-2.5 rounded-lg font-bold hover:bg-blue-800 transition shadow-sm text-sm">
-                Login / Start Free
-            </a>
-        </div>
-    </div>
+<div id="header-placeholder"></div>
 
     <main class="flex-grow pt-28 pb-16 px-4">
         <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
@@ -186,88 +119,10 @@
             </div>
         </div>
     </main>
-
     
-    <footer class="bg-white border-t border-slate-200 pt-16 pb-8 mt-auto">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12 text-sm">
-                
-                <div class="col-span-2 md:col-span-2 pr-4">
-                    <a href="../index.html" class="flex items-center gap-2 mb-4">
-                        <img src="../images/omkun-chat.png" alt="Omkun Chat" class="h-8 w-auto">
-                        
-                    </a>
-                    <p class="text-slate-500 mb-6 leading-relaxed">The native AI business operating system for WhatsApp. Built for modern teams who want to automate sales and support without restrictive seat limits.</p>
-                    <div class="flex gap-4">
-                        <div class="flex items-center gap-1.5 text-slate-600 font-bold bg-slate-50 px-2 py-1 rounded border border-slate-200 shadow-sm"><i class="fa-brands fa-meta text-blue-600"></i> Meta Partner</div>
-                        <div class="flex items-center gap-1.5 text-slate-600 font-bold bg-slate-50 px-2 py-1 rounded border border-slate-200 shadow-sm"><i class="fa-brands fa-google text-red-500"></i> Cloud</div>
-                    </div>
-                </div>
+      <div id="footer-placeholder" class="w-full mt-auto flex-shrink-0"></div>
+  <div id="whatsapp-placeholder"></div>
+<script type="module" src="/js/components.js"></script>
 
-                <div>
-                    <h4 class="font-bold text-slate-900 mb-4 uppercase tracking-wider text-xs">Features</h4>
-                    <ul class="space-y-2 text-slate-500 font-medium">
-                        <li><a href="../features/inbox.html" class="hover:text-primary transition">Smart AI Inbox</a></li>
-                        <li><a href="../features/crm.html" class="hover:text-primary transition">Kanban CRM</a></li>
-                        <li><a href="../features/broadcast.html" class="hover:text-primary transition">Bulk Broadcasts</a></li>
-                        <li><a href="../features/flow-builder.html" class="hover:text-primary transition">Flow Builder</a></li>
-                        <li><a href="../features/orders.html" class="hover:text-primary transition">Order System</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="font-bold text-slate-900 mb-4 uppercase tracking-wider text-xs">Platform</h4>
-                    <ul class="space-y-2 text-slate-500 font-medium">
-                        <li><a href="../pricing.html" class="hover:text-primary transition">Pricing</a></li>
-                        <li><a href="integrations.html" class="hover:text-primary transition">Integrations</a></li>
-                        <li><a href="api.html" class="hover:text-primary transition">Developer API</a></li>
-                        <li><a href="whatsapp-guidelines.html" class="hover:text-primary transition">WhatsApp Rules</a></li>
-                        <li><a href="status.html" class="hover:text-primary transition">System Status</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="font-bold text-slate-900 mb-4 uppercase tracking-wider text-xs">Company</h4>
-                    <ul class="space-y-2 text-slate-500 font-medium">
-                        <li><a href="../company/about.html" class="hover:text-primary transition">About Us</a></li>
-                        <li><a href="../company/blog.html" class="hover:text-primary transition">Blog & Resources</a></li>
-                        <li><a href="../company/contact.html" class="hover:text-primary transition">Contact Support</a></li>
-                        <li><a href="../legal/privacy.html" class="hover:text-primary transition">Privacy Policy</a></li>
-                        <li><a href="../legal/terms.html" class="hover:text-primary transition">Terms of Service</a></li>
-                    </ul>
-                </div>
-
-            </div>
-
-            <div class="border-t border-slate-200 pt-6 flex flex-col items-center justify-center text-xs text-slate-500 font-medium">    
-                <div class="mb-2">
-                    <a href="/index.html" class="inline-block hover:opacity-80 transition" target="_blank">
-                        <span class="text-slate-400">Powered by</span>
-                        <img src="../logo/Omkun omkun-chat.png" alt="Omkun Chat" class="h-5 w-auto inline-block ml-1" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-                        <span class="font-bold text-slate-700 hidden">Omkun Chat Inc.</span>
-                    </a>
-                </div>
-                <p>&copy; 2026 Omkun Chat Inc. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        function toggleMenu() {
-            const menu = document.getElementById('mobile-menu');
-            const overlay = document.getElementById('menu-overlay');
-            const isClosed = overlay.classList.contains('hidden');
-
-            if (isClosed) {
-                menu.style.transform = "translateX(0%)";
-                overlay.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            } else {
-                menu.style.transform = "translateX(-100%)";
-                overlay.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-            }
-        }
-    </script>
 </body>
 </html>

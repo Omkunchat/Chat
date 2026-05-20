@@ -151,10 +151,10 @@ async function loadBotSetup() {
             if (faqCont) {
                 faqCont.innerHTML = ""; 
                 if (bot.faqs && bot.faqs.length > 0) {
-                    bot.faqs.forEach(faq => addFaq(faq.question || "", faq.keyword || "", faq.answer || ""));
-                } else {
-                    addFaq("Pricing Inquiry", "price, cost, rate, charges", "Our pricing starts at $99. Check our catalog.");
-                }
+    bot.faqs.forEach(faq => addFaq(faq.question || "", faq.keyword || "", faq.answer || "", faq.btn1 || "", faq.btn2 || ""));
+} else {
+    addFaq("Pricing Inquiry", "price, cost, rate", "Our pricing starts at $99.", "View Plans", "Talk to Human");
+}
             }
 
             // ── 8. Drip Sequences ──
@@ -174,10 +174,10 @@ async function loadBotSetup() {
     }
 }
 
-// ❓ Smart FAQ Builder
-function addFaq(q = "", k = "", a = "") {
+// ❓ Smart FAQ Builder (Updated with Buttons)
+function addFaq(q = "", k = "", a = "", btn1 = "", btn2 = "") {
     const cont = document.getElementById('faq-container');
-    if(!cont) return;
+    if (!cont) return;
     const id = `faq_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
     
     const html = `
@@ -191,6 +191,11 @@ function addFaq(q = "", k = "", a = "") {
                 <input type="text" class="faq-k w-full bg-transparent text-[10px] font-bold text-indigo-900 outline-none placeholder-indigo-300" placeholder="Keywords (comma separated) e.g. price, cost, rate" value="${k}">
             </div>
             <textarea class="faq-a w-full bg-white border border-slate-200 rounded-lg text-[10px] font-medium p-2 text-slate-600 outline-none resize-none focus:border-indigo-400 transition" rows="2" placeholder="Exact AI Answer...">${a}</textarea>
+            
+            <div class="flex gap-2">
+                <input type="text" class="faq-btn1 w-1/2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold p-1.5 text-indigo-600 outline-none focus:border-indigo-400 transition" placeholder="Button 1 (Optional)" value="${btn1}">
+                <input type="text" class="faq-btn2 w-1/2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold p-1.5 text-indigo-600 outline-none focus:border-indigo-400 transition" placeholder="Button 2 (Optional)" value="${btn2}">
+            </div>
         </div>
     `;
     cont.insertAdjacentHTML('beforeend', html);
@@ -228,12 +233,14 @@ async function saveBotSetup() {
     
     try {
         const faqs = [];
-        document.querySelectorAll('.faq-step').forEach(el => {
-            const q = el.querySelector('.faq-q').value.trim();
-            const k = el.querySelector('.faq-k').value.trim();
-            const a = el.querySelector('.faq-a').value.trim();
-            if (k && a) faqs.push({ question: q, keyword: k, answer: a });
-        });
+document.querySelectorAll('.faq-step').forEach(el => {
+    const q = el.querySelector('.faq-q').value.trim();
+    const k = el.querySelector('.faq-k').value.trim();
+    const a = el.querySelector('.faq-a').value.trim();
+    const b1 = el.querySelector('.faq-btn1').value.trim();
+    const b2 = el.querySelector('.faq-btn2').value.trim();
+    if (k && a) faqs.push({ question: q, keyword: k, answer: a, btn1: b1, btn2: b2 });
+});
         
         const dripSteps = [];
         document.querySelectorAll('.drip-step').forEach(el => {
@@ -301,10 +308,11 @@ async function saveBotSetup() {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        id: `faq-${state.workspaceId}-${i}`, // Unique ID for each FAQ
-                        text: `${faq.question} ${faq.keyword}`, // Gemini dono padh kar matlab samjhega
-                        answer: faq.answer
-                    })
+    id: `faq-${state.workspaceId}-${i}`,
+    text: `${faq.question} ${faq.keyword}`,
+    answer: faq.answer,
+    buttons: [faq.btn1, faq.btn2].filter(Boolean) // Sirf wo button bhejega jisme text likha ho
+})
                 });
             } catch (err) {
                 console.error("Vector DB Sync Failed for FAQ:", err);

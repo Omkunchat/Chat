@@ -223,7 +223,7 @@ function addDripStep(hours = 24, msg = "") {
 }
 function removeDripStep(id) { document.getElementById(id)?.remove(); }
 
-// 💾 Save All AI Settings (UPDATED WITH GEMINI VECTOR SYNC)
+// 💾 Save All AI Settings (UPDATED WITH GEMINI VECTOR SYNC & BUTTONS)
 async function saveBotSetup() {
     const btn = document.getElementById('btn-save-bot');
     const loader = document.getElementById('bot-loader');
@@ -232,15 +232,18 @@ async function saveBotSetup() {
     
     try {
         const faqs = [];
-document.querySelectorAll('.faq-step').forEach(el => {
-    const q = el.querySelector('.faq-q').value.trim();
-    const k = el.querySelector('.faq-k').value.trim();
-    const a = el.querySelector('.faq-a').value.trim();
-    const b1 = el.querySelector('.faq-btn1').value.trim();
-    const b2 = el.querySelector('.faq-btn2').value.trim();
-    const link = el.querySelector('.faq-link').value.trim(); // Link ki value li
-    if (k && a) faqs.push({ question: q, keyword: k, answer: a, btn1: b1, btn2: b2, btnLink: link });
-});
+        document.querySelectorAll('.faq-step').forEach(el => {
+            const q = el.querySelector('.faq-q').value.trim();
+            const k = el.querySelector('.faq-k').value.trim();
+            const a = el.querySelector('.faq-a').value.trim();
+            
+            // 🚀 NAYA: Buttons aur Link ko HTML se nikalna
+            const b1 = el.querySelector('.faq-btn1') ? el.querySelector('.faq-btn1').value.trim() : "";
+            const b2 = el.querySelector('.faq-btn2') ? el.querySelector('.faq-btn2').value.trim() : "";
+            const link = el.querySelector('.faq-link') ? el.querySelector('.faq-link').value.trim() : "";
+            
+            if (k && a) faqs.push({ question: q, keyword: k, answer: a, btn1: b1, btn2: b2, btnLink: link });
+        });
         
         const dripSteps = [];
         document.querySelectorAll('.drip-step').forEach(el => {
@@ -274,14 +277,13 @@ document.querySelectorAll('.faq-step').forEach(el => {
             lastTrainedAt: serverTimestamp()
         };
         
-        // 🚀 SAVE META TEMPLATES DATA
         const tplAgentAssign = safeGetVal('tpl_agentAssign');
         const tplAbandonedCart = safeGetVal('tpl_abandonedCart');
         const tplWeeklyReport = safeGetVal('tpl_weeklyReport');
         const tplReactivation = safeGetVal('tpl_reactivation');
         const tplLanguage = safeGetVal('tpl_language') || "en_US";
         
-        // 1. Firebase mein save karein (Existing Logic)
+        // 1. Firebase mein save karein
         await setDoc(doc(db, "sellers", state.workspaceId), {
             botTraining: botData,
             aiName: botData.name,
@@ -295,25 +297,24 @@ document.querySelectorAll('.faq-step').forEach(el => {
         }, { merge: true });
         
         // =========================================================
-        // 🚀 2. AUTO-SYNC WITH CLOUDFLARE GEMINI VECTOR DB
+        // 🚀 2. AUTO-SYNC WITH CLOUDFLARE GEMINI VECTOR DB (WITH BUTTONS)
         // =========================================================
-        // Yahan 'engine.chatkunhq.workers.dev' ko apne worker URL se verify kar lein
         const ENGINE_API_URL = "https://engine.chatkunhq.workers.dev/api/admin/add-faq";
         
         for (let i = 0; i < faqs.length; i++) {
             const faq = faqs[i];
             try {
-                // Vector DB ko bhej rahe hain
+                // Yahan Cloudflare ko Button aur Link bheja ja raha hai
                 await fetch(ENGINE_API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-    id: `faq-${state.workspaceId}-${i}`,
-    text: `${faq.question} ${faq.keyword}`,
-    answer: faq.answer,
-    buttons: [faq.btn1, faq.btn2].filter(Boolean),
-    btnLink: faq.btnLink // 👈 Cloudflare ko link bhej diya
-})
+                        id: `faq-${state.workspaceId}-${i}`,
+                        text: `${faq.question} ${faq.keyword}`,
+                        answer: faq.answer,
+                        buttons: [faq.btn1, faq.btn2].filter(Boolean), // Sirf bhare hue button jayenge
+                        btnLink: faq.btnLink || "" // Link jayegi
+                    })
                 });
             } catch (err) {
                 console.error("Vector DB Sync Failed for FAQ:", err);

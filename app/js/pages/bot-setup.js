@@ -151,9 +151,7 @@ async function loadBotSetup() {
             if (faqCont) {
                 faqCont.innerHTML = ""; 
                 if (bot.faqs && bot.faqs.length > 0) {
-    bot.faqs.forEach(faq => addFaq(faq.question || "", faq.keyword || "", faq.answer || "", faq.btn1 || "", faq.btn2 || ""));
-} else {
-    addFaq("Pricing Inquiry", "price, cost, rate", "Our pricing starts at $99.", "View Plans", "Talk to Human");
+    bot.faqs.forEach(faq => addFaq(faq.question || "", faq.keyword || "", faq.answer || "", faq.btn1 || "", faq.btn2 || "", faq.btnLink || ""));
 }
             }
 
@@ -174,8 +172,8 @@ async function loadBotSetup() {
     }
 }
 
-// ❓ Smart FAQ Builder (Updated with Buttons)
-function addFaq(q = "", k = "", a = "", btn1 = "", btn2 = "") {
+// ❓ Smart FAQ Builder (Updated with Link Option)
+function addFaq(q = "", k = "", a = "", btn1 = "", btn2 = "", btnLink = "") {
     const cont = document.getElementById('faq-container');
     if (!cont) return;
     const id = `faq_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
@@ -188,13 +186,14 @@ function addFaq(q = "", k = "", a = "", btn1 = "", btn2 = "") {
             </div>
             <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg p-1.5 focus-within:border-indigo-400 transition">
                 <i class="fa-solid fa-key text-[10px] text-indigo-400 pl-1"></i>
-                <input type="text" class="faq-k w-full bg-transparent text-[10px] font-bold text-indigo-900 outline-none placeholder-indigo-300" placeholder="Keywords (comma separated) e.g. price, cost, rate" value="${k}">
+                <input type="text" class="faq-k w-full bg-transparent text-[10px] font-bold text-indigo-900 outline-none placeholder-indigo-300" placeholder="Keywords (comma separated)" value="${k}">
             </div>
             <textarea class="faq-a w-full bg-white border border-slate-200 rounded-lg text-[10px] font-medium p-2 text-slate-600 outline-none resize-none focus:border-indigo-400 transition" rows="2" placeholder="Exact AI Answer...">${a}</textarea>
             
             <div class="flex gap-2">
-                <input type="text" class="faq-btn1 w-1/2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold p-1.5 text-indigo-600 outline-none focus:border-indigo-400 transition" placeholder="Button 1 (Optional)" value="${btn1}">
-                <input type="text" class="faq-btn2 w-1/2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold p-1.5 text-indigo-600 outline-none focus:border-indigo-400 transition" placeholder="Button 2 (Optional)" value="${btn2}">
+                <input type="text" class="faq-btn1 w-1/3 bg-white border border-slate-200 rounded-lg text-[10px] font-bold p-1.5 text-indigo-600 outline-none focus:border-indigo-400" placeholder="Button 1 Name" value="${btn1}">
+                <input type="text" class="faq-btn2 w-1/3 bg-white border border-slate-200 rounded-lg text-[10px] font-bold p-1.5 text-indigo-600 outline-none focus:border-indigo-400" placeholder="Button 2 Name" value="${btn2}">
+                <input type="url" class="faq-link w-1/3 bg-white border border-slate-200 rounded-lg text-[10px] font-bold p-1.5 text-emerald-600 outline-none focus:border-emerald-400" placeholder="URL Link (Optional)" value="${btnLink}">
             </div>
         </div>
     `;
@@ -239,7 +238,8 @@ document.querySelectorAll('.faq-step').forEach(el => {
     const a = el.querySelector('.faq-a').value.trim();
     const b1 = el.querySelector('.faq-btn1').value.trim();
     const b2 = el.querySelector('.faq-btn2').value.trim();
-    if (k && a) faqs.push({ question: q, keyword: k, answer: a, btn1: b1, btn2: b2 });
+    const link = el.querySelector('.faq-link').value.trim(); // Link ki value li
+    if (k && a) faqs.push({ question: q, keyword: k, answer: a, btn1: b1, btn2: b2, btnLink: link });
 });
         
         const dripSteps = [];
@@ -311,7 +311,8 @@ document.querySelectorAll('.faq-step').forEach(el => {
     id: `faq-${state.workspaceId}-${i}`,
     text: `${faq.question} ${faq.keyword}`,
     answer: faq.answer,
-    buttons: [faq.btn1, faq.btn2].filter(Boolean) // Sirf wo button bhejega jisme text likha ho
+    buttons: [faq.btn1, faq.btn2].filter(Boolean),
+    btnLink: faq.btnLink // 👈 Cloudflare ko link bhej diya
 })
                 });
             } catch (err) {

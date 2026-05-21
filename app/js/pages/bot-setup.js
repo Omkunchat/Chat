@@ -223,7 +223,7 @@ function addDripStep(hours = 24, msg = "") {
 }
 function removeDripStep(id) { document.getElementById(id)?.remove(); }
 
-// 💾 Save All AI Settings (UPDATED WITH GEMINI VECTOR SYNC & BUTTONS)
+// 💾 Save All AI Settings (UPDATED WITH FAST PARALLEL SYNC)
 async function saveBotSetup() {
     const btn = document.getElementById('btn-save-bot');
     const loader = document.getElementById('bot-loader');
@@ -237,7 +237,6 @@ async function saveBotSetup() {
             const k = el.querySelector('.faq-k').value.trim();
             const a = el.querySelector('.faq-a').value.trim();
             
-            // 🚀 NAYA: Buttons aur Link ko HTML se nikalna
             const b1 = el.querySelector('.faq-btn1') ? el.querySelector('.faq-btn1').value.trim() : "";
             const b2 = el.querySelector('.faq-btn2') ? el.querySelector('.faq-btn2').value.trim() : "";
             const link = el.querySelector('.faq-link') ? el.querySelector('.faq-link').value.trim() : "";
@@ -297,29 +296,29 @@ async function saveBotSetup() {
         }, { merge: true });
         
         // =========================================================
-        // 🚀 2. AUTO-SYNC WITH CLOUDFLARE GEMINI VECTOR DB (WITH BUTTONS)
+        // 🚀 2. PARALLEL AUTO-SYNC WITH CLOUDFLARE GEMINI VECTOR DB
         // =========================================================
         const ENGINE_API_URL = "https://engine.chatkunhq.workers.dev/api/admin/add-faq";
         
-        for (let i = 0; i < faqs.length; i++) {
-            const faq = faqs[i];
-            try {
-                // Yahan Cloudflare ko Button aur Link bheja ja raha hai
-                await fetch(ENGINE_API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        id: `faq-${state.workspaceId}-${i}`,
-                        text: `${faq.question} ${faq.keyword}`,
-                        answer: faq.answer,
-                        buttons: [faq.btn1, faq.btn2].filter(Boolean), // Sirf bhare hue button jayenge
-                        btnLink: faq.btnLink || "" // Link jayegi
-                    })
-                });
-            } catch (err) {
-                console.error("Vector DB Sync Failed for FAQ:", err);
-            }
-        }
+        // 'map' ka use karke hum saari requests ka ek Array bana lenge
+        const syncPromises = faqs.map((faq, i) => {
+            return fetch(ENGINE_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: `faq-${state.workspaceId}-${i}`,
+                    text: `${faq.question} ${faq.keyword}`,
+                    answer: faq.answer,
+                    buttons: [faq.btn1, faq.btn2].filter(Boolean),
+                    btnLink: faq.btnLink || ""
+                })
+            }).catch(err => {
+                console.error(`FAQ ${i} Sync Failed:`, err);
+            });
+        });
+        
+        // Promise.allSettled ek sath saari requests fire kar dega
+        await Promise.allSettled(syncPromises);
         // =========================================================
         
         showToast("Intelligence Deployed & Gemini Brain Updated! 🚀", "success");

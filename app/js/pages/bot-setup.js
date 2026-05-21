@@ -109,7 +109,10 @@ async function loadBotSetup() {
             const data = docSnap.data();
             const bot = data.botTraining || {};
             state.botData = bot;
-
+            
+            // 🚀 NAYA LOGIC: Purane FAQs ki ginti yaad rakhne ke liye
+            state.oldFaqCount = bot.faqs ? bot.faqs.length : 0;
+            
             // ── 1. Global Settings ──
             safeSetVal('ai_industry', bot.industry || "");
             safeSetVal('ai_currency', data.currency || bot.currency || "INR");
@@ -124,41 +127,41 @@ async function loadBotSetup() {
             // ── 3. CRM Intelligence ──
             safeSetCheck('ai_enableTagging', bot.enableTagging !== false);
             safeSetCheck('ai_enableSentiment', bot.enableSentiment !== false);
-
+            
             // ── 4. Smart Business Hours ──
             safeSetCheck('ai_enableAwayMode', bot.enableAwayMode || false);
             safeSetVal('ai_workDays', bot.workDays || "mon_sat");
             safeSetVal('ai_openTime', bot.openTime || "10:00");
             safeSetVal('ai_closeTime', bot.closeTime || "20:00");
             safeSetVal('ai_awayMsg', bot.awayMsg || "");
-
+            
             // ── 5. Welcome Experience ──
             safeSetVal('ai_welcomeMsg', bot.welcomeMsg || "");
             if (bot.welcomeBtns && bot.welcomeBtns.length > 0) {
                 safeSetVal('ai_btn1', bot.welcomeBtns[0] || "");
                 safeSetVal('ai_btn2', bot.welcomeBtns[1] || "");
             }
-
+            
             // ── 6. LOAD META TEMPLATES ──
             safeSetVal('tpl_agentAssign', data.tplAgentAssign || "");
             safeSetVal('tpl_abandonedCart', data.tplAbandonedCart || "");
             safeSetVal('tpl_weeklyReport', data.tplWeeklyReport || "");
-            safeSetVal('tpl_reactivation', data.tplReactivation || ""); // 🚀 NAYA: Smart Reactivation Load
+            safeSetVal('tpl_reactivation', data.tplReactivation || "");
             safeSetVal('tpl_language', data.tplLanguage || "en_US");
-
+            
             // ── 7. Smart FAQs ──
             const faqCont = document.getElementById('faq-container');
             if (faqCont) {
-                faqCont.innerHTML = ""; 
+                faqCont.innerHTML = "";
                 if (bot.faqs && bot.faqs.length > 0) {
-    bot.faqs.forEach(faq => addFaq(faq.question || "", faq.keyword || "", faq.answer || "", faq.btn1 || "", faq.btn2 || "", faq.btnLink || ""));
-}
+                    bot.faqs.forEach(faq => addFaq(faq.question || "", faq.keyword || "", faq.answer || "", faq.btn1 || "", faq.btn2 || "", faq.btnLink || ""));
+                }
             }
-
+            
             // ── 8. Drip Sequences ──
             const dripCont = document.getElementById('drip-container');
             if (dripCont) {
-                dripCont.innerHTML = ""; 
+                dripCont.innerHTML = "";
                 if (bot.dripSteps && bot.dripSteps.length > 0) {
                     bot.dripSteps.forEach(step => addDripStep(step.hours, step.message));
                 } else {
@@ -223,7 +226,7 @@ function addDripStep(hours = 24, msg = "") {
 }
 function removeDripStep(id) { document.getElementById(id)?.remove(); }
 
-// 💾 Save All AI Settings (UPDATED WITH FAST PARALLEL SYNC)
+// 💾 Save All AI Settings (FULL FLUSH & RE-SYNC)
 async function saveBotSetup() {
     const btn = document.getElementById('btn-save-bot');
     const loader = document.getElementById('bot-loader');
@@ -296,28 +299,34 @@ async function saveBotSetup() {
         }, { merge: true });
         
         // =========================================================
-        // 🚀 2. PARALLEL AUTO-SYNC WITH CLOUDFLARE GEMINI VECTOR DB
+        // 🚀 2. FULL FLUSH & RE-SYNC WITH CLOUDFLARE VECTOR DB
         // =========================================================
         const ENGINE_API_URL = "https://engine.chatkunhq.workers.dev/api/admin/add-faq";
+        const FLUSH_API_URL = "https://engine.chatkunhq.workers.dev/api/admin/flush-faqs";
         
-        // 'map' ka use karke hum saari requests ka ek Array bana lenge
+        // A. Flush (Saara purana data udaa do)
+        await fetch(FLUSH_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sellerUid: state.workspaceId })
+        });
+        
+        // B. Re-Sync (Saara naya data ek sath daal do)
         const syncPromises = faqs.map((faq, i) => {
             return fetch(ENGINE_API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    sellerUid: state.workspaceId, // Metadata ke liye
                     id: `faq-${state.workspaceId}-${i}`,
                     text: `${faq.question} ${faq.keyword}`,
                     answer: faq.answer,
                     buttons: [faq.btn1, faq.btn2].filter(Boolean),
                     btnLink: faq.btnLink || ""
                 })
-            }).catch(err => {
-                console.error(`FAQ ${i} Sync Failed:`, err);
-            });
+            }).catch(err => console.error(`FAQ ${i} Sync Failed:`, err));
         });
         
-        // Promise.allSettled ek sath saari requests fire kar dega
         await Promise.allSettled(syncPromises);
         // =========================================================
         
@@ -330,7 +339,6 @@ async function saveBotSetup() {
         if (loader) loader.classList.add('hidden');
     }
 }
-
 // 📄 Real PDF Parser Trigger
 async function handleKnowledgeUpload(event) {
     const file = event.target.files[0];

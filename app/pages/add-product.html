@@ -20,11 +20,11 @@
                     <i class="fa-solid fa-cloud-arrow-up text-4xl mb-3"></i>
                     <span class="text-[9px] font-black uppercase tracking-widest text-center px-4" id="upload-text">Upload Media</span>
                 </div>
-                <input type="file" id="aws-image-upload" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" onchange="window.handleAWSUpload(event)">
+                <input type="file" id="imageInput" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" onchange="window.handleImageUpload(event)">
             </div>
             <input type="hidden" id="productImage">
             <p class="text-[9px] text-slate-400 font-bold mt-4 text-center uppercase tracking-widest flex items-center justify-center gap-1.5">
-                <i class="fa-brands fa-aws text-sm"></i> Secure S3 Storage
+                <i class="fa-solid fa-cloud text-sm"></i> Secure Cloud Storage
             </p>
         </div>
 

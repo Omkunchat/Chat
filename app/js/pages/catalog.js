@@ -249,17 +249,56 @@ window.handleProductSearch = () => {
 };
 
 window.deleteProduct = async (id) => {
-    // 🟢 SECURITY: Console हैकिंग से बचने के लिए डबल चेक
+    // 🟢 SECURITY: Console hacking se bachne ke liye double check
     if (!state.canEdit) {
         showToast("You don't have permission to delete", "error");
         return;
     }
 
-    if(!confirm("Delete this? Your AI will instantly stop offering it.")) return;
+    if(!confirm("Delete this? Your AI will instantly stop offering it and it will be removed from WhatsApp.")) return;
+    
     try {
+        // 1. Product details fetch karo taaki uska SKU (retailer_id) mil sake
+        const productToDel = state.products.find(p => p.id === id);
+        
+        // 2. Firebase se delete karo
         await deleteDoc(doc(db, "products", id));
-        showToast("Item Deleted", "success");
+        
+        // 3. 🚀 ENTERPRISE META CATALOG DELETE SYNC
+        if (productToDel && productToDel.sku) {
+            // Hum sellerConfig fetch karenge Meta Credentials ke liye
+            const sellerDoc = await getDoc(doc(db, "sellers", state.workspaceId));
+            if (sellerDoc.exists()) {
+                const config = sellerDoc.data();
+                const metaCatalogId = config.metaCatalogId;
+                const metaToken = config.metaToken;
+
+                if (metaCatalogId && metaToken) {
+                    const metaPayload = {
+                        requests: [
+                            {
+                                method: "DELETE",
+                                retailer_id: productToDel.sku
+                            }
+                        ]
+                    };
+
+                    await fetch(`https://graph.facebook.com/v18.0/${metaCatalogId}/batch`, {
+                        method: 'POST',
+                        headers: { 
+                            'Authorization': `Bearer ${metaToken}`, 
+                            'Content-Type': 'application/json' 
+                        },
+                        body: JSON.stringify(metaPayload)
+                    });
+                    console.log(`Product ${productToDel.sku} removed from Meta Catalog.`);
+                }
+            }
+        }
+
+        showToast("Item Deleted Successfully", "success");
     } catch(e) { 
+        console.error("Delete Error:", e);
         showToast("Error deleting", "error"); 
     }
 };

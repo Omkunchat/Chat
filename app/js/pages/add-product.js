@@ -122,60 +122,78 @@ async function loadProductData(id) {
 }
 
 // ========================================== 
-// 2. REAL AWS S3 UPLOAD ENGINE (WITH COMPRESSION)
+// 2. CLOUDFLARE R2 UPLOAD ENGINE (WITH COMPRESSION & DEEP LOGGING)
 // ========================================== 
-window.handleAWSUpload = async (e) => {     
-    const originalFile = e.target.files[0];     
-    if(!originalFile) return;     
-    const imgEl = document.getElementById('imagePreview');     
-    const uploadText = document.getElementById('upload-text');          
+window.handleImageUpload = async (e) => {
+    const originalFile = e.target.files[0];
+    if (!originalFile) return;
+    const imgEl = document.getElementById('imagePreview');
+    const uploadText = document.getElementById('upload-text');
     
-    if(imgEl) {         
-        imgEl.src = URL.createObjectURL(originalFile);         
-        imgEl.classList.remove('hidden');         
-        imgEl.style.opacity = '0.5';     
-    }     
-    if(uploadText) uploadText.innerText = "Compressing...";     
-    showToast("Compressing image size...", "info");     
+    if (imgEl) {
+        imgEl.src = URL.createObjectURL(originalFile);
+        imgEl.classList.remove('hidden');
+        imgEl.style.opacity = '0.5';
+    }
+    if (uploadText) uploadText.innerText = "Compressing...";
+    showToast("Compressing image size...", "info");
     
-    try {         
+    try {
         const compressedBlob = await compressImage(originalFile, 800, 800, 0.7);
-        const fileName = originalFile.name.replace(/\.[^/.]+$/, "") + ".jpg"; 
+        const fileName = originalFile.name.replace(/\.[^/.]+$/, "") + ".jpg";
         const fileType = 'image/jpeg';
-
-        if(uploadText) uploadText.innerText = "Uploading..."; 
+        
+        if (uploadText) uploadText.innerText = "Uploading...";
         showToast("Uploading to secure storage...", "info");
-
-        const fetchUrl = `${MEDIA_API}/get-presigned-url?filename=${encodeURIComponent(fileName)}&type=${encodeURIComponent(fileType)}&bucket=product`;                 
-        const presignedRes = await fetch(fetchUrl);                 
         
-        if (!presignedRes.ok) throw new Error(`Worker API Error`);         
+        // 1. Cloudflare Worker Call
+        const fetchUrl = `${MEDIA_API}/get-presigned-url?filename=${encodeURIComponent(fileName)}&type=${encodeURIComponent(fileType)}&bucket=product`;
+        const presignedRes = await fetch(fetchUrl);
         
-        const { uploadUrl, publicUrl } = await presignedRes.json();         
+        if (!presignedRes.ok) {
+            const apiErr = await presignedRes.text();
+            throw new Error(`Worker API Fail (${presignedRes.status}): ${apiErr}`);
+        }
         
-        const awsUpload = await fetch(uploadUrl, {             
-            method: 'PUT',             
-            body: compressedBlob,             
-            headers: { 'Content-Type': fileType }         
-        });         
+        const { uploadUrl, publicUrl } = await presignedRes.json();
         
-        if (!awsUpload.ok) throw new Error(`AWS S3 Rejected`);         
+        // 2. R2 PUT Request
+        const storageUpload = await fetch(uploadUrl, {
+            method: 'PUT',
+            body: compressedBlob,
+            
+        });
         
-        const imgInput = document.getElementById('productImage');         
-        if(imgInput) imgInput.value = publicUrl;                   
+        if (!storageUpload.ok) {
+            const r2Err = await storageUpload.text();
+            throw new Error(`Cloudflare R2 Rejected (${storageUpload.status}): ${r2Err}`);
+        }
         
-        showToast("Image Compressed & Uploaded! ✅", "success");         
-        if(uploadText) uploadText.innerText = "Change Media";            
-    } catch(err) {         
-        console.error("🚨 [PRODUCT UPLOAD ERROR]", err);         
-        showToast("Upload Failed (Check Console)", "error");         
-        if(imgEl) imgEl.classList.add('hidden');         
-        if(uploadText) uploadText.innerText = "Upload Media";     
-    } finally {         
-        if(imgEl) imgEl.style.opacity = '1';     
-    } 
+        // 3. Success Handle
+        const imgInput = document.getElementById('productImage');
+        if (imgInput) imgInput.value = publicUrl;
+        
+        showToast("Image Compressed & Uploaded! ✅", "success");
+        if (uploadText) uploadText.innerText = "Change Media";
+        
+    } catch (err) {
+        // 🚀 DEEP ERROR LOGGING
+        console.group("🚨 [PRODUCT UPLOAD ERROR DETAILS]");
+        console.error("Error Name:", err.name);
+        console.error("Message:", err.message);
+        console.error("Stack Trace:", err.stack);
+        console.dir(err);
+        console.groupEnd();
+        
+        // Exact error screen par dikhayega (UI Toast)
+        showToast(`Upload Failed: ${err.message || 'Check Console for details'}`, "error");
+        
+        if (imgEl) imgEl.classList.add('hidden');
+        if (uploadText) uploadText.innerText = "Upload Media";
+    } finally {
+        if (imgEl) imgEl.style.opacity = '1';
+    }
 };
-
 // ========================================== 
 // 3. UNIVERSAL SAVE / UPDATE ENGINE (WITH LIMITS)
 // ========================================== 
@@ -286,18 +304,70 @@ window.handleSaveProduct = async (e) => {
     
     try {         
         if (productId) {             
-            // Update mode             
+            // Update mode in Firebase             
             await updateDoc(doc(db, "products", productId), productData);             
-            showToast("Item Updated & AI Synced! ✅", "success");         
         } else {             
-            // Create mode             
+            // Create mode in Firebase             
             productData.createdAt = serverTimestamp();             
             await addDoc(collection(db, "products"), productData);             
-            showToast("New Item Added. AI Trained! 🤖", "success");         
-        }                  
+        }
+
+        // ==========================================
+        // 🚀 ENTERPRISE META CATALOG SYNC (BATCH API)
+        // ==========================================
+        const metaCatalogId = state.sellerConfig?.metaCatalogId;
+        const metaToken = state.sellerConfig?.metaToken;
+        const currencyCode = state.sellerConfig?.currency || "INR";
+        const brandName = state.sellerConfig?.businessName || "Generic";
+
+        if (metaCatalogId && metaToken && productData.sku) {
+            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin text-sm"></i> Pushing to WhatsApp...`;
+            
+            // Meta takes price in minor units (e.g., 1000 for ₹10.00)
+            const metaPrice = Math.round(productData.price * 100); 
+
+            const metaPayload = {
+                requests: [
+                    {
+                        method: "UPDATE", // UPDATE method in Meta creates it if it doesn't exist (Upsert)
+                        retailer_id: productData.sku,
+                        data: {
+                            name: productData.name.substring(0, 150),
+                            description: productData.description.substring(0, 5000) || productData.name,
+                            availability: productData.inStock ? "in stock" : "out of stock",
+                            condition: "new",
+                            price: metaPrice,
+                            currency: currencyCode,
+                            image_url: productData.imageUrl || "https://placehold.co/400x400/f8fafc/94a3b8?text=No+Image",
+                            brand: brandName
+                        }
+                    }
+                ]
+            };
+
+            const metaRes = await fetch(`https://graph.facebook.com/v18.0/${metaCatalogId}/batch`, {
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${metaToken}`, 
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify(metaPayload)
+            });
+
+            const metaData = await metaRes.json();
+            if (metaData.error) {
+                console.error("Meta Sync Error:", metaData.error);
+                showToast("Saved to DB, but Meta Catalog sync failed.", "warning");
+            } else {
+                showToast("Item Saved & Meta Catalog Synced! ✅", "success");
+            }
+        } else {
+            showToast("Item Saved! (Meta Sync skipped - missing ID/Token)", "success");
+        }
+        // ==========================================
         
         // Redirect back to catalog list         
-        setTimeout(() => { window.location.hash = "#catalog"; }, 800);              
+        setTimeout(() => { window.location.hash = "#catalog"; }, 1200);              
     } catch(err) {          
         console.error("Firebase Save Error:", err);         
         showToast("Error saving to database", "error");      
@@ -306,8 +376,8 @@ window.handleSaveProduct = async (e) => {
             btn.innerHTML = ogHtml;              
             btn.disabled = false;          
         }     
-    } 
-}
+    }
+    }
 
 // ========================================== 
 // 4. IMAGE COMPRESSION ENGINE

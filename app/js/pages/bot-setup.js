@@ -339,44 +339,101 @@ async function saveBotSetup() {
         if (loader) loader.classList.add('hidden');
     }
 }
-// 📄 Real PDF Parser Trigger
+// 📄 Real PDF Parser Trigger (CLEAN & WORKING VERSION)
 async function handleKnowledgeUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
     
     const statusLabel = document.getElementById('pdf-status');
-    if(statusLabel) statusLabel.innerText = "Uploading file to Cloud Storage...";
+    if (statusLabel) {
+        statusLabel.innerText = "Starting upload process...";
+        statusLabel.style.color = "#3b82f6"; // Blue
+    }
     
     try {
-        // 1. Storage me upload karein
-        const res = await fetch(`${MEDIA_API}/get-presigned-url?filename=${encodeURIComponent(file.name)}&type=${encodeURIComponent(file.type)}`);
-        const { uploadUrl, publicUrl } = await res.json();
-        await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type }});
+        // =======================================================
+        // 🚀 STEP 1: Get Upload URL from Media Engine
+        // =======================================================
+        if (statusLabel) statusLabel.innerText = "Requesting secure URL...";
         
-        if(statusLabel) statusLabel.innerText = "📑 Extracting PDF structural text...";
-
-        // 2. Naye Knowledge Worker ko call karein text extract karne ke liye
-        const processRes = await fetch("https://knowledge-engine.chatkunhq.workers.dev/process-pdf", {
+        // FIX 1: Added '&bucket=product' to match the working image upload logic
+        const fetchUrl = `${MEDIA_API}/get-presigned-url?filename=${encodeURIComponent(file.name)}&type=${encodeURIComponent(file.type)}&bucket=product`;
+        const res1 = await fetch(fetchUrl);
+        
+        if (!res1.ok) {
+            const err1 = await res1.text();
+            throw new Error(`Media Engine API Error: ${err1}`);
+        }
+        
+        const { uploadUrl, publicUrl } = await res1.json();
+        
+        // =======================================================
+        // 🚀 STEP 2: Upload File to Bucket
+        // =======================================================
+        if (statusLabel) statusLabel.innerText = "Uploading file to secure storage...";
+        
+        // FIX 2: Removed 'headers: { Content-Type }' to prevent CORS Preflight block
+        const res2 = await fetch(uploadUrl, {
+            method: 'PUT',
+            body: file
+        });
+        
+        if (!res2.ok) {
+            const err2 = await res2.text();
+            throw new Error(`Storage Upload Failed: ${err2}`);
+        }
+        
+        // =======================================================
+        // 🚀 STEP 3: Call Knowledge Engine to Process PDF
+        // =======================================================
+        if (statusLabel) statusLabel.innerText = "📑 Extracting PDF structural text...";
+        
+        const res3 = await fetch("https://knowledge-engine.chatkunhq.workers.dev/process-pdf", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ sellerUid: state.workspaceId, targetUrl: publicUrl })
         });
         
-        const processResult = await processRes.json();
-
-        if(processResult.success) {
-            if(statusLabel) statusLabel.innerText = "✅ PDF Knowledge Synced: " + file.name;
-            showToast("PDF document read & fed into AI Brain! 🧠", "success");
-        } else {
-            throw new Error(processResult.error);
+        if (!res3.ok) {
+            const err3 = await res3.text();
+            throw new Error(`Knowledge Engine Error: ${err3}`);
         }
+        
+        const processResult = await res3.json();
+        
+        if (processResult.success) {
+            if (statusLabel) {
+                statusLabel.innerText = "✅ PDF Knowledge Synced: " + file.name;
+                statusLabel.style.color = "#10b981"; // Emerald Green
+            }
+            if (typeof showToast === 'function') {
+                showToast("PDF document read & fed into AI Brain! 🧠", "success");
+            }
+        } else {
+            throw new Error(processResult.error || "Unknown Error inside Knowledge Worker");
+        }
+        
     } catch (error) {
-        console.error(error);
-        if(statusLabel) statusLabel.innerText = "❌ PDF Extraction Failed";
-        showToast("Upload or extraction failed", "error");
+        console.error("🚨 PDF UPLOAD ERROR:", error);
+        
+        let exactErrorMessage = error.message || "Network or CORS issue (Failed to fetch)";
+        
+        // UI Label Update for Error
+        if (statusLabel) {
+            statusLabel.innerText = `❌ Failed: ${exactErrorMessage}`;
+            statusLabel.style.color = "#ef4444"; // Red
+        }
+        
+        // Toast Notification for Error
+        if (typeof showToast === 'function') {
+            const shortError = exactErrorMessage.length > 60 ? exactErrorMessage.substring(0, 60) + "..." : exactErrorMessage;
+            showToast(shortError, "error");
+        }
+    } finally {
+        // Reset file input so user can re-upload the same file if needed
+        event.target.value = '';
     }
 }
-
 // 🌐 Real Website Scraper Trigger
 async function scrapeWebsite() {
     const url = safeGetVal('ai_webUrl');
